@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language_definitions>
+  <language processor="xCORE" endian="little" size="32" variant="XS3" version="1.0"
+            slafile="xcore_xs3.sla" processorspec="xcore.pspec" id="xCORE:LE:32:XS3">
+    <description>XMOS xCORE XS3 (xcore.ai): XS2 ISA plus floating point and 256-bit vector unit</description>
+    <compiler name="default" spec="xcore.cspec" id="default"/>
+    <external_name tool="gnu" name="xcore"/>
+  </language>
+  <language processor="xCORE" endian="little" size="32" variant="XS2" version="1.0"
+            slafile="xcore_xs2.sla" processorspec="xcore.pspec" id="xCORE:LE:32:XS2">
+    <description>XMOS xCORE XS2 (xCORE-200): dual issue, double-word load/store, long arithmetic extensions</description>
+    <compiler name="default" spec="xcore.cspec" id="default"/>
+  </language>
+  <language processor="xCORE" endian="little" size="32" variant="XS1" version="1.0"
+            slafile="xcore_xs1.sla" processorspec="xcore.pspec" id="xCORE:LE:32:XS1">
+    <description>XMOS xCORE XS1 (original XCore architecture)</description>
+    <compiler name="default" spec="xcore.cspec" id="default"/>
+  </language>
+</language_definitions>

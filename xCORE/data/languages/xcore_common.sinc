@@ -1,0 +1,135 @@
+# XMOS xCORE common definitions (shared by XS1, XS2 and XS3 specifications).
+#
+# Instructions are a stream of 16-bit little-endian halfwords; 32-bit ("long") forms are
+# two halfwords where the halfword at the lower address is a prefix / operand word.
+
+define endian=little;
+define alignment=2;
+
+define space ram      type=ram_space      size=4 default;
+define space register type=register_space size=4;
+
+# Operand registers r0..r11 plus the four pointer registers that share the 4-bit encoding space.
+define register offset=0x00 size=4 [ r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 cp dp sp lr ];
+
+# Program counter, status register and kernel/exception state registers.
+define register offset=0x40 size=4 [ pc sr ed et kep ksp spc ssr sed dspc dssr dssp ];
+
+# XS3 vector unit: 256-bit vR/vD/vC, vector control (vSR) and headroom (vH) registers.
+define register offset=0x100 size=32 [ vR vD vC ];
+define register offset=0x180 size=4  [ vSR vH ];
+
+define register offset=0x200 size=4 [ contextreg ];
+
+# ---- resource / thread / event / channel operations -------------------------------------
+define pcodeop getr;
+define pcodeop freer;
+define pcodeop setc;
+define pcodeop setd;
+define pcodeop getd;
+define pcodeop getn;
+define pcodeop setn;
+define pcodeop getps;
+define pcodeop setps;
+define pcodeop setpsc;
+define pcodeop setpt;
+define pcodeop clrpt;
+define pcodeop setclk;
+define pcodeop setrdy;
+define pcodeop settw;
+define pcodeop getts;
+define pcodeop gettime;
+define pcodeop syncr;
+define pcodeop peek;
+define pcodeop endin;
+define pcodeop in;
+define pcodeop inshr;
+define pcodeop inpw;
+define pcodeop int;
+define pcodeop inct;
+define pcodeop out;
+define pcodeop outshr;
+define pcodeop outpw;
+define pcodeop outt;
+define pcodeop outct;
+define pcodeop chkct;
+define pcodeop testct;
+define pcodeop testwct;
+define pcodeop testlcl;
+define pcodeop getst;
+define pcodeop msync;
+define pcodeop mjoin;
+define pcodeop ssync;
+define pcodeop freet;
+define pcodeop tstart;
+define pcodeop tinitpc;
+define pcodeop tinitsp;
+define pcodeop tinitdp;
+define pcodeop tinitcp;
+define pcodeop tinitlr;
+define pcodeop tsetr;
+define pcodeop tsetmr;
+define pcodeop getid;
+define pcodeop clre;
+define pcodeop setv;
+define pcodeop setev;
+define pcodeop edu;
+define pcodeop eeu;
+define pcodeop eef;
+define pcodeop eet;
+define pcodeop waitevent;
+define pcodeop kcall;
+define pcodeop raise_exception;
+define pcodeop elate;
+define pcodeop dcall;
+define pcodeop dentsp_ramend;
+define pcodeop dgetreg;
+define pcodeop dvld;
+define pcodeop dvst;
+define pcodeop cache_flush;
+define pcodeop cache_invalidate;
+define pcodeop prefetch;
+# ---- arithmetic helpers ------------------------------------------------------------------
+define pcodeop crc32;
+define pcodeop crc8;
+define pcodeop crcn;
+define pcodeop zip;
+define pcodeop unzip;
+define pcodeop fsexp_exp;
+define pcodeop fmant;
+define pcodeop fspec;
+define pcodeop fmake;
+define pcodeop fenan;
+# ---- vector unit ---------------------------------------------------------------------------
+define pcodeop vzero;
+define pcodeop vheadroom;
+define pcodeop vsetc_headroom;
+define pcodeop vstrpv;
+define pcodeop vladd;
+define pcodeop vlsub;
+define pcodeop vlmul;
+define pcodeop vladsb_r;
+define pcodeop vladsb_d;
+define pcodeop vlashr;
+define pcodeop vlmacc_r;
+define pcodeop vlmacc_d;
+define pcodeop vlmaccr_r;
+define pcodeop vlmaccr_d;
+define pcodeop vlmaccr1_r;
+define pcodeop vlmaccr1_d;
+define pcodeop vlsat;
+define pcodeop vadddr_r;
+define pcodeop vadddr_d;
+define pcodeop vcmr;
+define pcodeop vcmi;
+define pcodeop vcmcr;
+define pcodeop vcmci;
+define pcodeop vdepth1;
+define pcodeop vdepth8;
+define pcodeop vdepth16;
+define pcodeop vftfb;
+define pcodeop vftff;
+define pcodeop vfttb;
+define pcodeop vfttf;
+define pcodeop vpos;
+define pcodeop vsign;

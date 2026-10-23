@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<processor_spec>
+  <programcounter register="pc"/>
+  <context_data>
+    <context_set space="ram">
+      <!-- dual = 1: dual-issue mode (XS2/XS3), pc-relative offsets scale by 4; set by DUALENTSP,
+           cleared by ENTSP. XS1 never uses it. -->
+      <set name="dual" val="0"/>
+    </context_set>
+  </context_data>
+  <register_data>
+    <register name="contextreg" hidden="true"/>
+    <register name="dspc" group="Debug"/>
+    <register name="dssr" group="Debug"/>
+    <register name="dssp" group="Debug"/>
+    <register name="vR" group="Vector"/>
+    <register name="vD" group="Vector"/>
+    <register name="vC" group="Vector"/>
+    <register name="vSR" group="Vector"/>
+    <register name="vH" group="Vector"/>
+  </register_data>
+</processor_spec>
