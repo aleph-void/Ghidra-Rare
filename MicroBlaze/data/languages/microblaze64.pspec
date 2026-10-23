@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<processor_spec>
+  <properties>
+    <property key="addressesDoNotAppearDirectlyInCode" value="true"/>
+  </properties>
+  <programcounter register="pc"/>
+  <register_data>
+    <register name="contextreg" hidden="true"/>
+    <register name="resv" hidden="true"/>
+  </register_data>
+  <default_symbols>
+    <symbol name="_reset_vector" address="ram:0x00" entry="true"/>
+    <symbol name="_user_vector" address="ram:0x08"/>
+    <symbol name="_interrupt_vector" address="ram:0x10"/>
+    <symbol name="_break_vector" address="ram:0x18"/>
+    <symbol name="_hw_exception_vector" address="ram:0x20"/>
+  </default_symbols>
+</processor_spec>

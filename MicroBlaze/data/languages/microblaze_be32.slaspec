@@ -1,0 +1,4 @@
+# MicroBlaze be32 (generated variant wrapper)
+@define ENDIAN "big"
+@define REGSIZE "4"
+@include "microblaze.sinc"

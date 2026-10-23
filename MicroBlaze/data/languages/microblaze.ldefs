@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<language_definitions>
+  <language processor="MicroBlaze"
+            endian="big"
+            size="32"
+            variant="default"
+            version="1.0"
+            slafile="microblaze_be32.sla"
+            processorspec="microblaze32.pspec"
+            id="MicroBlaze:BE:32:default">
+    <description>AMD/Xilinx MicroBlaze 32-bit (C_DATA_SIZE=32), big endian</description>
+    <compiler name="default" spec="microblaze32_be.cspec" id="default"/>
+    <external_name tool="gnu" name="microblaze"/>
+    <external_name tool="IDA-PRO" name="microblaze"/>
+  </language>
+  <language processor="MicroBlaze"
+            endian="little"
+            size="32"
+            variant="default"
+            version="1.0"
+            slafile="microblaze_le32.sla"
+            processorspec="microblaze32.pspec"
+            id="MicroBlaze:LE:32:default">
+    <description>AMD/Xilinx MicroBlaze 32-bit (C_DATA_SIZE=32), little endian</description>
+    <compiler name="default" spec="microblaze32_le.cspec" id="default"/>
+    <external_name tool="gnu" name="microblaze"/>
+    <external_name tool="IDA-PRO" name="microblaze"/>
+  </language>
+  <language processor="MicroBlaze"
+            endian="big"
+            size="64"
+            variant="default"
+            version="1.0"
+            slafile="microblaze_be64.sla"
+            processorspec="microblaze64.pspec"
+            id="MicroBlaze:BE:64:default">
+    <description>AMD/Xilinx MicroBlaze 64-bit (C_DATA_SIZE=64), big endian</description>
+    <compiler name="default" spec="microblaze64.cspec" id="default"/>
+    <external_name tool="gnu" name="microblaze:64"/>
+    <external_name tool="IDA-PRO" name="microblaze64"/>
+  </language>
+  <language processor="MicroBlaze"
+            endian="little"
+            size="64"
+            variant="default"
+            version="1.0"
+            slafile="microblaze_le64.sla"
+            processorspec="microblaze64.pspec"
+            id="MicroBlaze:LE:64:default">
+    <description>AMD/Xilinx MicroBlaze 64-bit (C_DATA_SIZE=64), little endian</description>
+    <compiler name="default" spec="microblaze64.cspec" id="default"/>
+    <external_name tool="gnu" name="microblaze:64"/>
+    <external_name tool="IDA-PRO" name="microblaze64"/>
+  </language>
+</language_definitions>

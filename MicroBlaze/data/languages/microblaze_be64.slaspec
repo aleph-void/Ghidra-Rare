@@ -1,0 +1,5 @@
+# MicroBlaze be64 (generated variant wrapper)
+@define ENDIAN "big"
+@define REGSIZE "8"
+@define MB64 "1"
+@include "microblaze.sinc"

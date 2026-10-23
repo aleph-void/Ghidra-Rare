@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- MicroBlaze ABI, UG984 chapter 4 "MicroBlaze Application Binary Interface":
+     r1 stack pointer, r2/r13 read-only/read-write small data anchors, r3-r4 return values,
+     r5-r10 arguments, r11-r12 temporaries, r14/r16/r17 interrupt/break/exception return
+     addresses, r15 subroutine return address (returns are rtsd r15, 8), r18 assembler
+     temporary, r19-r31 callee saved. The caller reserves a slot for the return address at
+     r1+0 and home slots for r5-r10 right above it, so stack arguments start after them. -->
+<compiler_spec>
+  <data_organization>
+    <absolute_max_alignment value="0" />
+    <machine_alignment value="4" />
+    <default_alignment value="1" />
+    <default_pointer_alignment value="4" />
+    <pointer_size value="4" />
+    <wchar_size value="4" />
+    <short_size value="2" />
+    <integer_size value="4" />
+    <long_size value="4" />
+    <long_long_size value="8" />
+    <float_size value="4" />
+    <double_size value="8" />
+    <long_double_size value="8" />
+    <size_alignment_map>
+      <entry size="1" alignment="1" />
+      <entry size="2" alignment="2" />
+      <entry size="4" alignment="4" />
+      <entry size="8" alignment="4" />
+    </size_alignment_map>
+  </data_organization>
+  <global>
+    <range space="ram"/>
+  </global>
+  <stackpointer register="r1" space="ram"/>
+  <returnaddress>
+    <register name="r15"/>
+  </returnaddress>
+  <default_proto>
+    <prototype name="__stdcall" extrapop="0" stackshift="0">
+      <input>
+        <pentry minsize="1" maxsize="4" extension="inttype"><register name="r5"/></pentry>
+        <pentry minsize="1" maxsize="4" extension="inttype"><register name="r6"/></pentry>
+        <pentry minsize="1" maxsize="4" extension="inttype"><register name="r7"/></pentry>
+        <pentry minsize="1" maxsize="4" extension="inttype"><register name="r8"/></pentry>
+        <pentry minsize="1" maxsize="4" extension="inttype"><register name="r9"/></pentry>
+        <pentry minsize="1" maxsize="4" extension="inttype"><register name="r10"/></pentry>
+        <pentry minsize="1" maxsize="500" align="4">
+          <addr offset="28" space="stack"/>
+        </pentry>
+      </input>
+      <output killedbycall="true">
+        <pentry minsize="1" maxsize="4" extension="inttype"><register name="r3"/></pentry>
+        <pentry minsize="5" maxsize="8"><addr space="join" piece1="r3" piece2="r4"/></pentry>
+      </output>
+      <unaffected>
+        <register name="r1"/>
+        <register name="r2"/>
+        <register name="r13"/>
+        <register name="r14"/>
+        <register name="r16"/>
+        <register name="r17"/>
+        <register name="r19"/>
+        <register name="r20"/>
+        <register name="r21"/>
+        <register name="r22"/>
+        <register name="r23"/>
+        <register name="r24"/>
+        <register name="r25"/>
+        <register name="r26"/>
+        <register name="r27"/>
+        <register name="r28"/>
+        <register name="r29"/>
+        <register name="r30"/>
+        <register name="r31"/>
+      </unaffected>
+      <killedbycall>
+        <register name="r4"/>
+        <register name="r11"/>
+        <register name="r12"/>
+        <register name="r15"/>
+        <register name="r18"/>
+        <register name="C"/>
+      </killedbycall>
+    </prototype>
+  </default_proto>
+</compiler_spec>

@@ -1,0 +1,215 @@
+# 64-bit MicroBlaze (C_DATA_SIZE = 64) instruction set extensions.
+# UG984 v2022.1, "MicroBlaze 64-bit Instructions". Included from microblaze.sinc when MB64 is defined.
+
+# Full-width register operands
+RAL: ra is ra { export ra; }
+RAL: "r0" is ra=0 { export 0:8; }
+RBL: rb is rb { export rb; }
+RBL: "r0" is rb=0 { export 0:8; }
+RDL: rd is rd { export rd; }
+RDL: "r0" is rd=0 { export 0:8; }
+
+################################################################
+# imml prefix: 24-bit immediate extension (one or two may precede a Type B instruction)
+################################################################
+
+:imml imm24 is op=0x2c & rdhi2=2 & immlcnt=0 & imm24
+	[ immlcnt = 1; immlb = imm24; globalset(inst_next, immlcnt); globalset(inst_next, immlb); ] { }
+:imml imm24 is op=0x2c & rdhi2=2 & immlcnt!=0 & imm24
+	[ immla = immlb; immlcnt = 2; immlb = imm24;
+	  globalset(inst_next, immlcnt); globalset(inst_next, immla); globalset(inst_next, immlb); ] { }
+
+################################################################
+# Long arithmetic, Type A
+################################################################
+
+:addl  rd, RAL, RBL   is op=0x00 & rd & RAL & RBL & low11=0x100 { local a = RAL; local b = RBL; C = carry(a, b); rd = a + b; }
+:addlc rd, RAL, RBL   is op=0x02 & rd & RAL & RBL & low11=0x100 {
+	local a = RAL; local b = RBL; local s = a + b; rd = s + zext(C); C = carry(a, b) || carry(s, zext(C));
+}
+:addlk rd, RAL, RBL   is op=0x04 & rd & RAL & RBL & low11=0x100 { rd = RAL + RBL; }
+:addlkc rd, RAL, RBL  is op=0x06 & rd & RAL & RBL & low11=0x100 { rd = RAL + RBL + zext(C); }
+:rsubl rd, RAL, RBL   is op=0x01 & rd & RAL & RBL & low11=0x100 { local a = RAL; local b = RBL; C = a <= b; rd = b - a; }
+:rsublc rd, RAL, RBL  is op=0x03 & rd & RAL & RBL & low11=0x100 {
+	local a = ~RAL; local b = RBL; local s = a + b; rd = s + zext(C); C = carry(a, b) || carry(s, zext(C));
+}
+:rsublk rd, RAL, RBL  is op=0x05 & rd & RAL & RBL & low11=0x100 { rd = RBL - RAL; }
+:rsublkc rd, RAL, RBL is op=0x07 & rd & RAL & RBL & low11=0x100 { rd = RBL + ~RAL + zext(C); }
+:cmpl  rd, RAL, RBL   is op=0x05 & rd & RAL & RBL & low11=0x101 {
+	local a = RAL; local b = RBL; local r = b - a;
+	rd = (r & 0x7fffffffffffffff) | (zext(b s< a) << 63);
+}
+:cmplu rd, RAL, RBL   is op=0x05 & rd & RAL & RBL & low11=0x103 {
+	local a = RAL; local b = RBL; local r = b - a;
+	rd = (r & 0x7fffffffffffffff) | (zext(b < a) << 63);
+}
+:mull  rd, RAL, RBL   is op=0x10 & rd & RAL & RBL & low11=0x100 { rd = RAL * RBL; }
+
+################################################################
+# Long arithmetic / logical, Type B preceded by imml (addli/addlik/... rD, rA, IMM)
+# objdump shows these with the 32-bit mnemonic; the imml prefix makes them 64-bit.
+################################################################
+
+:addi   rd, RA, SIMM  is op=0x08 & rd & RA & RAL & SIMM & SIMMX & immlcnt!=0 { local a = RAL; local b = SIMMX; C = carry(a, b); rd = a + b; }
+:rsubi  rd, RA, SIMM  is op=0x09 & rd & RA & RAL & SIMM & SIMMX & immlcnt!=0 { local a = RAL; local b = SIMMX; C = a <= b; rd = b - a; }
+:addic  rd, RA, SIMM  is op=0x0a & rd & RA & RAL & SIMM & SIMMX & immlcnt!=0 {
+	local a = RAL; local b = SIMMX; local s = a + b; rd = s + zext(C); C = carry(a, b) || carry(s, zext(C));
+}
+:rsubic rd, RA, SIMM  is op=0x0b & rd & RA & RAL & SIMM & SIMMX & immlcnt!=0 {
+	local a = ~RAL; local b = SIMMX; local s = a + b; rd = s + zext(C); C = carry(a, b) || carry(s, zext(C));
+}
+:addik  rd, RA, SIMM  is op=0x0c & rd & RA & RAL & SIMM & SIMMX & immlcnt!=0 { rd = RAL + SIMMX; }
+:rsubik rd, RA, SIMM  is op=0x0d & rd & RA & RAL & SIMM & SIMMX & immlcnt!=0 { rd = SIMMX - RAL; }
+:addikc rd, RA, SIMM  is op=0x0e & rd & RA & RAL & SIMM & SIMMX & immlcnt!=0 { rd = RAL + SIMMX + zext(C); }
+:rsubikc rd, RA, SIMM is op=0x0f & rd & RA & RAL & SIMM & SIMMX & immlcnt!=0 { rd = SIMMX + ~RAL + zext(C); }
+:ori   rd, RA, SIMM   is op=0x28 & rd & RA & RAL & SIMM & SIMMX & immlcnt!=0 { rd = RAL | SIMMX; }
+:andi  rd, RA, SIMM   is op=0x29 & rd & RA & RAL & SIMM & SIMMX & immlcnt!=0 { rd = RAL & SIMMX; }
+:xori  rd, RA, SIMM   is op=0x2a & rd & RA & RAL & SIMM & SIMMX & immlcnt!=0 { rd = RAL ^ SIMMX; }
+:andni rd, RA, SIMM   is op=0x2b & rd & RA & RAL & SIMM & SIMMX & immlcnt!=0 { rd = RAL & ~SIMMX; }
+
+################################################################
+# Two-operand long immediate arithmetic (opcode 0x1a): rD := rD op IMM
+################################################################
+
+:addli   rd, SIMM is op=0x1a & rd & RDL & ra=0x00 & SIMM & SIMMX { local a = RDL; local b = SIMMX; C = carry(a, b); rd = a + b; }
+:rsubli  rd, SIMM is op=0x1a & rd & RDL & ra=0x01 & SIMM & SIMMX { local a = RDL; local b = SIMMX; C = a <= b; rd = b - a; }
+:addlic  rd, SIMM is op=0x1a & rd & RDL & ra=0x02 & SIMM & SIMMX {
+	local a = RDL; local b = SIMMX; local s = a + b; rd = s + zext(C); C = carry(a, b) || carry(s, zext(C));
+}
+:rsublic rd, SIMM is op=0x1a & rd & RDL & ra=0x03 & SIMM & SIMMX {
+	local a = ~RDL; local b = SIMMX; local s = a + b; rd = s + zext(C); C = carry(a, b) || carry(s, zext(C));
+}
+:addlik  rd, SIMM is op=0x1a & rd & RDL & ra=0x04 & SIMM & SIMMX { rd = RDL + SIMMX; }
+:rsublik rd, SIMM is op=0x1a & rd & RDL & ra=0x05 & SIMM & SIMMX { rd = SIMMX - RDL; }
+:addlikc rd, SIMM is op=0x1a & rd & RDL & ra=0x06 & SIMM & SIMMX { rd = RDL + SIMMX + zext(C); }
+:rsublikc rd, SIMM is op=0x1a & rd & RDL & ra=0x07 & SIMM & SIMMX { rd = SIMMX + ~RDL + zext(C); }
+:orli    rd, SIMM is op=0x1a & rd & RDL & ra=0x10 & SIMM & SIMMX { rd = RDL | SIMMX; }
+:andli   rd, SIMM is op=0x1a & rd & RDL & ra=0x11 & SIMM & SIMMX { rd = RDL & SIMMX; }
+:xorli   rd, SIMM is op=0x1a & rd & RDL & ra=0x12 & SIMM & SIMMX { rd = RDL ^ SIMMX; }
+:andnli  rd, SIMM is op=0x1a & rd & RDL & ra=0x13 & SIMM & SIMMX { rd = RDL & ~SIMMX; }
+
+################################################################
+# Long barrel shifts and bit fields
+################################################################
+
+:bslrl rd, RAL, RB is op=0x11 & rd & RAL & RB & b0810=1 { rd = RAL >> zext(RB & 63); }
+:bslra rd, RAL, RB is op=0x11 & rd & RAL & RB & b0810=3 { rd = RAL s>> zext(RB & 63); }
+:bslll rd, RAL, RB is op=0x11 & rd & RAL & RB & b0810=5 { rd = RAL << zext(RB & 63); }
+:bslrli rd, RAL, imm6 is op=0x19 & rd & RAL & b1513=1 & b0910=0 & imm6 { rd = RAL >> imm6; }
+:bslrai rd, RAL, imm6 is op=0x19 & rd & RAL & b1513=1 & b0910=1 & imm6 { rd = RAL s>> imm6; }
+:bsllli rd, RAL, imm6 is op=0x19 & rd & RAL & b1513=1 & b0910=2 & imm6 { rd = RAL << imm6; }
+:bslefi rd, RAL, BFW, imm6 is op=0x19 & rd & RAL & b1513=3 & BFW & MSKLE & imm6 { rd = (RAL >> imm6) & MSKLE; }
+:bslifi rd, RAL, BFW, imm6 is op=0x19 & rd & RDL & RAL & b1513=5 & BFW & MSKLI & imm6
+	{ local d = RDL; rd = ((RAL << imm6) & MSKLI) | (d & ~MSKLI); }
+
+################################################################
+# Long logical and pattern compare
+################################################################
+
+:orl   rd, RAL, RBL is op=0x20 & rd & RAL & RBL & low11=0x100 { rd = RAL | RBL; }
+:andl  rd, RAL, RBL is op=0x21 & rd & RAL & RBL & low11=0x100 { rd = RAL & RBL; }
+:xorl  rd, RAL, RBL is op=0x22 & rd & RAL & RBL & low11=0x100 { rd = RAL ^ RBL; }
+:andnl rd, RAL, RBL is op=0x23 & rd & RAL & RBL & low11=0x100 { rd = RAL & ~RBL; }
+
+:pcmplbf rd, RAL, RBL is op=0x20 & rd & RAL & RBL & low11=0x500 {
+	local x = RAL ^ RBL; local r:8 = 0;
+	if ((x & 0x00000000000000ff) != 0) goto <b6>; r = 8;
+	<b6> if ((x & 0x000000000000ff00) != 0) goto <b5>; r = 7;
+	<b5> if ((x & 0x0000000000ff0000) != 0) goto <b4>; r = 6;
+	<b4> if ((x & 0x00000000ff000000) != 0) goto <b3>; r = 5;
+	<b3> if ((x & 0x000000ff00000000) != 0) goto <b2>; r = 4;
+	<b2> if ((x & 0x0000ff0000000000) != 0) goto <b1>; r = 3;
+	<b1> if ((x & 0x00ff000000000000) != 0) goto <b0>; r = 2;
+	<b0> if ((x & 0xff00000000000000) != 0) goto <done>; r = 1;
+	<done> rd = r;
+}
+:pcmpleq rd, RAL, RBL is op=0x22 & rd & RAL & RBL & low11=0x500 { rd = zext(RAL == RBL); }
+:pcmplne rd, RAL, RBL is op=0x23 & rd & RAL & RBL & low11=0x500 { rd = zext(RAL != RBL); }
+
+################################################################
+# Long shifts and sign extension
+################################################################
+
+:srla rd, RAL    is op=0x24 & rd & RAL & imm16=0x0101 { local a = RAL; C = (a & 1) != 0; rd = a s>> 1; }
+:srlc rd, RAL    is op=0x24 & rd & RAL & imm16=0x0121 { local a = RAL; local c = C; C = (a & 1) != 0; rd = (a >> 1) | (zext(c) << 63); }
+:srll rd, RAL    is op=0x24 & rd & RAL & imm16=0x0141 { local a = RAL; C = (a & 1) != 0; rd = a >> 1; }
+:sextl8 rd, RAL  is op=0x24 & rd & RAL & imm16=0x0160 { local a = RAL; rd = sext(a:1); }
+:sextl16 rd, RAL is op=0x24 & rd & RAL & imm16=0x0161 { local a = RAL; rd = sext(a:2); }
+:sextl32 rd, RAL is op=0x24 & rd & RAL & imm16=0x0162 { local a = RAL; rd = sext(a:4); }
+
+################################################################
+# Extended address branches
+################################################################
+
+:brea RB     is op=0x26 & rd=0 & ra=0x01 & RB & RBL & low11=0 { local t = inst_start + RBL; goto [t]; }
+:bread RB    is op=0x26 & rd=0 & ra=0x11 & RB & RBL & low11=0 { local t = inst_start + RBL; delayslot(1); goto [t]; }
+:breald rd, RB is op=0x26 & rd & ra=0x15 & RB & RBL & low11=0 { local t = inst_start + RBL; rd = inst_start; delayslot(1); call [t]; }
+
+:breai REL     is op=0x2e & rd=0 & ra=0x01 & REL { goto REL; }
+:breaid REL    is op=0x2e & rd=0 & ra=0x11 & REL { delayslot(1); goto REL; }
+:brealid rd, REL is op=0x2e & rd & ra=0x15 & REL { rd = inst_start; delayslot(1); call REL; }
+
+# Long (64-bit) comparison of rA
+CCL: "eq" is cond=0 & RAL { local c:1 = RAL == 0;  export c; }
+CCL: "ne" is cond=1 & RAL { local c:1 = RAL != 0;  export c; }
+CCL: "lt" is cond=2 & RAL { local c:1 = RAL s< 0;  export c; }
+CCL: "le" is cond=3 & RAL { local c:1 = RAL s<= 0; export c; }
+CCL: "gt" is cond=4 & RAL { local c:1 = RAL s> 0;  export c; }
+CCL: "ge" is cond=5 & RAL { local c:1 = RAL s>= 0; export c; }
+
+:bea^CC RA, RB      is op=0x27 & rdhi1=0 & rdea=1 & CC & RA & RB & RBL & low11=0 {
+	local t = inst_start + RBL; if (!CC) goto inst_next; goto [t];
+}
+:bea^CC^"d" RA, RB  is op=0x27 & rdhi1=1 & rdea=1 & CC & RA & RB & RBL & low11=0 {
+	local c = CC; local t = inst_start + RBL; delayslot(1); if (!c) goto <skip>; goto [t]; <skip>
+}
+:beal^CCL RA, RB     is op=0x27 & rdhi1=0 & rdea=1 & CCL & RA & RB & RBL & low11=0x100 {
+	local t = inst_start + RBL; if (!CCL) goto inst_next; goto [t];
+}
+:beal^CCL^"d" RA, RB is op=0x27 & rdhi1=1 & rdea=1 & CCL & RA & RB & RBL & low11=0x100 {
+	local c = CCL; local t = inst_start + RBL; delayslot(1); if (!c) goto <skip>; goto [t]; <skip>
+}
+
+# beaXXi: 32-bit comparison, or 64-bit when preceded by imml (the bealXXi assembler forms)
+:bea^CC^"i" RA, REL   is op=0x2f & rdhi1=0 & rdea=1 & CC & RA & REL { if (CC) goto REL; }
+:bea^CC^"id" RA, REL  is op=0x2f & rdhi1=1 & rdea=1 & CC & RA & REL { local c = CC; delayslot(1); if (c) goto REL; }
+:bea^CCL^"i" RA, REL  is op=0x2f & rdhi1=0 & rdea=1 & CCL & RA & REL & immlcnt!=0 { if (CCL) goto REL; }
+:bea^CCL^"id" RA, REL is op=0x2f & rdhi1=1 & rdea=1 & CCL & RA & REL & immlcnt!=0 { local c = CCL; delayslot(1); if (c) goto REL; }
+
+################################################################
+# Long loads and stores
+################################################################
+
+:ll  rd, RA, RB  is op=0x32 & rd & RA & RB & RAL & RBL & low11=0x100 { local a = RAL + RBL; rd = *:8 a; }
+:llr rd, RA, RB  is op=0x32 & rd & RA & RB & RAL & RBL & low11=0x300 {
+	local a = RAL + RBL; local v:8 = *:8 a;
+	rd = (v << 56) | ((v & 0xff00) << 40) | ((v & 0xff0000) << 24) | ((v & 0xff000000) << 8) |
+	     ((v >> 8) & 0xff000000) | ((v >> 24) & 0xff0000) | ((v >> 40) & 0xff00) | (v >> 56);
+}
+:sl  rd, RA, RB  is op=0x36 & rd & RDL & RA & RB & RAL & RBL & low11=0x100 { local a = RAL + RBL; *:8 a = RDL; }
+:slr rd, RA, RB  is op=0x36 & rd & RDL & RA & RB & RAL & RBL & low11=0x300 {
+	local a = RAL + RBL; local v:8 = RDL;
+	*:8 a = (v << 56) | ((v & 0xff00) << 40) | ((v & 0xff0000) << 24) | ((v & 0xff000000) << 8) |
+	        ((v >> 8) & 0xff000000) | ((v >> 24) & 0xff0000) | ((v >> 40) & 0xff00) | (v >> 56);
+}
+:lli rd, RA, SIMM is op=0x3b & rd & RA & RAL & SIMM & SIMMX { local a = RAL + SIMMX; rd = *:8 a; }
+:sli rd, RA, SIMM is op=0x3f & rd & RDL & RA & RAL & SIMM & SIMMX { local a = RAL + SIMMX; *:8 a = RDL; }
+
+################################################################
+# Double precision FPU
+################################################################
+
+:dadd  rd, RAL, RBL is op=0x16 & rd & RAL & RBL & low11=0x400 { rd = RBL f+ RAL; }
+:drsub rd, RAL, RBL is op=0x16 & rd & RAL & RBL & low11=0x480 { rd = RBL f- RAL; }
+:dmul  rd, RAL, RBL is op=0x16 & rd & RAL & RBL & low11=0x500 { rd = RBL f* RAL; }
+:ddiv  rd, RAL, RBL is op=0x16 & rd & RAL & RBL & low11=0x580 { rd = RBL f/ RAL; }
+:dcmp.un rd, RAL, RBL is op=0x16 & rd & RAL & RBL & low11=0x600 { rd = zext(nan(RAL) || nan(RBL)); }
+:dcmp.lt rd, RAL, RBL is op=0x16 & rd & RAL & RBL & low11=0x610 { rd = zext(RBL f< RAL); }
+:dcmp.eq rd, RAL, RBL is op=0x16 & rd & RAL & RBL & low11=0x620 { rd = zext(RBL f== RAL); }
+:dcmp.le rd, RAL, RBL is op=0x16 & rd & RAL & RBL & low11=0x630 { rd = zext(RBL f<= RAL); }
+:dcmp.gt rd, RAL, RBL is op=0x16 & rd & RAL & RBL & low11=0x640 { rd = zext(RBL f> RAL); }
+:dcmp.ne rd, RAL, RBL is op=0x16 & rd & RAL & RBL & low11=0x650 { rd = zext(RBL f!= RAL); }
+:dcmp.ge rd, RAL, RBL is op=0x16 & rd & RAL & RBL & low11=0x660 { rd = zext(RBL f>= RAL); }
+:dbl   rd, RAL is op=0x16 & rd & RAL & low11=0x680 { rd = int2float(RAL); }
+:dlong rd, RAL is op=0x16 & rd & RAL & low11=0x700 { rd = trunc(RAL); }
+:dsqrt rd, RAL is op=0x16 & rd & RAL & low11=0x780 { rd = sqrt(RAL); }

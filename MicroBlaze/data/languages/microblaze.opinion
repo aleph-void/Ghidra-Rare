@@ -1,0 +1,11 @@
+<opinions>
+    <!-- EM_MICROBLAZE = 189 (0xbd); 0xbaab is the old unofficial MicroBlaze e_machine value -->
+    <constraint loader="Executable and Linking Format (ELF)" compilerSpecID="default">
+        <constraint primary="189"   processor="MicroBlaze" endian="big"    size="32" variant="default"/>
+        <constraint primary="189"   processor="MicroBlaze" endian="little" size="32" variant="default"/>
+        <constraint primary="189"   processor="MicroBlaze" endian="big"    size="64" variant="default"/>
+        <constraint primary="189"   processor="MicroBlaze" endian="little" size="64" variant="default"/>
+        <constraint primary="47787" processor="MicroBlaze" endian="big"    size="32" variant="default"/>
+        <constraint primary="47787" processor="MicroBlaze" endian="little" size="32" variant="default"/>
+    </constraint>
+</opinions>

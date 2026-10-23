@@ -1,0 +1,606 @@
+# AMD/Xilinx MicroBlaze -- common SLEIGH definitions
+#
+# Written from AMD UG984 "MicroBlaze Processor Reference Guide" (v2022.1).
+# The including .slaspec defines:
+#   ENDIAN   big | little
+#   REGSIZE  4 (32-bit MicroBlaze, C_DATA_SIZE=32) or 8 (64-bit MicroBlaze, C_DATA_SIZE=64)
+#   MB64     defined only for the 64-bit variants
+#
+# Bit numbering below is the usual LSB=0 numbering (UG984 uses MSB=0).
+# Mnemonics, operand order and register names follow GNU objdump.
+
+define endian=$(ENDIAN);
+define alignment=4;
+
+define space ram      type=ram_space      size=$(REGSIZE) default;
+define space register type=register_space size=4;
+
+# General purpose registers
+define register offset=0x0000 size=$(REGSIZE) [
+	r0  r1  r2  r3  r4  r5  r6  r7  r8  r9  r10 r11 r12 r13 r14 r15
+	r16 r17 r18 r19 r20 r21 r22 r23 r24 r25 r26 r27 r28 r29 r30 r31 ];
+
+# Program counter and special purpose registers (names as printed by objdump)
+define register offset=0x0200 size=$(REGSIZE) [
+	pc rmsr rear resr rfsr rbtr redr rpid rzpr rtlbx rtlblo rtlbhi rtlbsx rshr rslr ];
+
+# MSR[C] (carry) is kept in its own register so that the decompiler can track it;
+# mfs/mts/msrset/msrclr merge it into / split it out of rmsr.
+# resv is the lwx/swx reservation bit.
+define register offset=0x0400 size=1 [ C resv ];
+
+# Context: carries the value of an imm / imml prefix to the following instruction.
+#   immflag  preceding instruction was "imm"   (immhi = its 16-bit value)
+#   immlcnt  number of preceding "imml" prefixes (immla, immlb = their 24-bit values)
+define register offset=0x0800 size=16 [ contextreg ];
+define context contextreg
+	immflag = (0,0) noflow
+	immlcnt = (1,2) noflow
+	immhi   = (8,23) noflow
+	immla   = (32,55) noflow
+	immlb   = (64,87) noflow
+;
+
+define token instr(32)
+	op      = (26,31)
+	rd      = (21,25)
+	rdn     = (21,25) dec
+	rdhi2   = (24,25)
+	rdhi1   = (25,25)
+	rdea    = (24,24)
+	cond    = (21,23)
+	ra      = (16,20)
+	ra_b1   = (17,17)
+	rb      = (11,15)
+	imm16   = (0,15)
+	simm16  = (0,15) signed dec
+	imm15   = (0,14) dec
+	imm24   = (0,23) dec
+	spr14   = (0,13)
+	pvrsel  = (13,13)
+	pvrn    = (0,12) dec
+	b15     = (15,15)
+	b1513   = (13,15)
+	b1511   = (11,15)
+	b1514   = (14,15)
+	b1312   = (12,13)
+	b13     = (13,13)
+	b1004   = (4,10)
+	low11   = (0,10)
+	low8    = (0,7)
+	b10     = (10,10)
+	b09     = (9,9)
+	b08     = (8,8)
+	b0910   = (9,10)
+	b0810   = (8,10)
+	b0508   = (5,8)
+	b05     = (5,5)
+	b02     = (2,2)
+	sflags  = (10,15)
+	dflags  = (5,10)
+	fslnum  = (0,3) dec
+	fslreg  = (0,3)
+	pvrlo   = (0,3)
+	pvrmid  = (4,12)
+	imm5    = (0,4) dec
+	imm6    = (0,5) dec
+	immw5   = (6,10)
+	immw6   = (6,11)
+;
+
+attach variables [ rd ra rb ] [
+	r0  r1  r2  r3  r4  r5  r6  r7  r8  r9  r10 r11 r12 r13 r14 r15
+	r16 r17 r18 r19 r20 r21 r22 r23 r24 r25 r26 r27 r28 r29 r30 r31 ];
+
+attach names [ fslreg ] [ rfsl0 rfsl1 rfsl2 rfsl3 rfsl4 rfsl5 rfsl6 rfsl7
+	rfsl8 rfsl9 rfsl10 rfsl11 rfsl12 rfsl13 rfsl14 rfsl15 ];
+attach names [ pvrlo ] [ rpvr0 rpvr1 rpvr2 rpvr3 rpvr4 rpvr5 rpvr6 rpvr7
+	rpvr8 rpvr9 rpvr10 rpvr11 rpvr12 rpvr13 rpvr14 rpvr15 ];
+
+define pcodeop fslGet;
+define pcodeop fslPut;
+define pcodeop fslStatus;
+define pcodeop readPVR;
+define pcodeop readSPRHigh;
+define pcodeop writeSPRHigh;
+define pcodeop writeTLB;
+define pcodeop memoryBarrier;
+define pcodeop sleep;
+define pcodeop hibernate;
+define pcodeop suspend;
+define pcodeop icacheInvalidate;
+define pcodeop dcacheInvalidate;
+define pcodeop dcacheFlush;
+define pcodeop dcacheClear;
+define pcodeop dcacheExtFlush;
+define pcodeop dcacheExtClear;
+define pcodeop dcacheClearEA;
+define pcodeop extLoad8;
+define pcodeop extLoad16;
+define pcodeop extLoad32;
+define pcodeop extStore8;
+define pcodeop extStore16;
+define pcodeop extStore32;
+define pcodeop patternCompareByteCount;
+define pcodeop countLeadingZeros;
+define pcodeop softwareBreak;
+
+################################################################
+# Operand sub-tables
+################################################################
+
+# RA/RB: 32-bit view of a source register (r0 reads as 0)
+# RAX/RBX: full-width source (addresses, absolute branch targets)
+@ifdef MB64
+RA: ra is ra { local t:4 = ra:4; export t; }
+RA: "r0" is ra=0 { export 0:4; }
+RB: rb is rb { local t:4 = rb:4; export t; }
+RB: "r0" is rb=0 { export 0:4; }
+RAX: ra is ra { export ra; }
+RAX: "r0" is ra=0 { export 0:8; }
+RBX: rb is rb { export rb; }
+RBX: "r0" is rb=0 { export 0:8; }
+RDV: rd is rd { local t:4 = rd:4; export t; }
+RDV: "r0" is rd=0 { export 0:4; }
+# sign-extended 32-bit register used as a PC-relative offset
+RBO: rb is rb { local t:8 = sext(rb:4); export t; }
+RBO: "r0" is rb=0 { export 0:8; }
+macro W32(dst, v) { dst = zext(v); }
+@else
+RA: ra is ra { export ra; }
+RA: "r0" is ra=0 { export 0:4; }
+RB: rb is rb { export rb; }
+RB: "r0" is rb=0 { export 0:4; }
+RAX: ra is ra { export ra; }
+RAX: "r0" is ra=0 { export 0:4; }
+RBX: rb is rb { export rb; }
+RBX: "r0" is rb=0 { export 0:4; }
+RDV: rd is rd { export rd; }
+RDV: "r0" is rd=0 { export 0:4; }
+RBO: rb is rb { export rb; }
+RBO: "r0" is rb=0 { export 0:4; }
+macro W32(dst, v) { dst = v; }
+@endif
+
+# Port number of the dynamic FSL instructions (rB[28:31])
+RBP: rb is rb { local t:1 = rb:1 & 0xf; export t; }
+
+# Type B immediate. The displayed text is the instruction's own 16-bit field (as objdump
+# prints it); the exported value includes a preceding imm (32-bit) or imml (40/64-bit) prefix.
+# SIMM is the 32-bit value, SIMMX the register-width value.
+# (The value sub-tables V32/VX compute the value; they are never displayed themselves.)
+V32: val is immflag=0 & immlcnt=0 & simm16 [ val = simm16 + 0; ] { export *[const]:4 val; }
+V32: val is immflag=1 & immlcnt=0 & immhi & imm16 [ val = (((immhi << 16) | imm16) ^ 0x80000000) - 0x80000000; ] { export *[const]:4 val; }
+@ifdef MB64
+V32: val is immlcnt!=0 & immlb & imm16 [ val = (((immlb << 16) | imm16) ^ 0x80000000) - 0x80000000; ] { export *[const]:4 val; }
+VX: val is immflag=0 & immlcnt=0 & simm16 [ val = simm16 + 0; ] { export *[const]:8 val; }
+VX: val is immflag=1 & immlcnt=0 & immhi & imm16 [ val = (((immhi << 16) | imm16) ^ 0x80000000) - 0x80000000; ] { export *[const]:8 val; }
+VX: val is immlcnt=1 & immlb & imm16 [ val = (((immlb << 16) | imm16) ^ 0x8000000000) - 0x8000000000; ] { export *[const]:8 val; }
+VX: val is immlcnt=2 & immla & immlb & imm16 [ val = (immla << 40) | (immlb << 16) | imm16; ] { export *[const]:8 val; }
+SIMMX: simm16 is simm16 & VX { export VX; }
+@else
+SIMMX: simm16 is simm16 & V32 { export V32; }
+@endif
+SIMM: simm16 is simm16 & V32 { export V32; }
+
+# PC-relative and absolute branch targets (displayed as addresses)
+@ifdef MB64
+REL: reloc is immflag=0 & immlcnt=0 & simm16 [ reloc = inst_start + simm16; ] { export *:8 reloc; }
+REL: reloc is immflag=1 & immlcnt=0 & immhi & imm16
+	[ reloc = inst_start + ((((immhi << 16) | imm16) ^ 0x80000000) - 0x80000000); ] { export *:8 reloc; }
+REL: reloc is immlcnt=1 & immlb & imm16
+	[ reloc = inst_start + ((((immlb << 16) | imm16) ^ 0x8000000000) - 0x8000000000); ] { export *:8 reloc; }
+REL: reloc is immlcnt=2 & immla & immlb & imm16
+	[ reloc = inst_start + ((immla << 40) | (immlb << 16) | imm16); ] { export *:8 reloc; }
+ABS: reloc is immflag=0 & immlcnt=0 & simm16 [ reloc = simm16 + 0; ] { export *:8 reloc; }
+ABS: reloc is immflag=1 & immlcnt=0 & immhi & imm16
+	[ reloc = (((immhi << 16) | imm16) ^ 0x80000000) - 0x80000000; ] { export *:8 reloc; }
+ABS: reloc is immlcnt=1 & immlb & imm16
+	[ reloc = (((immlb << 16) | imm16) ^ 0x8000000000) - 0x8000000000; ] { export *:8 reloc; }
+ABS: reloc is immlcnt=2 & immla & immlb & imm16
+	[ reloc = (immla << 40) | (immlb << 16) | imm16; ] { export *:8 reloc; }
+@else
+REL: reloc is immflag=0 & simm16 [ reloc = (inst_start + simm16) & 0xffffffff; ] { export *:4 reloc; }
+REL: reloc is immflag=1 & immhi & imm16 [ reloc = (inst_start + ((immhi << 16) | imm16)) & 0xffffffff; ] { export *:4 reloc; }
+ABS: reloc is immflag=0 & simm16 [ reloc = simm16 & 0xffffffff; ] { export *:4 reloc; }
+ABS: reloc is immflag=1 & immhi & imm16 [ reloc = ((immhi << 16) | imm16); ] { export *:4 reloc; }
+@endif
+
+# Special purpose registers for mfs (and mts/mfse/mtse, which use the same low 14 bits).
+# Unknown numbers display as "rpc", as objdump does. MSR is handled separately (carry merge).
+SPR: "rpc"   is spr14       { export *[const]:$(REGSIZE) inst_start; }
+SPR: "rear"  is spr14=0x0003 { export rear; }
+SPR: "resr"  is spr14=0x0005 { export resr; }
+SPR: "rfsr"  is spr14=0x0007 { export rfsr; }
+SPR: "rbtr"  is spr14=0x000b { export rbtr; }
+SPR: "redr"  is spr14=0x000d { export redr; }
+SPR: "rslr"  is spr14=0x0800 { export rslr; }
+SPR: "rshr"  is spr14=0x0802 { export rshr; }
+SPR: "rpid"  is spr14=0x1000 { export rpid; }
+SPR: "rzpr"  is spr14=0x1001 { export rzpr; }
+SPR: "rtlbx" is spr14=0x1002 { export rtlbx; }
+SPR: "rtlblo" is spr14=0x1003 { export rtlblo; }
+SPR: "rtlbhi" is spr14=0x1004 { export rtlbhi; }
+SPR: "rtlbsx" is spr14=0x1005 { export rtlbsx; }
+SPR: "rpvr"^pvrn is pvrsel=1 & pvrn { local v:$(REGSIZE) = readPVR(pvrn:2); export v; }
+SPR: pvrlo is pvrsel=1 & pvrmid=0 & pvrlo & pvrn { local v:$(REGSIZE) = readPVR(pvrn:2); export v; }
+
+# Same names, used where only the name is needed (mfse/mtse)
+SPRN: "rpc"   is spr14        { export 0:2; }
+SPRN: "rmsr"  is spr14=0x0001 { export 0x0001:2; }
+SPRN: "rear"  is spr14=0x0003 { export 0x0003:2; }
+SPRN: "resr"  is spr14=0x0005 { export 0x0005:2; }
+SPRN: "rfsr"  is spr14=0x0007 { export 0x0007:2; }
+SPRN: "rbtr"  is spr14=0x000b { export 0x000b:2; }
+SPRN: "redr"  is spr14=0x000d { export 0x000d:2; }
+SPRN: "rslr"  is spr14=0x0800 { export 0x0800:2; }
+SPRN: "rshr"  is spr14=0x0802 { export 0x0802:2; }
+SPRN: "rpid"  is spr14=0x1000 { export 0x1000:2; }
+SPRN: "rzpr"  is spr14=0x1001 { export 0x1001:2; }
+SPRN: "rtlbx" is spr14=0x1002 { export 0x1002:2; }
+SPRN: "rtlblo" is spr14=0x1003 { export 0x1003:2; }
+SPRN: "rtlbhi" is spr14=0x1004 { export 0x1004:2; }
+SPRN: "rtlbsx" is spr14=0x1005 { export 0x1005:2; }
+SPRN: "rpvr"^pvrn is pvrsel=1 & pvrn { local v:2 = 0x2000 + pvrn; export v; }
+SPRN: pvrlo is pvrsel=1 & pvrmid=0 & pvrlo & pvrn { local v:2 = 0x2000 + pvrn; export v; }
+
+################################################################
+# Helpers
+################################################################
+
+@ifdef MB64
+@define MSBIT "63"
+@else
+@define MSBIT "31"
+@endif
+
+# MSR with the carry merged into bit 29 (C) and the MSB (CC, carry copy)
+macro readMSR(v) {
+	v = (rmsr & ~(4 | (1 << $(MSBIT)))) | (zext(C) << 2) | (zext(C) << $(MSBIT));
+}
+macro writeMSR(v) {
+	rmsr = v;
+	C = ((v >> 2) & 1) != 0;
+}
+
+# 32-bit add with carry-in; sets carry flag when K=0
+macro add32c(res, a, b, cin) {
+	local s = a + b;
+	res = s + zext(cin);
+	C = carry(a, b) || carry(s, zext(cin));
+}
+
+################################################################
+# Arithmetic (Type A)
+################################################################
+
+:add  rd, RA, RB   is op=0x00 & rd & RA & RB & low11=0 { local a = RA; local b = RB; C = carry(a, b); W32(rd, a + b); }
+:addc rd, RA, RB   is op=0x02 & rd & RA & RB & low11=0 { local r:4; add32c(r, RA, RB, C); W32(rd, r); }
+:addk rd, RA, RB   is op=0x04 & rd & RA & RB & low11=0 { W32(rd, RA + RB); }
+:addkc rd, RA, RB  is op=0x06 & rd & RA & RB & low11=0 { W32(rd, RA + RB + zext(C)); }
+:rsub rd, RA, RB   is op=0x01 & rd & RA & RB & low11=0 { local a = RA; local b = RB; C = a <= b; W32(rd, b - a); }
+:rsubc rd, RA, RB  is op=0x03 & rd & RA & RB & low11=0 { local r:4; add32c(r, RB, ~RA, C); W32(rd, r); }
+:rsubk rd, RA, RB  is op=0x05 & rd & RA & RB & low11=0 { W32(rd, RB - RA); }
+:rsubkc rd, RA, RB is op=0x07 & rd & RA & RB & low11=0 { W32(rd, RB + ~RA + zext(C)); }
+:cmp  rd, RA, RB   is op=0x05 & rd & RA & RB & low11=1 {
+	local a = RA; local b = RB; local r = b - a;
+	r = (r & 0x7fffffff) | (zext(b s< a) << 31); W32(rd, r);
+}
+:cmpu rd, RA, RB   is op=0x05 & rd & RA & RB & low11=3 {
+	local a = RA; local b = RB; local r = b - a;
+	r = (r & 0x7fffffff) | (zext(b < a) << 31); W32(rd, r);
+}
+
+# objdump decodes any other opcode-1 word as the "neg" alias (rsub rD, rA, r0).
+@ifdef MB64
+:neg rd, RA        is op=0x01 & rd & RA & low11!=0 & low11!=0x100 { local a = RA; C = a == 0; W32(rd, 0 - a); }
+@else
+:neg rd, RA        is op=0x01 & rd & RA & low11!=0 { local a = RA; C = a == 0; W32(rd, 0 - a); }
+@endif
+
+################################################################
+# Arithmetic (Type B)
+################################################################
+
+:addi   rd, RA, SIMM  is op=0x08 & rd & RA & SIMM { local a = RA; local b = SIMM; C = carry(a, b); W32(rd, a + b); }
+:rsubi  rd, RA, SIMM  is op=0x09 & rd & RA & SIMM { local a = RA; local b = SIMM; C = a <= b; W32(rd, b - a); }
+:addic  rd, RA, SIMM  is op=0x0a & rd & RA & SIMM { local r:4; add32c(r, RA, SIMM, C); W32(rd, r); }
+:rsubic rd, RA, SIMM  is op=0x0b & rd & RA & SIMM { local r:4; add32c(r, SIMM, ~RA, C); W32(rd, r); }
+:addik  rd, RA, SIMM  is op=0x0c & rd & RA & SIMM { W32(rd, RA + SIMM); }
+:rsubik rd, RA, SIMM  is op=0x0d & rd & RA & SIMM { W32(rd, SIMM - RA); }
+:addikc rd, RA, SIMM  is op=0x0e & rd & RA & SIMM { W32(rd, RA + SIMM + zext(C)); }
+:rsubikc rd, RA, SIMM is op=0x0f & rd & RA & SIMM { W32(rd, SIMM + ~RA + zext(C)); }
+
+################################################################
+# Multiply / divide
+################################################################
+
+:mul    rd, RA, RB is op=0x10 & rd & RA & RB & low11=0 { W32(rd, RA * RB); }
+:mulh   rd, RA, RB is op=0x10 & rd & RA & RB & low11=1 { local p:8 = sext(RA) * sext(RB); local h:4 = p(4); W32(rd, h); }
+:mulhsu rd, RA, RB is op=0x10 & rd & RA & RB & low11=2 { local p:8 = sext(RA) * zext(RB); local h:4 = p(4); W32(rd, h); }
+:mulhu  rd, RA, RB is op=0x10 & rd & RA & RB & low11=3 { local p:8 = zext(RA) * zext(RB); local h:4 = p(4); W32(rd, h); }
+:muli   rd, RA, SIMM is op=0x18 & rd & RA & SIMM { W32(rd, RA * SIMM); }
+
+# rD := rB / rA ; division by zero gives 0 (and sets ESR/MSR[DZO] in hardware)
+:idiv  rd, RA, RB is op=0x12 & rd & RA & RB & low11=0 {
+	local a = RA; local b = RB; local r:4 = 0;
+	if (a == 0) goto <z>; r = b s/ a; <z> W32(rd, r);
+}
+:idivu rd, RA, RB is op=0x12 & rd & RA & RB & low11=2 {
+	local a = RA; local b = RB; local r:4 = 0;
+	if (a == 0) goto <z>; r = b / a; <z> W32(rd, r);
+}
+
+################################################################
+# Barrel shifter
+################################################################
+
+@ifdef MB64
+:bsrl rd, RA, RB is op=0x11 & rd & RA & RB & b0810=0 { W32(rd, RA >> (RB & 31)); }
+:bsra rd, RA, RB is op=0x11 & rd & RA & RB & b0810=2 { W32(rd, RA s>> (RB & 31)); }
+:bsll rd, RA, RB is op=0x11 & rd & RA & RB & b0810=4 { W32(rd, RA << (RB & 31)); }
+:bsrli rd, RA, imm6 is op=0x19 & rd & RA & b1513=0 & b0910=0 & imm6 { W32(rd, RA >> (imm6 & 31)); }
+:bsrai rd, RA, imm6 is op=0x19 & rd & RA & b1513=0 & b0910=1 & imm6 { W32(rd, RA s>> (imm6 & 31)); }
+:bslli rd, RA, imm6 is op=0x19 & rd & RA & b1513=0 & b0910=2 & imm6 { W32(rd, RA << (imm6 & 31)); }
+@else
+:bsrl rd, RA, RB is op=0x11 & rd & RA & RB & b0910=0 { rd = RA >> (RB & 31); }
+:bsra rd, RA, RB is op=0x11 & rd & RA & RB & b0910=1 { rd = RA s>> (RB & 31); }
+:bsll rd, RA, RB is op=0x11 & rd & RA & RB & b0910=2 { rd = RA << (RB & 31); }
+:bsrli rd, RA, imm5 is op=0x19 & rd & RA & b1511=0 & b0508=0 & b0910=0 & imm5 { rd = RA >> imm5; }
+:bsrai rd, RA, imm5 is op=0x19 & rd & RA & b1511=0 & b0508=0 & b0910=1 & imm5 { rd = RA s>> imm5; }
+:bslli rd, RA, imm5 is op=0x19 & rd & RA & b1511=0 & b0508=0 & b0910=2 & imm5 { rd = RA << imm5; }
+@endif
+
+# Bit field extract / insert. bsifi displays the field width (IMMW - IMMS + 1).
+# The masks are computed at disassembly time by the (undisplayed) MSK* sub-tables.
+@ifdef MB64
+BFW: w is immw6 & imm6 & b1513=2 [ w = immw6 + 0; ] { export *[const]:1 w; }
+BFW: w is immw6 & imm6 & b1513=4 [ w = immw6 - imm6 + 1; ] { export *[const]:1 w; }
+BFW: w is immw6 & imm6 & b1513=3 [ w = immw6 + 0; ] { export *[const]:1 w; }
+BFW: w is immw6 & imm6 & b1513=5 [ w = immw6 - imm6 + 1; ] { export *[const]:1 w; }
+MSKE: m is immw6 [ m = ((1 << (immw6 & 31)) - 1) & 0xffffffff; ] { export *[const]:4 m; }
+MSKI: m is immw6 & imm6 [ m = ((0xffffffff << ((immw6 & 31) + 1)) ^ (0xffffffff << (imm6 & 31))) & 0xffffffff; ] { export *[const]:4 m; }
+MSKLE: m is immw6 [ m = (1 << immw6) - 1; ] { export *[const]:8 m; }
+MSKLI: m is immw6 & imm6 [ m = (-1 << (immw6 + 1)) ^ (-1 << imm6); ] { export *[const]:8 m; }
+:bsefi rd, RA, BFW, imm6 is op=0x19 & rd & RA & b1513=2 & BFW & MSKE & imm6 { W32(rd, (RA >> (imm6 & 31)) & MSKE); }
+:bsifi rd, RA, BFW, imm6 is op=0x19 & rd & RA & RDV & b1513=4 & BFW & MSKI & imm6
+	{ local d = RDV; W32(rd, ((RA << (imm6 & 31)) & MSKI) | (d & ~MSKI)); }
+@else
+BFW: w is immw5 & imm5 & b1511=8 [ w = immw5 + 0; ] { export *[const]:1 w; }
+BFW: w is immw5 & imm5 & b1511=16 [ w = immw5 - imm5 + 1; ] { export *[const]:1 w; }
+MSKE: m is immw5 [ m = ((1 << immw5) - 1) & 0xffffffff; ] { export *[const]:4 m; }
+MSKI: m is immw5 & imm5 [ m = ((0xffffffff << (immw5 + 1)) ^ (0xffffffff << imm5)) & 0xffffffff; ] { export *[const]:4 m; }
+:bsefi rd, RA, BFW, imm5 is op=0x19 & rd & RA & b1511=8 & b05=0 & BFW & MSKE & imm5 { rd = (RA >> imm5) & MSKE; }
+:bsifi rd, RA, BFW, imm5 is op=0x19 & rd & RA & RDV & b1511=16 & b05=0 & BFW & MSKI & imm5
+	{ local d = RDV; rd = ((RA << imm5) & MSKI) | (d & ~MSKI); }
+@endif
+
+################################################################
+# Logical
+################################################################
+
+:or   rd, RA, RB is op=0x20 & rd & RA & RB & low11=0 { W32(rd, RA | RB); }
+:and  rd, RA, RB is op=0x21 & rd & RA & RB & low11=0 { W32(rd, RA & RB); }
+:xor  rd, RA, RB is op=0x22 & rd & RA & RB & low11=0 { W32(rd, RA ^ RB); }
+:andn rd, RA, RB is op=0x23 & rd & RA & RB & low11=0 { W32(rd, RA & ~RB); }
+:ori   rd, RA, SIMM is op=0x28 & rd & RA & SIMM { W32(rd, RA | SIMM); }
+:andi  rd, RA, SIMM is op=0x29 & rd & RA & SIMM { W32(rd, RA & SIMM); }
+:xori  rd, RA, SIMM is op=0x2a & rd & RA & SIMM { W32(rd, RA ^ SIMM); }
+:andni rd, RA, SIMM is op=0x2b & rd & RA & SIMM { W32(rd, RA & ~SIMM); }
+
+# Pattern compare
+:pcmpbf rd, RA, RB is op=0x20 & rd & RA & RB & low11=0x400 {
+	local x = RA ^ RB; local r:4 = 0;
+	if ((x & 0x000000ff) != 0) goto <b2>; r = 4;
+	<b2> if ((x & 0x0000ff00) != 0) goto <b1>; r = 3;
+	<b1> if ((x & 0x00ff0000) != 0) goto <b0>; r = 2;
+	<b0> if ((x & 0xff000000) != 0) goto <done>; r = 1;
+	<done> W32(rd, r);
+}
+:pcmpbc rd, RA, RB is op=0x21 & rd & RA & RB & low11=0x400 { local r:4 = patternCompareByteCount(RA, RB); W32(rd, r); }
+:pcmpeq rd, RA, RB is op=0x22 & rd & RA & RB & low11=0x400 { rd = zext(RA == RB); }
+:pcmpne rd, RA, RB is op=0x23 & rd & RA & RB & low11=0x400 { rd = zext(RA != RB); }
+
+################################################################
+# Shifts, sign extension, misc (opcode 0x24)
+################################################################
+
+:sra rd, RA    is op=0x24 & rd & RA & imm16=0x0001 { local a = RA; C = (a & 1) != 0; W32(rd, a s>> 1); }
+:src rd, RA    is op=0x24 & rd & RA & imm16=0x0021 { local a = RA; local c = C; C = (a & 1) != 0; W32(rd, (a >> 1) | (zext(c) << 31)); }
+:srl rd, RA    is op=0x24 & rd & RA & imm16=0x0041 { local a = RA; C = (a & 1) != 0; W32(rd, a >> 1); }
+:sext8 rd, RA  is op=0x24 & rd & RA & imm16=0x0060 { local a = RA; local t:4 = sext(a:1); W32(rd, t); }
+:sext16 rd, RA is op=0x24 & rd & RA & imm16=0x0061 { local a = RA; local t:4 = sext(a:2); W32(rd, t); }
+:clz rd, RA    is op=0x24 & rd & RA & imm16=0x00e0 { local a = RA; local r:4 = lzcount(a); W32(rd, r); }
+:swapb rd, RA  is op=0x24 & rd & RA & low11=0x1e0 {
+	local a = RA;
+	W32(rd, (a << 24) | ((a & 0xff00) << 8) | ((a >> 8) & 0xff00) | (a >> 24));
+}
+:swaph rd, RA  is op=0x24 & rd & RA & low11=0x1e2 { local a = RA; W32(rd, (a << 16) | (a >> 16)); }
+
+# Cache maintenance. objdump only checks the low 8 bits (plus bit 10 for the .ext forms).
+:wic RA, RB           is op=0x24 & RA & RB & RAX & RBX & low8=0x68 { icacheInvalidate(RAX + RBX); }
+:wdc RA, RB           is op=0x24 & RA & RB & RAX & RBX & low8=0x64 { dcacheInvalidate(RAX + RBX); }
+:wdc.clear RA, RB     is op=0x24 & RA & RB & RAX & RBX & low8=0x66 & b10=0 { dcacheClear(RAX + RBX); }
+:wdc.ext.clear RA, RB is op=0x24 & RA & RB & RAX & RBX & low8=0x66 & b10=1 { dcacheExtClear(RAX + RBX); }
+:wdc.flush RA, RB     is op=0x24 & RA & RB & RAX & RBX & low8=0x74 { dcacheFlush(RAX + RBX); }
+:wdc.ext.flush RA, RB is op=0x24 & RA & RB & RAX & RBX & low8=0x76 & b10=1 { dcacheExtFlush(RAX + RBX); }
+:wdc.clear.ea RA, RB  is op=0x24 & RA & RB & RAX & RBX & low8=0xe6 { dcacheClearEA(RA, RB); }
+
+################################################################
+# Special registers (opcode 0x25)
+################################################################
+
+:mfs rd, "rmsr" is op=0x25 & rd & ra=0 & imm16=0x8001 { local m:$(REGSIZE); readMSR(m); rd = m; }
+:mfs rd, SPR    is op=0x25 & rd & ra=0 & b1514=2 & SPR { rd = SPR; }
+:mfse rd, SPRN  is op=0x25 & rd & ra=8 & b1514=2 & SPRN { rd = readSPRHigh(SPRN); }
+
+:mts "rmsr", RAX is op=0x25 & rd=0 & RAX & b1513=6 & b1004=0 & spr14=0x0001 { writeMSR(RAX); }
+:mts "rfsr", RAX is op=0x25 & rd=0 & RAX & b1513=6 & b1004=0 & spr14=0x0007 { rfsr = RAX; }
+:mts "rslr", RAX is op=0x25 & rd=0 & RAX & b1513=6 & b1004=0 & spr14=0x0800 { rslr = RAX; }
+:mts "rshr", RAX is op=0x25 & rd=0 & RAX & b1513=6 & b1004=0 & spr14=0x0802 { rshr = RAX; }
+:mts "rpid", RAX is op=0x25 & rd=0 & RAX & b1513=6 & b1004=0 & spr14=0x1000 { rpid = RAX; }
+:mts "rzpr", RAX is op=0x25 & rd=0 & RAX & b1513=6 & b1004=0 & spr14=0x1001 { rzpr = RAX; }
+:mts "rtlbx", RAX is op=0x25 & rd=0 & RAX & b1513=6 & b1004=0 & spr14=0x1002 { rtlbx = RAX; }
+:mts "rtlblo", RAX is op=0x25 & rd=0 & RAX & b1513=6 & b1004=0 & spr14=0x1003 { rtlblo = RAX; writeTLB(rtlbx); }
+:mts "rtlbhi", RAX is op=0x25 & rd=0 & RAX & b1513=6 & b1004=0 & spr14=0x1004 { rtlbhi = RAX; writeTLB(rtlbx); }
+:mts "rtlbsx", RAX is op=0x25 & rd=0 & RAX & b1513=6 & b1004=0 & spr14=0x1005 { rtlbsx = RAX; }
+:mts "rear", RAX is op=0x25 & rd=0 & RAX & b1513=6 & b1004=0 & spr14=0x0003 { rear = RAX; }
+:mts "resr", RAX is op=0x25 & rd=0 & RAX & b1513=6 & b1004=0 & spr14=0x0005 { resr = RAX; }
+:mts "rbtr", RAX is op=0x25 & rd=0 & RAX & b1513=6 & b1004=0 & spr14=0x000b { rbtr = RAX; }
+:mts "redr", RAX is op=0x25 & rd=0 & RAX & b1513=6 & b1004=0 & spr14=0x000d { redr = RAX; }
+:mts "rpc", RAX  is op=0x25 & rd=0 & RAX & b1513=6 & b1004=0 & spr14 { writeSPRHigh(spr14:2, RAX); }
+:mtse SPRN, RAX  is op=0x25 & rd=8 & RAX & b1513=6 & b1004=0 & SPRN { writeSPRHigh(SPRN, RAX); }
+
+:msrset rd, imm15 is op=0x25 & rd & ra=0x10 & b15=0 & imm15 {
+	local m:$(REGSIZE); readMSR(m); rd = m; m = m | imm15; writeMSR(m);
+}
+:msrclr rd, imm15 is op=0x25 & rd & ra=0x11 & b15=0 & imm15 {
+	local m:$(REGSIZE); readMSR(m); rd = m; m = m & ~imm15; writeMSR(m);
+}
+
+################################################################
+# Unconditional branches, register target (opcode 0x26)
+################################################################
+
+:br RB     is op=0x26 & rd=0 & ra=0x00 & RB & RBO & low11=0 { local t = inst_start + RBO; goto [t]; }
+:brd RB    is op=0x26 & rd=0 & ra=0x10 & RB & RBO & low11=0 { local t = inst_start + RBO; delayslot(1); goto [t]; }
+:brld rd, RB is op=0x26 & rd & ra=0x14 & RB & RBO & low11=0 { local t = inst_start + RBO; rd = inst_start; delayslot(1); call [t]; }
+:bra RB    is op=0x26 & rd=0 & ra=0x08 & RB & RBX & low11=0 { local t = RBX; goto [t]; }
+:brad RB   is op=0x26 & rd=0 & ra=0x18 & RB & RBX & low11=0 { local t = RBX; delayslot(1); goto [t]; }
+:brald rd, RB is op=0x26 & rd & ra=0x1c & RB & RBX & low11=0 { local t = RBX; rd = inst_start; delayslot(1); call [t]; }
+:brk rd, RB  is op=0x26 & rd & ra=0x0c & RB & RBX & low11=0 {
+	local t = RBX; rd = inst_start; rmsr = rmsr | 8; call [t];
+}
+
+################################################################
+# Conditional branches, register offset (opcode 0x27)
+################################################################
+
+CC: "eq" is cond=0 & RA { local c:1 = RA == 0;  export c; }
+CC: "ne" is cond=1 & RA { local c:1 = RA != 0;  export c; }
+CC: "lt" is cond=2 & RA { local c:1 = RA s< 0;  export c; }
+CC: "le" is cond=3 & RA { local c:1 = RA s<= 0; export c; }
+CC: "gt" is cond=4 & RA { local c:1 = RA s> 0;  export c; }
+CC: "ge" is cond=5 & RA { local c:1 = RA s>= 0; export c; }
+
+:b^CC RA, RB    is op=0x27 & rdhi1=0 & rdea=0 & CC & RA & RB & RBO & low11=0 {
+	local t = inst_start + RBO; if (!CC) goto inst_next; goto [t];
+}
+:b^CC^"d" RA, RB is op=0x27 & rdhi1=1 & rdea=0 & CC & RA & RB & RBO & low11=0 {
+	local c = CC; local t = inst_start + RBO; delayslot(1); if (!c) goto <skip>; goto [t]; <skip>
+}
+
+################################################################
+# imm prefix and returns
+################################################################
+
+:imm simm16 is op=0x2c & rd=0 & ra=0 & simm16 & imm16 [ immflag = 1; immhi = imm16; globalset(inst_next, immflag); globalset(inst_next, immhi); ] { }
+
+:rtsd RAX, SIMMX is op=0x2d & rd=0x10 & RAX & SIMMX { local t = RAX + SIMMX; delayslot(1); return [t]; }
+:rtid RAX, SIMMX is op=0x2d & rd=0x11 & RAX & SIMMX { local t = RAX + SIMMX; delayslot(1); rmsr = rmsr | 2; return [t]; }
+:rtbd RAX, SIMMX is op=0x2d & rd=0x12 & RAX & SIMMX { local t = RAX + SIMMX; delayslot(1); rmsr = rmsr & ~8; return [t]; }
+:rted RAX, SIMMX is op=0x2d & rd=0x14 & RAX & SIMMX { local t = RAX + SIMMX; delayslot(1); rmsr = (rmsr | 0x100) & ~0x200; resr = 0; return [t]; }
+
+################################################################
+# Unconditional branches, immediate (opcode 0x2e)
+################################################################
+
+:bri REL     is op=0x2e & rd=0 & ra=0x00 & REL { goto REL; }
+:brid REL    is op=0x2e & rd=0 & ra=0x10 & REL { delayslot(1); goto REL; }
+:brlid rd, REL is op=0x2e & rd & ra=0x14 & REL { rd = inst_start; delayslot(1); call REL; }
+:brai ABS    is op=0x2e & rd=0 & ra=0x08 & ABS { goto ABS; }
+:braid ABS   is op=0x2e & rd=0 & ra=0x18 & ABS { delayslot(1); goto ABS; }
+:bralid rd, ABS is op=0x2e & rd & ra=0x1c & ABS { rd = inst_start; delayslot(1); call ABS; }
+:brki rd, ABS  is op=0x2e & rd & ra=0x0c & ABS { rd = inst_start; rmsr = rmsr | 8; call ABS; }
+
+# mbar / sleep / hibernate / suspend (opcode 0x2e, rA bit 1 and bit 2 set)
+:mbar rdn     is op=0x2e & rdhi2=0 & rdn & ra_b1=1 & b02=1 { memoryBarrier(rdn:1); }
+:hibernate    is op=0x2e & rdhi2=1 & ra_b1=1 & b02=1 { hibernate(); }
+:sleep        is op=0x2e & rdhi2=2 & ra_b1=1 & b02=1 { sleep(); }
+:suspend      is op=0x2e & rdhi2=3 & ra_b1=1 & b02=1 { suspend(); }
+
+################################################################
+# Conditional branches, immediate (opcode 0x2f)
+################################################################
+
+:b^CC^"i" RA, REL   is op=0x2f & rdhi1=0 & rdea=0 & CC & RA & REL { if (CC) goto REL; }
+:b^CC^"id" RA, REL  is op=0x2f & rdhi1=1 & rdea=0 & CC & RA & REL { local c = CC; delayslot(1); if (c) goto REL; }
+
+################################################################
+# Loads and stores
+################################################################
+
+:lbu  rd, RA, RB is op=0x30 & rd & RA & RB & RAX & RBX & low11=0x000 { local a = RAX + RBX; rd = zext(*:1 a); }
+:lbur rd, RA, RB is op=0x30 & rd & RA & RB & RAX & RBX & low11=0x200 { local a = RAX + RBX; rd = zext(*:1 a); }
+:lbuea rd, RA, RB is op=0x30 & rd & RA & RB & low11=0x080 { local v:1 = extLoad8(RA, RB); rd = zext(v); }
+:lhu  rd, RA, RB is op=0x31 & rd & RA & RB & RAX & RBX & low11=0x000 { local a = RAX + RBX; rd = zext(*:2 a); }
+:lhur rd, RA, RB is op=0x31 & rd & RA & RB & RAX & RBX & low11=0x200 {
+	local a = RAX + RBX; local v:2 = *:2 a; rd = zext((v << 8) | (v >> 8));
+}
+:lhuea rd, RA, RB is op=0x31 & rd & RA & RB & low11=0x080 { local v:2 = extLoad16(RA, RB); rd = zext(v); }
+:lw   rd, RA, RB is op=0x32 & rd & RA & RB & RAX & RBX & low11=0x000 { local a = RAX + RBX; W32(rd, *:4 a); }
+:lwr  rd, RA, RB is op=0x32 & rd & RA & RB & RAX & RBX & low11=0x200 {
+	local a = RAX + RBX; local v:4 = *:4 a;
+	W32(rd, (v << 24) | ((v & 0xff00) << 8) | ((v >> 8) & 0xff00) | (v >> 24));
+}
+:lwx  rd, RA, RB is op=0x32 & rd & RA & RB & RAX & RBX & low11=0x400 { local a = RAX + RBX; W32(rd, *:4 a); resv = 1; }
+:lwea rd, RA, RB is op=0x32 & rd & RA & RB & low11=0x080 { local v:4 = extLoad32(RA, RB); W32(rd, v); }
+
+:sb   rd, RA, RB is op=0x34 & rd & RDV & RA & RB & RAX & RBX & low11=0x000 { local a = RAX + RBX; *:1 a = RDV:1; }
+:sbr  rd, RA, RB is op=0x34 & rd & RDV & RA & RB & RAX & RBX & low11=0x200 { local a = RAX + RBX; *:1 a = RDV:1; }
+:sbea rd, RA, RB is op=0x34 & rd & RDV & RA & RB & low11=0x080 { extStore8(RA, RB, RDV:1); }
+:sh   rd, RA, RB is op=0x35 & rd & RDV & RA & RB & RAX & RBX & low11=0x000 { local a = RAX + RBX; *:2 a = RDV:2; }
+:shr  rd, RA, RB is op=0x35 & rd & RDV & RA & RB & RAX & RBX & low11=0x200 {
+	local a = RAX + RBX; local v:2 = RDV:2; *:2 a = (v << 8) | (v >> 8);
+}
+:shea rd, RA, RB is op=0x35 & rd & RDV & RA & RB & low11=0x080 { extStore16(RA, RB, RDV:2); }
+:sw   rd, RA, RB is op=0x36 & rd & RDV & RA & RB & RAX & RBX & low11=0x000 { local a = RAX + RBX; *:4 a = RDV; }
+:swr  rd, RA, RB is op=0x36 & rd & RDV & RA & RB & RAX & RBX & low11=0x200 {
+	local a = RAX + RBX; local v:4 = RDV;
+	*:4 a = (v << 24) | ((v & 0xff00) << 8) | ((v >> 8) & 0xff00) | (v >> 24);
+}
+:swx  rd, RA, RB is op=0x36 & rd & RDV & RA & RB & RAX & RBX & low11=0x400 {
+	local a = RAX + RBX; C = resv == 0;
+	if (resv == 0) goto <nostore>; *:4 a = RDV; <nostore> resv = 0;
+}
+:swea rd, RA, RB is op=0x36 & rd & RDV & RA & RB & low11=0x080 { extStore32(RA, RB, RDV); }
+
+:lbui rd, RA, SIMM is op=0x38 & rd & RA & RAX & SIMM & SIMMX { local a = RAX + SIMMX; rd = zext(*:1 a); }
+:lhui rd, RA, SIMM is op=0x39 & rd & RA & RAX & SIMM & SIMMX { local a = RAX + SIMMX; rd = zext(*:2 a); }
+:lwi  rd, RA, SIMM is op=0x3a & rd & RA & RAX & SIMM & SIMMX { local a = RAX + SIMMX; W32(rd, *:4 a); }
+:sbi  rd, RA, SIMM is op=0x3c & rd & RDV & RA & RAX & SIMM & SIMMX { local a = RAX + SIMMX; *:1 a = RDV:1; }
+:shi  rd, RA, SIMM is op=0x3d & rd & RDV & RA & RAX & SIMM & SIMMX { local a = RAX + SIMMX; *:2 a = RDV:2; }
+:swi  rd, RA, SIMM is op=0x3e & rd & RDV & RA & RAX & SIMM & SIMMX { local a = RAX + SIMMX; *:4 a = RDV; }
+
+################################################################
+# Single precision FPU (opcode 0x16)
+################################################################
+
+:fadd  rd, RA, RB is op=0x16 & rd & RA & RB & low11=0x000 { W32(rd, RB f+ RA); }
+:frsub rd, RA, RB is op=0x16 & rd & RA & RB & low11=0x080 { W32(rd, RB f- RA); }
+:fmul  rd, RA, RB is op=0x16 & rd & RA & RB & low11=0x100 { W32(rd, RB f* RA); }
+:fdiv  rd, RA, RB is op=0x16 & rd & RA & RB & low11=0x180 { W32(rd, RB f/ RA); }
+:fcmp.un rd, RA, RB is op=0x16 & rd & RA & RB & low11=0x200 { local r:4 = zext(nan(RA) || nan(RB)); W32(rd, r); }
+:fcmp.lt rd, RA, RB is op=0x16 & rd & RA & RB & low11=0x210 { local r:4 = zext(RB f< RA); W32(rd, r); }
+:fcmp.eq rd, RA, RB is op=0x16 & rd & RA & RB & low11=0x220 { local r:4 = zext(RB f== RA); W32(rd, r); }
+:fcmp.le rd, RA, RB is op=0x16 & rd & RA & RB & low11=0x230 { local r:4 = zext(RB f<= RA); W32(rd, r); }
+:fcmp.gt rd, RA, RB is op=0x16 & rd & RA & RB & low11=0x240 { local r:4 = zext(RB f> RA); W32(rd, r); }
+:fcmp.ne rd, RA, RB is op=0x16 & rd & RA & RB & low11=0x250 { local r:4 = zext(RB f!= RA); W32(rd, r); }
+:fcmp.ge rd, RA, RB is op=0x16 & rd & RA & RB & low11=0x260 { local r:4 = zext(RB f>= RA); W32(rd, r); }
+:flt   rd, RA is op=0x16 & rd & RA & low11=0x280 { local r:4 = int2float(RA); W32(rd, r); }
+:fint  rd, RA is op=0x16 & rd & RA & low11=0x300 { local r:4 = trunc(RA); W32(rd, r); }
+:fsqrt rd, RA is op=0x16 & rd & RA & low11=0x380 { W32(rd, sqrt(RA)); }
+
+################################################################
+# Stream (FSL / AXI4-Stream) instructions
+################################################################
+
+@include "microblaze_fsl.sinc"
+
+################################################################
+# 64-bit MicroBlaze extensions (C_DATA_SIZE = 64)
+################################################################
+
+@ifdef MB64
+@include "microblaze64.sinc"
+@endif
