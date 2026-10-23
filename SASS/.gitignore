@@ -1,0 +1,10 @@
+*.sla
+__pycache__/
+*.pyc
+/lib/
+/build/
+/dist/
+/.gradle/
+/test/samples/
+/spec/*.json
+/test/corpus/

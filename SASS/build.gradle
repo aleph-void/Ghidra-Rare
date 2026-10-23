@@ -1,0 +1,19 @@
+// Builds this processor module as a Ghidra extension:
+//   gradle -PGHIDRA_INSTALL_DIR=<ghidra> buildExtension
+def ghidraInstallDir
+if (System.env.GHIDRA_INSTALL_DIR) {
+	ghidraInstallDir = System.env.GHIDRA_INSTALL_DIR
+}
+else if (project.hasProperty("GHIDRA_INSTALL_DIR")) {
+	ghidraInstallDir = project.getProperty("GHIDRA_INSTALL_DIR")
+}
+if (ghidraInstallDir) {
+	apply from: new File(ghidraInstallDir).getCanonicalPath() + "/support/buildExtension.gradle"
+}
+else {
+	throw new GradleException("GHIDRA_INSTALL_DIR is not defined!")
+}
+
+// buildExtension.gradle copies every jar under Ghidra/Processors (including other
+// symlinked modules) into lib/; this module needs none of them.
+copyDependencies.enabled = false

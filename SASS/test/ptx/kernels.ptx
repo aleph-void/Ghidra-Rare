@@ -1,0 +1,75 @@
+//
+// Hand-written PTX used to build test cubins for every 128-bit target
+// (test/build-cubins.sh substitutes the .target line).
+//
+.version 8.7
+.target sm_80
+.address_size 64
+
+.func (.reg .b32 r) mix(.reg .b32 a, .reg .b32 b)
+{
+	.reg .b32 t<4>;
+	xor.b32 t0, a, b;
+	shl.b32 t1, t0, 5;
+	shr.u32 t2, t0, 27;
+	or.b32 t3, t1, t2;
+	add.s32 r, t3, 0x9e3779b9;
+	ret;
+}
+
+.visible .entry vadd(.param .u64 pa, .param .u64 pb, .param .u64 pc, .param .u32 n)
+{
+	.reg .b32 %r<12>; .reg .b64 %rd<12>; .reg .pred %p<3>; .reg .f32 %f<4>;
+	ld.param.u64 %rd1, [pa]; ld.param.u64 %rd2, [pb]; ld.param.u64 %rd3, [pc]; ld.param.u32 %r1, [n];
+	mov.u32 %r2, %tid.x; mov.u32 %r3, %ctaid.x; mov.u32 %r4, %ntid.x;
+	mad.lo.s32 %r5, %r3, %r4, %r2;
+	setp.ge.s32 %p1, %r5, %r1;
+	@%p1 bra DONE;
+	cvta.to.global.u64 %rd4, %rd1; cvta.to.global.u64 %rd5, %rd2; cvta.to.global.u64 %rd6, %rd3;
+	mul.wide.s32 %rd7, %r5, 4;
+	add.s64 %rd8, %rd4, %rd7; add.s64 %rd9, %rd5, %rd7; add.s64 %rd10, %rd6, %rd7;
+	ld.global.f32 %f1, [%rd8]; ld.global.f32 %f2, [%rd9];
+	fma.rn.f32 %f3, %f1, 0f40000000, %f2;
+	st.global.f32 [%rd10], %f3;
+DONE:
+	ret;
+}
+
+.visible .entry hashk(.param .u64 out, .param .u32 seed, .param .u32 iters)
+{
+	.reg .b32 %r<16>; .reg .b64 %rd<6>; .reg .pred %p<3>;
+	.shared .align 4 .b32 sh[256];
+	ld.param.u64 %rd1, [out]; ld.param.u32 %r1, [seed]; ld.param.u32 %r2, [iters];
+	mov.u32 %r3, %tid.x;
+	mov.u32 %r4, 0;
+	mov.u32 %r5, %r1;
+LOOP:
+	setp.ge.u32 %p1, %r4, %r2;
+	@%p1 bra END;
+	{
+	.param .b32 a0; .param .b32 a1; .param .b32 rv;
+	st.param.b32 [a0], %r5; st.param.b32 [a1], %r4;
+	call.uni (rv), mix, (a0, a1);
+	ld.param.b32 %r5, [rv];
+	}
+	add.s32 %r4, %r4, 1;
+	bra.uni LOOP;
+END:
+	shl.b32 %r6, %r3, 2;
+	mov.u32 %r7, sh;
+	add.s32 %r8, %r7, %r6;
+	st.shared.u32 [%r8], %r5;
+	bar.sync 0;
+	xor.b32 %r9, %r3, 1;
+	shl.b32 %r10, %r9, 2;
+	add.s32 %r11, %r7, %r10;
+	ld.shared.u32 %r12, [%r11];
+	shfl.sync.bfly.b32 %r13, %r12, 16, 31, -1;
+	cvta.to.global.u64 %rd2, %rd1;
+	mul.wide.u32 %rd3, %r3, 4;
+	add.s64 %rd4, %rd2, %rd3;
+	atom.global.add.u32 %r14, [%rd4], %r13;
+	min.s32 %r15, %r14, %r12;
+	st.global.u32 [%rd4], %r15;
+	ret;
+}

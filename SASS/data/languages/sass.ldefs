@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language_definitions>
+  <language processor="SASS" endian="little" size="64" variant="SM80" version="1.0"
+            slafile="sass_SM80.sla" processorspec="sass.pspec" id="SASS:LE:64:SM80">
+    <description>NVIDIA SASS Ampere GA100 (sm_80)</description>
+    <compiler name="default" spec="sass.cspec" id="default"/>
+    <external_name tool="gnu" name="cuda"/>
+  </language>
+  <language processor="SASS" endian="little" size="64" variant="SM86" version="1.0"
+            slafile="sass_SM86.sla" processorspec="sass.pspec" id="SASS:LE:64:SM86">
+    <description>NVIDIA SASS Ampere GA10x / Orin (sm_86, sm_87)</description>
+    <compiler name="default" spec="sass.cspec" id="default"/>
+    <external_name tool="gnu" name="cuda"/>
+  </language>
+  <language processor="SASS" endian="little" size="64" variant="SM89" version="1.0"
+            slafile="sass_SM89.sla" processorspec="sass.pspec" id="SASS:LE:64:SM89">
+    <description>NVIDIA SASS Ada Lovelace (sm_89)</description>
+    <compiler name="default" spec="sass.cspec" id="default"/>
+    <external_name tool="gnu" name="cuda"/>
+  </language>
+</language_definitions>

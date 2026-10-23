@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- CUDA device ABI (as emitted by ptxas): R1 is the stack pointer into local
+     memory, arguments and return values are passed in R4..R19 (64-bit values in
+     even/odd pairs), the return address is kept in a register pair named by RET. -->
+<compiler_spec>
+  <data_organization>
+    <absolute_max_alignment value="0"/>
+    <machine_alignment value="16"/>
+    <default_alignment value="1"/>
+    <default_pointer_alignment value="8"/>
+    <pointer_size value="8"/>
+    <short_size value="2"/>
+    <integer_size value="4"/>
+    <long_size value="8"/>
+    <long_long_size value="8"/>
+    <float_size value="4"/>
+    <double_size value="8"/>
+  </data_organization>
+  <global>
+    <range space="ram"/>
+    <range space="shared"/>
+    <range space="local"/>
+    <range space="cbank"/>
+  </global>
+  <stackpointer register="R1" space="local" growth="negative"/>
+  <returnaddress>
+    <register name="RETPC"/>
+  </returnaddress>
+  <default_proto>
+    <prototype name="__cuda_device" extrapop="0" stackshift="0">
+      <input>
+        <pentry minsize="1" maxsize="4"><register name="R4"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="R5"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="R6"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="R7"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="R8"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="R9"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="R10"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="R11"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="R12"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="R13"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="R14"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="R15"/></pentry>
+      </input>
+      <output>
+        <pentry minsize="1" maxsize="4"><register name="R4"/></pentry>
+        <pentry minsize="5" maxsize="8"><register name="RD4"/></pentry>
+      </output>
+      <unaffected>
+        <register name="R1"/>
+        <register name="R16"/><register name="R17"/><register name="R18"/><register name="R19"/>
+        <register name="R20"/><register name="R21"/><register name="R22"/><register name="R23"/>
+        <register name="R24"/><register name="R25"/><register name="R26"/><register name="R27"/>
+        <register name="R28"/><register name="R29"/><register name="R30"/><register name="R31"/>
+      </unaffected>
+    </prototype>
+  </default_proto>
+</compiler_spec>
