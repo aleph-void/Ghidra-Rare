@@ -1,0 +1,7 @@
+<opinions>
+  <!-- EM_TI_PRU = 144.  TI and GNU PRU ELFs carry no core revision in e_flags
+       (TI keeps it in the __TI_build_attributes section), so default to V3. -->
+  <constraint loader="Executable and Linking Format (ELF)" compilerSpecID="default">
+    <constraint primary="144" processor="PRU" endian="little" size="32" variant="v3"/>
+  </constraint>
+</opinions>

@@ -1,0 +1,4 @@
+*.sla
+build/
+dist/
+.gradle/

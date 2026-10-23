@@ -1,0 +1,5 @@
+# TI PRU core revision V2
+@define PRU_LMBD ""
+@define PRU_XFR ""
+@define PRU_MVI ""
+@include "pru.sinc"

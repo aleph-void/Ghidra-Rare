@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<processor_spec>
+  <properties>
+    <property key="addressesDoNotAppearDirectlyInCode" value="true"/>
+  </properties>
+  <programcounter register="PC"/>
+  <data_space space="data"/>
+  <register_data>
+    <register name="sp" alias="r2"/>
+    <register name="ra" alias="r3"/>
+    <register name="fp" alias="r4"/>
+    <register name="contextreg" hidden="true"/>
+    <register name="LOOP_TOP" hidden="true"/>
+    <register name="LOOP_END" hidden="true"/>
+  </register_data>
+  <volatile outputop="write_volatile" inputop="read_volatile">
+    <!-- PRU-ICSS local peripherals (INTC, CFG, UART, eCAP, IEP, MII_RT, MDIO) -->
+    <range space="data" first="0x20000" last="0x3ffff"/>
+  </volatile>
+</processor_spec>

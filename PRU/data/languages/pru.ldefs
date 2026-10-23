@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<language_definitions>
+  <language processor="PRU"
+            endian="little"
+            size="32"
+            variant="v0"
+            version="1.0"
+            slafile="pru_v0.sla"
+            processorspec="pru.pspec"
+            id="PRU:LE:32:v0">
+    <description>TI PRU core revision V0 (no LMBD/XFR/MVI/LOOP)</description>
+    <compiler name="default" spec="pru.cspec" id="default"/>
+    <external_name tool="gnu" name="pru"/>
+    <external_name tool="IDA-PRO" name="pru0"/>
+  </language>
+  <language processor="PRU"
+            endian="little"
+            size="32"
+            variant="v1"
+            version="1.0"
+            slafile="pru_v1.sla"
+            processorspec="pru.pspec"
+            id="PRU:LE:32:v1">
+    <description>TI PRU core revision V1 (AM18xx/OMAP-L138 PRUSS)</description>
+    <compiler name="default" spec="pru.cspec" id="default"/>
+    <external_name tool="gnu" name="pru"/>
+    <external_name tool="IDA-PRO" name="pru1"/>
+  </language>
+  <language processor="PRU"
+            endian="little"
+            size="32"
+            variant="v2"
+            version="1.0"
+            slafile="pru_v2.sla"
+            processorspec="pru.pspec"
+            id="PRU:LE:32:v2">
+    <description>TI PRU core revision V2 (adds MVI, XIN/XOUT/XCHG, ZERO/FILL)</description>
+    <compiler name="default" spec="pru.cspec" id="default"/>
+    <external_name tool="gnu" name="pru"/>
+    <external_name tool="IDA-PRO" name="pru2"/>
+  </language>
+  <language processor="PRU"
+            endian="little"
+            size="32"
+            variant="v3"
+            version="1.0"
+            slafile="pru_v3.sla"
+            processorspec="pru.pspec"
+            id="PRU:LE:32:v3">
+    <description>TI PRU core revision V3 (AM335x/AM437x/AM57xx PRU-ICSS; adds LOOP, SXIN/SXOUT/SXCHG)</description>
+    <compiler name="default" spec="pru.cspec" id="default"/>
+    <external_name tool="gnu" name="pru"/>
+    <external_name tool="IDA-PRO" name="pru"/>
+  </language>
+  <language processor="PRU"
+            endian="little"
+            size="32"
+            variant="v4"
+            version="1.0"
+            slafile="pru_v4.sla"
+            processorspec="pru.pspec"
+            id="PRU:LE:32:v4">
+    <description>TI PRU core revision V4 (ICSSG; same instruction decode as V3)</description>
+    <compiler name="default" spec="pru.cspec" id="default"/>
+    <external_name tool="gnu" name="pru"/>
+    <external_name tool="IDA-PRO" name="pru4"/>
+  </language>
+</language_definitions>

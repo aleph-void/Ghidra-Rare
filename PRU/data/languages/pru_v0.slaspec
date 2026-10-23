@@ -1,0 +1,2 @@
+# TI PRU core revision V0
+@include "pru.sinc"
