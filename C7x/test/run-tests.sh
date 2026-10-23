@@ -48,7 +48,10 @@ for s in $SILS; do
       -postScript DecompC7x.java "$W/decomp$s.txt" all sum_array classify caller vec_add vec_dot crc32 run_machine state_name main \
       -deleteProject > "$W/headless$s.log" 2>&1 || { tail -20 "$W/headless$s.log"; exit 1; }
   rm -rf "$P"
-  grep -E "^(LANGUAGE|INSTRUCTIONS|ERROR_BOOKMARKS|DECOMPILED|FAILED)" "$W/decomp$s.txt"
+  grep -E "^(LANGUAGE|INSTRUCTIONS|ERROR_BOOKMARKS|FLOW|DECOMPILED|FAILED)" "$W/decomp$s.txt"
+  # guard: returns and calls must be recognised as flow (a generated RET without flow once merged
+  # every function into its successor)
+  grep -qE "^FLOW calls [1-9][0-9]* returns [1-9]" "$W/decomp$s.txt" || { echo "FAIL: no call/return flow"; exit 1; }
   DEC[$s]=$(grep "^DECOMPILED" "$W/decomp$s.txt")
 done
 

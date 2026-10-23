@@ -49,14 +49,14 @@ Terms used below:
 | Doesn't work | Stripped images: dual-issue mode can't be recovered reliably (22 of 25 wrong-mode branches remain). XS2 vs XS3 is not auto-selected (not in the ELF header) |
 | Unverified | Some XS2/XS3-only instructions are checked only against the manual tables |
 
-### C7x: checkpoint committed, fixes in progress
+### C7x: done
 
 | Area | State |
 |---|---|
-| Decode | 99.90–99.93% of decodable fuzz words vs TI `dis7x`; 99.82–100% of `cl7x -O2` output |
+| Decode | 100% (C7100/C7120/C7504) and 99.99% (C7524) of decodable fuzz words vs TI `dis7x`, with 0 invalid words accepted; 100% of `cl7x -O2` output on all four cores. Generator is deterministic |
 | Semantics | Scalar integer/FP, loads/stores, predicates, branches in p-code; ~880 vector/streaming-engine/MMA ops per core are pcodeops |
-| Real binaries | Demo program: 200/200 functions decompile on all four cores. TI local: ~99.9% disassembly agreement; one image lost most detected functions after a regeneration (regression under investigation); 9 decompile failures on the other |
-| Doesn't work (being fixed) | Generator is not deterministic (a rerun regressed one `MV` form). `MVCI` not decoded. Some `VPERM`/`MV`/`VPUT`/`EXTV` forms. Packet context lost after an undecodable word. Core variant not auto-selected (only in `.c7xabi.attributes`) |
+| Real binaries | Demo program: 200/200 functions decompile on all four cores. TI local: 99.98–99.99% disassembly agreement, 0 bad instructions, 1 decompile failure in ~2,100 functions |
+| Doesn't work | Predicated `VST4D`/`VST16H` offsets print `(0x40)` where `dis7x` prints `(0)`. One C7524 `VAPYSB` form with an `SE0` source. Packet context is lost after an undecodable word (rare now). B0–B15 writes don't clear upper vector bits. The core isn't auto-selected; run `ghidra_scripts/C7xCoreCheck.java`, which reads `.c7xabi.attributes` and names the right language |
 
 ### SASS: in progress, not yet committed
 
@@ -104,6 +104,10 @@ Terms used below:
   build attributes (xCORE, C7x, TI PRU) need a script or loader extension; `e_flags` layout also
   changed between CUDA 12 and 13.
 - **Non-deterministic generators** make reruns regress silently (C7x). Fix seeds and sort.
+- **Generated constructors can shadow hand-written ones.** C7x's generator learned its own
+  `RET`/`RETS` as plain pcodeops; SLEIGH preferred them, every function ran into the next and
+  analysis of one firmware image timed out. Keep flow instructions hand-written and make the
+  test suite fail when no call or return flow is recognised.
 - **Build plumbing.** Ghidra's `buildExtension.gradle` copies every jar under
   `Ghidra/Processors` into `lib/`, shadowing other modules' classes; set
   `copyDependencies.enabled = false`. Ghidra 12 has no Jython (Java GhidraScripts only). The

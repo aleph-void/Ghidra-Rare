@@ -57,6 +57,20 @@ public class DecompC7x extends GhidraScript {
 			}
 		}
 		out.println("EXEC_BYTES " + exbytes + " IN_INSTRUCTIONS " + inbytes);
+		long calls = 0, rets = 0, jumps = 0;
+		for (Instruction ins : listing.getInstructions(true)) {
+			ghidra.program.model.symbol.FlowType ft = ins.getFlowType();
+			if (ft.isCall()) {
+				calls++;
+			}
+			else if (ft.isTerminal()) {
+				rets++;
+			}
+			else if (ft.isJump()) {
+				jumps++;
+			}
+		}
+		out.println("FLOW calls " + calls + " returns " + rets + " jumps " + jumps);
 
 		DecompInterface ifc = new DecompInterface();
 		ifc.openProgram(currentProgram);

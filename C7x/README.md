@@ -30,8 +30,14 @@ maps that to `C7x:LE:64:C7100`. The ELF header does not identify the core: `e_fl
 core is recorded only in the `.c7xabi.attributes` section (vendor `c7xabi`, tag 4 = ISA:
 1 = C7100, 2 = C7120, 4 = C7504, 7 = C7524), and Ghidra's opinion files cannot match on build
 attributes. For C7120/C7504/C7524 images, choose the language when importing (in the GUI, or
-with `-processor C7x:LE:64:C7504` in headless mode). You can check the tag with
-`readelf -x .c7xabi.attributes file.out`; the byte after `04` near the end of the dump is the ISA.
+with `-processor C7x:LE:64:C7504` in headless mode).
+
+The script `ghidra_scripts/C7xCoreCheck.java` (Script Manager category *C7x*) reads the tag from
+the program's `.c7xabi.attributes` block, or from the original file if Ghidra didn't keep the
+block. It then says whether the current language is right and, if it isn't, which language ID to
+re-import with. It shows a popup in the GUI and prints a line in headless mode, for example
+`-postScript C7xCoreCheck.java`. Without Ghidra, `readelf -x .c7xabi.attributes file.out` shows
+the same thing: the byte after `04` near the end of the dump is the ISA.
 
 ## Files
 
@@ -40,7 +46,9 @@ with `-processor C7x:LE:64:C7504` in headless mode). You can check the tag with
   - The `CSTX0`/`CSTX1` constant-extension slots and the `CCEXT0`/`CCEXT1` condition-extension
     slots.
   - The `.B` branches (`B`, `BE`, `CALL`, `CALLE`, `BNL`, `RET`, `RETS`), plus `BA`/`CALLA`.
+    The generator never emits these mnemonics, so control flow always comes from this file.
   - The unit-less group (`NOP n`, `IDLE`, `TICK`, `PROT`/`UNPROT`, `MARK`, `MFENCE`, ...).
+  - `MVCI`, which has two operand orders selected by bit 6.
   - The `@if SIL` selection of the generated files.
 - `data/languages/c7x_{gen,fields,regs,ops}_<SIL>.sinc`: generated for each silicon by
   `gen/gen.py`. They contain the token fields, register files, operand subtables, about 7,300
@@ -48,6 +56,7 @@ with `-processor C7x:LE:64:C7504` in headless mode). You can check the tag with
 - `data/languages/c7{100,120,504,524}.slaspec`: thin variant wrappers (`SIL`, `VLEN`).
 - `c7x.ldefs`, `c7x.pspec`, `c7x.cspec` (EABI), `c7x.opinion` (ELF e_machine 145).
 - `gen/`: the black-box encoding pipeline. See "Regenerating" below.
+- `ghidra_scripts/C7xCoreCheck.java`: reports which core an ELF was built for (see above).
 - `test/`: `run-tests.sh`, `compare.py` (Ghidra vs dis7x), `ghidra_dis.sh` + `DumpC7x.java`
   (packet-aware linear disassembly), `DecompC7x.java` (import/analysis/decompile check), and
   `elf/demo.c` + `elf/build.sh`. `demo.c` is a ~250-line C program with loops, a switch, structs,
@@ -129,18 +138,21 @@ dis7x's `$+0x..` fetch-packet-relative branch targets.
 
 | Corpus (seed 7) | C7100 | C7120 | C7504 | C7524 |
 |---|---|---|---|---|
-| 50,000 random words: dis7x-decodable words that Ghidra matches | 99.93 % of 9,365 | 99.93 % of 9,377 | 99.91 % of 9,137 | 99.90 % of 9,162 |
-| same: dis7x-invalid words that Ghidra still decodes | 2 of 40,635 | 2 of 40,623 | 8 of 40,863 | 24 of 40,838 |
-| `demo.c` compiled with `cl7x -O2`: `.text` words (real packets, CSTX/CCEXT) | 99.82 % of 1,113 (2 × `MV .S2X`) | 100 % of 1,113 | 100 % of 1,113 | 100 % of 1,113 |
+| 50,000 random words: dis7x-decodable words that Ghidra matches | 100 % of 9,365 | 100 % of 9,377 | 100 % of 9,137 | 99.99 % of 9,162 |
+| same: dis7x-invalid words that Ghidra still decodes | 0 of 40,635 | 0 of 40,623 | 0 of 40,863 | 0 of 40,838 |
+| `demo.c` compiled with `cl7x -O2`: `.text` words (real packets, CSTX/CCEXT) | 100 % of 1,113 | 100 % of 1,113 | 100 % of 1,113 | 100 % of 1,113 |
 | linked `demo<SIL>.out`: functions decompiled / failed | 200 / 0 | 200 / 0 | 200 / 0 | 200 / 0 |
 
 The fuzz words have the p-bit clear, so each one is a single-instruction packet. The demo
 corpus exercises multi-word packets and both extension slots. Larger runs while developing
-(200,000 words per core, other seeds) gave 99.7–99.9 %.
+(200,000 words per core, other seeds) agree to within 0.05 %. The one C7524 miss is a
+`VAPYSB` form with an `SE0` source.
 
 The headless run imports the linked ELF (with the RTS library linked in) and auto-analyses it.
-`DecompC7x.java` then reports instruction, function and error-bookmark counts, decompiles every
-function, and prints a few of them. The opinion check imports without `-processor` and expects
+`DecompC7x.java` then reports instruction, function, error-bookmark and call/return counts,
+decompiles every function, and prints a few of them. The suite fails if no call or return flow
+is recognised. This guards against a generated constructor shadowing the hand-written
+branches: that once merged every function into its successor. The opinion check imports without `-processor` and expects
 `C7x:LE:64:C7100`. The two error bookmarks in each demo are `switch` jump-table data that sits
 in `.text` after a `BA`.
 
@@ -154,18 +166,16 @@ C7x/test/run-tests.sh /tmp/c7x-tests 50000
 
 ## Known gaps
 
-- **Remaining disassembly mismatches** (≈0.1 % of decodable words):
-  - `MVCI`: its three register fields share bits (12-bit overlapping atoms), and the generator
-    skips it.
-  - Some `VPERM` operand combinations (`SE1++` sources).
-  - A few `MV` forms where a move-to-predicate key overlaps a predicated move. Ghidra then drops
-    `[Ax]`, or on C7100 prints `BMn` where dis7x prints `Bn` (`MV .S2X A6,B0`).
-  - `VPUT*` to `CUCR` on C7504/C7524.
-  - `EXTV`/`EXTUV` fields that come from a constant extension.
-  - A predicated vector store whose addressing mode makes the displayed offset `(0)`.
-- **Context after an undecodable word.** If a word inside a packet is BAD, the following words
-  lose the packet context (`||`, CSTX and CCEXT), the same way they would in any disassembler
-  that cannot decode the word.
+- **Remaining disassembly mismatches** (≤0.05 % of decodable words):
+  - A predicated vector store (`VST4D`/`VST16H` in addressing mode `000`) where dis7x prints the
+    offset as `(0)` and Ghidra prints the access size.
+  - A few `VPERM` sub-forms whose operand fields still overlap after refinement; the generator
+    skips them.
+  - A handful of rarely seen forms that random sampling has not hit.
+- **Context after an undecodable word.** If a word inside a packet is BAD, Ghidra stops that
+  flow, so the rest of the packet loses its context (`||`, CSTX and CCEXT). I tried a catch-all
+  `.word` constructor for in-packet words, but SLEIGH ranks it above real encodings, because the
+  generated constructors do not constrain the p-bit. It was removed.
 - **Black-box coverage.** Instruction forms that random sampling and the targeted probes never
   hit are missing. Rare encodings that are only valid next to a CSTX slot are the most likely
   gaps. The `gen/refine_loop.sh` loop feeds fuzz mismatches back into the pipeline.
@@ -173,9 +183,6 @@ C7x/test/run-tests.sh /tmp/c7x-tests 50000
   Execute packets are sequential. `B0`-`B15` writes do not clear the upper vector bits.
   `CALL` return addresses and `BNL` loop control are approximations.
 - **Core selection.** ELF imports default to C7100 (see "ELF loading" above).
-- The decompiler occasionally fails with "memory range beyond end of address space" in
-  functions that use all-ones 64-bit constants (`MVK64 -1`) next to vector ops; this is not
-  yet understood.
 - Branches to compiler-generated local labels (`$C$L..`) that the ELF symbol table exports can
   show up in the decompiler as calls to tiny "functions".
 
@@ -193,11 +200,20 @@ about 2 minutes per core on 12 threads and uses ~150 MB in WORKDIR. The stages a
    (mnemonic, unit, operand skeleton, predicated).
 2. `infer.py` flips single bits of sample words to find each group's fixed opcode bits and
    operand fields. It then enumerates each operand field to get a value→text table.
-3. `refine.py` splits groups whose operand fields share bits into sub-groups.
+3. `refine.py` splits groups whose operand fields share bits into sub-groups. It splits first
+   on a bit that every field shares (a direction bit) or on opcode-like bits that no field
+   uses. Two more passes follow:
+   - an overlap pass, which re-derives each operand's bits by majority vote over up to 24
+     sample words;
+   - an orphan pass, which assigns bits that vary within a group but belong to no operand.
+     Otherwise SLEIGH would treat them as don't-care.
 4. `probe_ext.py` and `anaext.py` place each form after `CSTX0`/`CSTX1` and derive how the
    constant extension combines with each immediate.
 5. `gen.py` emits SLEIGH: decision-tree constant subtables, attached-register subtables,
    cross-path and predicate tables, and the constructors with p-code from `semantics.py`.
+
+The pipeline is deterministic. With the same `WORKDIR/sampSIL.json` and extra seeds, a rerun
+produces byte-identical `.sinc` files.
 
 `gen/refine_loop.sh WORKDIR SIL N` runs fuzz comparisons and adds the mismatching words as
 extra seeds (`WORKDIR/extraSIL.json`). Compiling a slaspec needs about 1–2 GB of Java heap,

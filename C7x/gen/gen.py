@@ -420,7 +420,7 @@ def ext_for(key, atomidx):
 
 # mnemonics implemented by hand in c7x.sinc (unit-less group, indirect branch/call)
 HANDWRITTEN = {'NOP', 'IDLE', 'PROTCLR', 'TICK', 'EHDL', 'IINVAL', 'MTAG', 'DHDL', 'PROT', 'UNPROT', 'DSWBP',
-               'ESWBP', 'DDBG', 'MARK', 'EDBG', 'MFENCE', 'MFENCEST', 'BA', 'CALLA'}
+               'ESWBP', 'DDBG', 'MARK', 'EDBG', 'MFENCE', 'MFENCEST', 'BA', 'CALLA', 'MVCI', 'RET', 'RETS', 'B', 'BE', 'CALL', 'CALLE', 'BNL'}
 
 SIGNED5 = re.compile(r'^V?(ADD|SUB|SUBR|AND|ANDN|OR|ORN|XOR|XNOR|NAND|NOR|CMP|MPY|MAX|MIN|SADD|SSUB)')
 
@@ -477,6 +477,17 @@ def gen_key(k, r, out):
             ops[1] = [(table('tXA', ('XA', f, n), ba), 'N')]
             ops[2] = [(table('tXB', ('XB', n), bb), 'N')]
             break
+    # EXTV/EXTUV with E=1 (bit 25): the 2nd and 3rd constants come only from the extension slot:
+    # c2 = cstx & 0x3f, c3 = (cstx >> 8) & 0x3f   (.L2 -> CSTX1, .S2 -> CSTX0)
+    if r['mn'] in ('EXTV', 'EXTUV') and len(kinds) == 7 and '4' not in r['atom'] and '5' not in r['atom'] \
+            and (r['fixed_mask'] >> 25) & 1 and (r['fixed_val'] >> 25) & 1:
+        n = 1 if r['unitbase'] in ('.L2', '.L1') else 0
+        for idx, (sh, nm) in ((2, (0, 'tVA')), (3, (8, 'tVB'))):
+            def bv(name, n=n, sh=sh):
+                return ['%s: "0" is cx%dv=0 { export 0:8; }' % (name, n),
+                        '%s: val is cx%dv=1 & cx%d [ val = (cx%d >> %d) & 0x3f; ] { export *[const]:8 val; }'
+                        % (name, n, n, n, sh)]
+            ops[idx] = [(table(nm, (nm, n), bv), 'N')]
     # store-a-constant: the data constant comes entirely from a constant-extension slot
     # (.D1 -> CSTX0, .D2 -> CSTX1), sign-extended from 27 bits; 0 without one
     if re.match(r'^V?STK\d*[WD]$', r['mn']) and kinds[2] == 'N' and '2' not in r['atom']:
@@ -535,6 +546,23 @@ def gen_key(k, r, out):
             base_patt.append('pbit=0')
     base_patt.append(pname)
     if uname: base_patt.append(uname)
+    # an un-predicated key must not match words of its predicated sibling: constrain the sibling's
+    # predicate field to the values seen in this key's samples (those the sibling has no name for)
+    if not r['haspred']:
+        base = k.split('#')[0]
+        used = set(b for a in r['atom'].values() for b in a.get('bits', []))
+        for pk in PRED_SIBLINGS.get(base + 'P', []):
+            a = DB[pk]['atom'].get('1')
+            if not a or a.get('manual'): continue
+            pb = a['bits']
+            if any(b in used for b in pb): continue
+            seen = set()
+            for w in r['samples']:
+                seen.add(sum(((w >> b) & 1) << i for i, b in enumerate(pb)))
+            if any(a['table'].get(str(v)) for v in seen): continue
+            alts = ['(%s)' % cons(pb, v) for v in sorted(seen)]
+            base_patt.append(alts[0][1:-1] if len(alts) == 1 else '(' + ' | '.join(alts) + ')')
+            break
     import itertools
     for choice in itertools.product(*ops):
         disp = []
@@ -574,6 +602,11 @@ def forced(cv):
             for b in range(lo, hi + 1): d[b] = (v >> (b - lo)) & 1
         res = d if res is None else {b: v for b, v in res.items() if d.get(b) == v}
     return res or {}
+
+PRED_SIBLINGS = collections.defaultdict(list)
+for _k in sorted(DB):
+    if _k.split('#')[0].endswith('|P'):
+        PRED_SIBLINGS[_k.split('#')[0]].append(_k)
 
 FIXED = {}
 for f in ('A', 'AL', 'AM', 'D', 'B', 'BL', 'BM', 'VB', 'VBL', 'VBM'):

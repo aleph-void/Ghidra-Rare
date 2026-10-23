@@ -168,10 +168,36 @@ define token IW(32)
   w_rA   = (14,17)
   w_rB   = (14,17)
   w_rAL  = (14,17)
+  # MVCI fields
+  m_lo   = (1,13)
+  m_s    = (14,17)
+  m_sB   = (14,17)
+  m_sAL  = (14,17)
+  m_sg   = (18,19)
+  m_c5a  = (20,24)
+  m_c5b  = (26,30)
+  m_b24  = (24,24)
+  m_b25  = (25,25)
+  m_b31  = (31,31)
+  m_dA0  = (20,23)
+  m_dAL0 = (20,23)
+  m_dA1  = (26,29)
+  m_dD1  = (26,29)
+  m_dAM1 = (26,29)
+  m_dAL1 = (26,29)
+  m_dg   = (30,31)
 ;
 attach variables [ w_rA ]  [ A0 A1 A2 A3 A4 A5 A6 A7 A8 A9 A10 A11 A12 A13 A14 A15 ];
 attach variables [ w_rB ]  [ B0 B1 B2 B3 B4 B5 B6 B7 B8 B9 B10 B11 B12 B13 B14 B15 ];
 attach variables [ w_rAL ] [ AL0 AL1 AL2 AL3 AL4 AL5 AL6 AL7 AL8 AL9 AL10 AL11 AL12 AL13 AL14 AL15 ];
+attach variables [ m_s m_dA0 m_dA1 ] [ A0 A1 A2 A3 A4 A5 A6 A7 A8 A9 A10 A11 A12 A13 A14 A15 ];
+attach variables [ m_sB ] [ B0 B1 B2 B3 B4 B5 B6 B7 B8 B9 B10 B11 B12 B13 B14 B15 ];
+attach variables [ m_sAL m_dAL0 m_dAL1 ] [ AL0 AL1 AL2 AL3 AL4 AL5 AL6 AL7 AL8 AL9 AL10 AL11 AL12 AL13 AL14 AL15 ];
+attach variables [ m_dD1 ] [ D0 D1 D2 D3 D4 D5 D6 D7 D8 D9 D10 D11 D12 D13 D14 D15 ];
+attach variables [ m_dAM1 ] [ AM0 AM1 AM2 AM3 AM4 AM5 AM6 AM7 AM8 AM9 AM10 AM11 AM12 AM13 AM14 AM15 ];
+attach variables [ m_c5a m_c5b ] [ CPUID PMR DNUM TSC TSR RP BPCR FPCR FSR ECLMR EASGR EPRI EER EESET EECLR DEPR
+                                   EFR EFSET EFCLR IESET ESTP_SS ESTP_S ESTP_GS EDR ECSP_SS ECSP_S ECSP_GS TCSP
+                                   RXMR_SS RXMR_S AHPEE PHPEE ];
 
 # unit-less group: op[19:14] arg[25:20] 0x84e (with p-bit)
 define pcodeop idle;
@@ -216,6 +242,43 @@ instr: "MARK" w_arg5    is (w_lo=0x84e | w_lo=0x84f) & w_op=0x0e & w_hi2=0 & w_a
 instr: "EDBG"           is (w_lo=0x84e | w_lo=0x84f) & w_op=0x0f & w_arg=0 & w_hi=0 { debug(1:1); }
 instr: "MFENCE" FCOLOR  is (w_lo=0x84e | w_lo=0x84f) & w_op=0x10 & w_hi=0 & FCOLOR { mfence(FCOLOR); }
 instr: "MFENCEST" FCOLOR is (w_lo=0x84e | w_lo=0x84f) & w_op=0x11 & w_hi=0 & FCOLOR { mfencest(FCOLOR); }
+
+# MVCI (.S1): two operand orders selected by bit 6 (derived black-box from dis7x)
+#   bit6=1: MVCI ctrl,src,dst   ctrl[24:20] (bit25=1), src[19:14], dst[31:26] (A/D/AM/AL)
+#   bit6=0: MVCI src,ctrl,dst   src[19:14], ctrl[30:26] (bit31=1), dst[23:20] (+bit25: A/AL, bit24=0)
+define pcodeop mvci;
+
+MSRC: m_s   is m_sg=0 & m_s   { export m_s; }
+MSRC: m_sB  is m_sg=1 & m_sB  { export m_sB; }
+MSRC: m_sAL is m_sg=2 & m_sAL { export m_sAL; }
+MUNIT: ".S1X" is m_sg=1 { }
+MUNIT: ".S1"  is m_sg=0 { }
+MUNIT: ".S1"  is m_sg=2 { }
+MDST1: m_dA1  is m_dg=0 & m_dA1  { export m_dA1; }
+MDST1: m_dD1  is m_dg=1 & m_dD1  { export m_dD1; }
+MDST1: m_dAM1 is m_dg=2 & m_dAM1 { export m_dAM1; }
+MDST1: m_dAL1 is m_dg=3 & m_dAL1 { export m_dAL1; }
+MDST0: m_dA0  is m_b24=0 & m_b25=0 & m_dA0  { export m_dA0; }
+MDST0: m_dAL0 is m_b24=0 & m_b25=1 & m_dAL0 { export m_dAL0; }
+# condition-extension predicate for the .S1 slot
+CCS1:          is cc0v=0 { }
+CCS1:          is cc0v=1 & ccS1=0 { }
+CCS1: "[A0]"   is cc0v=1 & ccS1=2  { if (A0 == 0) goto inst_next; }
+CCS1: "[!A0]"  is cc0v=1 & ccS1=3  { if (A0 != 0) goto inst_next; }
+CCS1: "[A1]"   is cc0v=1 & ccS1=4  { if (A1 == 0) goto inst_next; }
+CCS1: "[!A1]"  is cc0v=1 & ccS1=5  { if (A1 != 0) goto inst_next; }
+CCS1: "[A2]"   is cc0v=1 & ccS1=6  { if (A2 == 0) goto inst_next; }
+CCS1: "[!A2]"  is cc0v=1 & ccS1=7  { if (A2 != 0) goto inst_next; }
+CCS1: "[A3]"   is cc0v=1 & ccS1=8  { if (A3 == 0) goto inst_next; }
+CCS1: "[!A3]"  is cc0v=1 & ccS1=9  { if (A3 != 0) goto inst_next; }
+CCS1: "[A4]"   is cc0v=1 & ccS1=10 { if (A4 == 0) goto inst_next; }
+CCS1: "[!A4]"  is cc0v=1 & ccS1=11 { if (A4 != 0) goto inst_next; }
+CCS1: "[A5]"   is cc0v=1 & ccS1=12 { if (A5 == 0) goto inst_next; }
+CCS1: "[!A5]"  is cc0v=1 & ccS1=13 { if (A5 != 0) goto inst_next; }
+instr: CCS1^"MVCI" MUNIT m_c5a^","^MSRC^","^MDST1 is m_lo=0x1432 & m_b25=1 & CCS1 & MUNIT & m_c5a & MSRC & MDST1
+{ build CCS1; local t:8 = mvci(m_c5a, MSRC); MDST1 = t; }
+instr: CCS1^"MVCI" MUNIT MSRC^","^m_c5b^","^MDST0 is m_lo=0x1412 & m_b31=1 & CCS1 & MUNIT & m_c5b & MSRC & MDST0
+{ build CCS1; local t:8 = mvci(MSRC, m_c5b); MDST0 = t; }
 
 # indirect branch / call on .S1:  src[19:14] (A0-A15, B0-B15 via cross path, AL0-AL15)
 BAREG: w_rA  is w_rgrp=0 & w_rA  { export w_rA; }

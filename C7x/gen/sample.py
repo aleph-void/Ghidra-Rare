@@ -24,7 +24,7 @@ def job(seed):
 if __name__ == '__main__':
     tot = {}
     with Pool(12) as pool:
-        for r in pool.imap_unordered(job, range(N // CH)):
+        for r in pool.imap(job, range(N // CH)):
             for k, (c, ws) in r.items():
                 e = tot.setdefault(k, [0, []]); e[0] += c
                 if len(e[1]) < 40: e[1].extend(ws[:40 - len(e[1])])
