@@ -46,6 +46,9 @@ export GHIDRA_INSTALL_DIR=/opt/ghidra_12.1.4_PUBLIC
 cd PRU && gradle buildExtension      # zip lands in PRU/dist/
 ```
 
+PRU and MicroBlaze include Java code (ELF loader extensions), so the build needs a full JDK 21 or
+newer with `javac` (a JRE-only package is not enough); point `JAVA_HOME` at it.
+
 Install the zip via *File → Install Extensions* in Ghidra, then restart Ghidra.
 
 **For development**, symlink every module into a Ghidra install and compile the SLEIGH specs:
