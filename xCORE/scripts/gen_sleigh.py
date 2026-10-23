@@ -114,8 +114,12 @@ SPEC = {
                 't = (t & ~m) | ((zext({2}) << zext({3})) & m); {1} = t(4); {4} = t:4;', {5: 'bp'}),
     'CRC': ('crc32 {1}, {2}, {3}', '{1} = crc32({1}, {2}, {3});', {}),
     'CRC8': ('crc8 {4}, {1}, {2}, {3}', '{4} = crc8({4}, {2}, {3}); {1} = {2} >> 8;', {}),
-    'CRCN': ('crcn {1}, {4}, {2}, {3}', '{1} = crcn({1}, {4}, {2}, {3});', {}),
-    'CRC32_INC': ('crc32_inc {1}, {4}, {2}, {3}, {5}',
+    # CRCN / CRC32_INC operand order and roles checked against lib_xud's XUD_Token_In_DI.S as
+    # assembled in the sw_usb_audio 8.1.0 release: "crcn crc, data, poly, nbits" (crc is in the
+    # high-half register field, unlike the manual's op numbering) and
+    # "crc32_inc crc, data, poly, idx, bitp".
+    'CRCN': ('crcn {4}, {1}, {2}, {3}', '{4} = crcn({4}, {1}, {2}, {3});', {}),
+    'CRC32_INC': ('crc32_inc {1}, {2}, {3}, {4}, {5}',
                   '{1} = crc32({1}, {2}, {3}); {4} = {4} + {5};', {5: 'bp'}),
     'ZIP': ('zip {1}, {2}, {3}', 'local z:8 = zip({1}, {2}, {3}); {1} = z(4); {2} = z:4;', {}),
     'UNZIP': ('unzip {1}, {2}, {3}', 'local z:8 = unzip({1}, {2}, {3}); {1} = z(4); {2} = z:4;', {}),
@@ -622,14 +626,22 @@ class Gen:
             elif name == 'ENTSP' and self.dual:
                 action = ' [ dual = 0; globalset(inst_next, dual); ]'
             if name == 'BRU':
-                b0 = body.replace('{BASE}', 'inst_next').replace('{IW}', '2')
                 if not self.dual:
+                    b0 = body.replace('{BASE}', 'inst_next').replace('{IW}', '2')
                     self.cons.append(':%s %s is %s { %s }' % (mnem, disp, pattern, b0))
                     continue
-                self.cons.append(':%s %s is %s & dual=0 { %s }' % (mnem, disp, pattern, b0))
-                b1 = body.replace('{BASE}', 'basepc').replace('{IW}', '4')
-                b1 = 'local basepc:4 = (inst_start + 4) & 0xfffffffc; ' + b1
-                self.cons.append(':%s %s is %s & dual=1 { %s }' % (mnem, disp, pattern, b1))
+                # The issue-mode split lives in subtables: a top-level "bru ... & dual=N" pair is
+                # not a superset of the fully specified 16-bit XS3 opcodes that share BRU's
+                # opcode space (VFTFF 0x2fec, VFTTF 0x2fed), and SLEIGH then picked BRU and failed
+                # on the r12/r13 register field.
+                if not any(t.startswith('bru_base:') for t in self.tables):
+                    self.tables.append(
+                        'bru_base: tgt is dual=0 [ tgt = inst_next; ] { export *[const]:4 tgt; }\n'
+                        'bru_base: tgt is dual=1 [ tgt = (inst_start + 4) & 0xfffffffc; ] { export *[const]:4 tgt; }\n'
+                        'bru_iw: tgt is dual=0 [ tgt = 2; ] { export *[const]:4 tgt; }\n'
+                        'bru_iw: tgt is dual=1 [ tgt = 4; ] { export *[const]:4 tgt; }')
+                b = body.replace('{BASE}', 'bru_base').replace('{IW}', 'bru_iw')
+                self.cons.append(':%s %s is %s & bru_base & bru_iw { %s }' % (mnem, disp, pattern, b))
                 continue
             if name in SPECIAL_ZERO:
                 # u == 0 needs no stack access: emit a more specific constructor instead of a

@@ -71,4 +71,5 @@ def main():
             print('           ' + e)
 
 
-main()
+if __name__ == '__main__':
+    main()

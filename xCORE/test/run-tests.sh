@@ -8,8 +8,10 @@
 # 2. XS1 vs LLVM (libLLVM XCore disassembler, via ctypes): every 16-bit word, ~1M 32-bit items
 # 3. XS2 / XS3 on the same corpus (differences are the documented re-encodings / new opcodes)
 # 4. XS3: decode xcc-assembled lib_nn / lib_tflite_micro objects and compare with the .S sources
+# 4b. every encoding of the ISA tables decodes to an instruction (enc_coverage.py)
 # 5. link the vendor objects into an ELF (xobj2elf.py), import headless (ELF opinion),
 #    auto-analyse and decompile every function
+# Real-world release binaries: see fetch-real-samples.sh / real-binaries.sh
 set -euo pipefail
 : "${GHIDRA_INSTALL_DIR:?set GHIDRA_INSTALL_DIR}"
 HERE=$(cd "$(dirname "$0")" && pwd)
@@ -33,6 +35,14 @@ for v in XS1 XS2 XS3; do
 	"$DIS" "xCORE:LE:32:$v" "$W/w32.bin" 4 "$W/g32.txt"
 	python3 "$HERE/compare.py" "$W/w32.bin" "$W/g32.txt" 4 25 | grep -v '^           ' || true
 	rm -f "$W/g16.txt" "$W/g32.txt"
+done
+
+echo "== every encoding in scripts/isa_tables.py decodes (catches opcodes shadowed by other constructors)"
+for v in xs1 xs2 xs3; do
+	python3 "$HERE/enc_coverage.py" gen $v "$W/enc_$v.bin" "$W/enc_$v.json"
+	"$DIS" "xCORE:LE:32:${v^^}" "$W/enc_$v.bin" 2 "$W/enc_$v.txt"
+	echo "$v: $(python3 "$HERE/enc_coverage.py" check "$W/enc_$v.json" "$W/enc_$v.txt" | grep -v '^(')"
+	rm -f "$W/enc_$v.bin" "$W/enc_$v.txt"
 done
 
 if [[ -n ${XMOS_EXT:-} ]]; then

@@ -1,0 +1,12 @@
+<dwarf>
+	<!-- XCore DWARF register numbers (LLVM XCoreRegisterInfo.td / xcc .debug_frame:
+	     CFA = reg14 (sp), return address column 15 (lr)). -->
+	<register_mappings>
+		<register_mapping dwarf="0" ghidra="r0" auto_count="12"/> <!-- r0..r11 -->
+		<register_mapping dwarf="12" ghidra="cp"/>
+		<register_mapping dwarf="13" ghidra="dp"/>
+		<register_mapping dwarf="14" ghidra="sp" stackpointer="true"/>
+		<register_mapping dwarf="15" ghidra="lr"/>
+	</register_mappings>
+	<call_frame_cfa value="0"/>
+</dwarf>
