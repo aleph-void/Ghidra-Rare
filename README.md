@@ -18,12 +18,13 @@ of the IDA modules listed there.
 | SASS | NVIDIA GPU SASS | in progress | [sass-ida](https://github.com/Mr-wolf-is-me/sass-ida) |
 
 Each module's README lists its language variants, how closely it matches the reference
-disassembler, what the p-code models, known gaps and how to run its tests.
+disassembler, what the p-code models, known gaps and how to run its tests. [STATUS.md](STATUS.md)
+tracks what works and what doesn't across all modules, plus lessons learned.
 
 ## Relationship to the IDA modules
 
-The IDA modules are distributed as compiled binaries under terms that forbid derivative works.
-This project is an **independent, clean-room implementation**, not a port of that code:
+The IDA modules are distributed as release zips under terms that forbid derivative works; the
+repositories themselves hold only READMEs, licenses and screenshots. This project is an **independent, clean-room implementation**, not a port of that code:
 
 - No IDA module binaries, source or release archives were downloaded, unpacked, disassembled
   or otherwise used. Only the public README files were read, as a list of architectures and
