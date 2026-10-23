@@ -12,6 +12,7 @@
     <description>AMD/Xilinx MicroBlaze 32-bit (C_DATA_SIZE=32), big endian</description>
     <compiler name="default" spec="microblaze32_be.cspec" id="default"/>
     <external_name tool="gnu" name="microblaze"/>
+    <external_name tool="DWARF.register.mapping.file" name="microblaze.dwarf"/>
     <external_name tool="IDA-PRO" name="microblaze"/>
   </language>
   <language processor="MicroBlaze"
@@ -25,6 +26,7 @@
     <description>AMD/Xilinx MicroBlaze 32-bit (C_DATA_SIZE=32), little endian</description>
     <compiler name="default" spec="microblaze32_le.cspec" id="default"/>
     <external_name tool="gnu" name="microblaze"/>
+    <external_name tool="DWARF.register.mapping.file" name="microblaze.dwarf"/>
     <external_name tool="IDA-PRO" name="microblaze"/>
   </language>
   <language processor="MicroBlaze"
@@ -38,6 +40,7 @@
     <description>AMD/Xilinx MicroBlaze 64-bit (C_DATA_SIZE=64), big endian</description>
     <compiler name="default" spec="microblaze64.cspec" id="default"/>
     <external_name tool="gnu" name="microblaze:64"/>
+    <external_name tool="DWARF.register.mapping.file" name="microblaze.dwarf"/>
     <external_name tool="IDA-PRO" name="microblaze64"/>
   </language>
   <language processor="MicroBlaze"
@@ -51,6 +54,7 @@
     <description>AMD/Xilinx MicroBlaze 64-bit (C_DATA_SIZE=64), little endian</description>
     <compiler name="default" spec="microblaze64.cspec" id="default"/>
     <external_name tool="gnu" name="microblaze:64"/>
+    <external_name tool="DWARF.register.mapping.file" name="microblaze.dwarf"/>
     <external_name tool="IDA-PRO" name="microblaze64"/>
   </language>
 </language_definitions>

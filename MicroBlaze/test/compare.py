@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Normalize and compare Ghidra and objdump MicroBlaze disassembly.
 
-  compare.py <bits:32|64> <endian:be|le> <ghidra.txt> <objdump.txt> [maxshow]
+  compare.py <bits:32|64> <endian:be|le> <ghidra.txt> <objdump.txt> [maxshow] [ghidra-offset-delta]
+
+The optional delta is subtracted from the Ghidra offsets (an ELF shared object that Ghidra
+loaded at a different image base than its link address).
 
 Normalization:
   * objdump "// target" comments are dropped; ".long" and empty mnemonics mean "invalid";
@@ -18,6 +21,7 @@ import sys
 
 bits, endian, gfile, ofile = int(sys.argv[1]), sys.argv[2], sys.argv[3], sys.argv[4]
 maxshow = int(sys.argv[5]) if len(sys.argv) > 5 else 40
+gdelta = int(sys.argv[6], 0) if len(sys.argv) > 6 else 0
 MASK = (1 << bits) - 1
 
 PCREL = set("bri brid brlid breai breaid brealid".split())
@@ -59,7 +63,7 @@ def read_ghidra(path):
         parts = line.rstrip("\n").split(" ", 2)
         if len(parts) < 3:
             continue
-        off = int(parts[0], 16)
+        off = int(parts[0], 16) - gdelta
         b = bytes.fromhex(parts[1])
         if len(b) != 4:
             continue
@@ -70,7 +74,10 @@ def read_ghidra(path):
             continue
         m = text.split(" ", 1)
         mn = m[0].lstrip("_")
-        res[off] = (word, (mn,) + tuple(parse_ops(m[1] if len(m) > 1 else "")))
+        ops = parse_ops(m[1] if len(m) > 1 else "")
+        if gdelta and mn in PCREL and ops and isinstance(ops[-1], int):
+            ops[-1] = (ops[-1] - gdelta) & MASK
+        res[off] = (word, (mn,) + tuple(ops))
     return res
 
 
@@ -138,6 +145,9 @@ for off in sorted(o):
         examples[key].append("%08x %08x  objdump: %-40s ghidra: %s" % (
             off, ow, " ".join(map(str, ot)), " ".join(map(str, gt))))
 
+# objdump instruction words with no Ghidra instruction at that address (not disassembled)
+missing = sorted(off for off in o if off not in g)
+print("objdump words not disassembled by Ghidra: %d of %d" % (len(missing), len(o)))
 print("compared %d words: %d match (%.3f%%), of which %d both invalid; %d mismatches" % (
     total, match, 100.0 * match / max(total, 1), both_invalid, total - match))
 for key, n in groups.most_common(maxshow):

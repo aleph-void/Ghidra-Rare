@@ -15,3 +15,8 @@ if (ghidraInstallDir) {
 else {
 	throw new GradleException("GHIDRA_INSTALL_DIR is not defined!")
 }
+
+// The module has no third-party dependencies. buildExtension.gradle's copyDependencies would
+// otherwise copy every jar it finds under Ghidra/Processors into lib/, including other
+// modules' jars when those are symlinked in from outside the Ghidra install.
+copyDependencies.enabled = false

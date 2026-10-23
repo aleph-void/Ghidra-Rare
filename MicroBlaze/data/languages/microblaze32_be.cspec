@@ -47,6 +47,15 @@
         <pentry minsize="1" maxsize="500" align="4">
           <addr offset="28" space="stack"/>
         </pentry>
+        <!-- Arguments take the next free r5-r10 registers in order. gcc passes a 64-bit (or
+             other multi-word) argument in the next consecutive
+             registers with no even-register alignment (e.g. f(p, u64 x): p=r5, x=r6:r7;
+             most significant word first on big endian, least significant first on little
+             endian), spilling to the stack when the registers run out. -->
+        <rule>
+          <datatype name="any"/>
+          <join/>
+        </rule>
       </input>
       <output killedbycall="true">
         <pentry minsize="1" maxsize="4" extension="inttype"><register name="r3"/></pentry>

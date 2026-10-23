@@ -124,6 +124,8 @@ define pcodeop extStore32;
 define pcodeop patternCompareByteCount;
 define pcodeop countLeadingZeros;
 define pcodeop softwareBreak;
+define pcodeop syscall;
+define pcodeop trap;
 
 ################################################################
 # Operand sub-tables
@@ -512,6 +514,17 @@ CC: "ge" is cond=5 & RA { local c:1 = RA s>= 0; export c; }
 :braid ABS   is op=0x2e & rd=0 & ra=0x18 & ABS { delayslot(1); goto ABS; }
 :bralid rd, ABS is op=0x2e & rd & ra=0x1c & ABS { rd = inst_start; delayslot(1); call ABS; }
 :brki rd, ABS  is op=0x2e & rd & ra=0x0c & ABS { rd = inst_start; rmsr = rmsr | 8; call ABS; }
+# Linux user-space system call: "brki r14, 0x8" enters the kernel through the user vector;
+# r12 holds the call number, r5-r10 the arguments, r3 the result, and the kernel resumes at
+# the next instruction. Modelled as a pcodeop so that it falls through (0x8 is not mapped in
+# a Linux process image).
+:brki rd, ABS  is op=0x2e & rdn=14 & ra=0x0c & imm16=8 & immflag=0 & immlcnt=0 & rd & ABS {
+	rd = inst_start; r3 = syscall(r12, r5, r6, r7, r8, r9, r10);
+}
+# gcc's __builtin_trap() is "brki r0, -1" (a jump to 0xffffffff that never returns).
+:brki rd, ABS  is op=0x2e & rdn=0 & ra=0x0c & imm16=0xffff & immflag=0 & immlcnt=0 & rd & ABS {
+	trap(); goto inst_start;
+}
 
 # mbar / sleep / hibernate / suspend (opcode 0x2e, rA bit 1 and bit 2 set)
 :mbar rdn     is op=0x2e & rdhi2=0 & rdn & ra_b1=1 & b02=1 { memoryBarrier(rdn:1); }
