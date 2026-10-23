@@ -58,11 +58,11 @@ Terms used below:
 | Real binaries | Demo program: 200/200 functions decompile on all four cores. TI local: 99.98–99.99% disassembly agreement, 0 bad instructions, 1 decompile failure in ~2,100 functions |
 | Doesn't work | Predicated `VST4D`/`VST16H` offsets print `(0x40)` where `dis7x` prints `(0)`. One C7524 `VAPYSB` form with an `SE0` source. Packet context is lost after an undecodable word (rare now). B0–B15 writes don't clear upper vector bits. The core isn't auto-selected; run `ghidra_scripts/C7xCoreCheck.java`, which reads `.c7xabi.attributes` and names the right language |
 
-### SASS: in progress, not yet committed
+### SASS: Ampere/Ada committed, other generations in progress
 
 | Area | State |
 |---|---|
-| Done | SM80, SM86, SM89 generated. SM80 99.99% of cuRAND corpus words and 98.2% of random words vs `nvdisasm`; SM86 99.94% on a held-out bitsandbytes cubin. Auto language selection from `e_flags` (CUDA ≤12 and CUDA 13 layouts) |
+| Done | SM80, SM86, SM89 committed. vs `nvdisasm`: 96.9–97.6% of random words, 99.94% of a held-out bitsandbytes sm_86 cubin, 100% of our own ptxas kernels; 99.99% on the cuRAND corpus (local-only check, never committed). Auto language selection from `e_flags` (CUDA ≤12 and CUDA 13 layouts) |
 | In progress | SM75, SM90, SM100, SM120 (128-bit); SM52 (64-bit) learning; 64-bit control-word support written, untested |
 | Not started | Volta (SM70/72), Kepler (SM35/37), remaining Pascal/Maxwell variants |
 
