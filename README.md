@@ -61,6 +61,5 @@ raw binary, which is useful for quick checks.
 
 ## License
 
-[PolyForm Noncommercial 1.0.0](LICENSE.md). Like the original IDA modules, this project may be
-used for non-commercial purposes only and comes with no warranty. Unlike them, it allows
-modification and redistribution for non-commercial purposes, so it can be fixed and extended.
+[MIT](LICENSE). This license covers only the code in this repository. It does not cover the
+original IDA modules, which have their own terms.
