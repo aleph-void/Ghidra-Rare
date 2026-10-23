@@ -1,0 +1,5 @@
+# TI C7x, C7524 core (256-bit vector registers), little endian
+@define SIL "7524"
+@define VLEN "32"
+@define ENDIAN "little"
+@include "c7x.sinc"

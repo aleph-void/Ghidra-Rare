@@ -1,0 +1,7 @@
+<opinions>
+  <!-- lnk7x emits e_machine 0x91 (145) for C7000 ELF objects/executables (ELFCLASS64, little endian).
+       The silicon version is not recorded in e_flags, so default to the C7100. -->
+  <constraint loader="Executable and Linking Format (ELF)" compilerSpecID="default">
+    <constraint primary="145" processor="C7x" endian="little" size="64" variant="C7100"/>
+  </constraint>
+</opinions>

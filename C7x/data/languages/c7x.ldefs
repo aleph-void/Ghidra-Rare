@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<language_definitions>
+  <language processor="C7x"
+            endian="little"
+            size="64"
+            variant="C7100"
+            version="1.0"
+            slafile="c7100.sla"
+            processorspec="c7x.pspec"
+            id="C7x:LE:64:C7100">
+    <description>TI C7x C7100 DSP (512-bit vectors)</description>
+    <compiler name="default" spec="c7x.cspec" id="default"/>
+    <external_name tool="IDA-PRO" name="c7x"/>
+  </language>
+  <language processor="C7x"
+            endian="little"
+            size="64"
+            variant="C7120"
+            version="1.0"
+            slafile="c7120.sla"
+            processorspec="c7x.pspec"
+            id="C7x:LE:64:C7120">
+    <description>TI C7x C7120 DSP (512-bit vectors)</description>
+    <compiler name="default" spec="c7x.cspec" id="default"/>
+    <external_name tool="IDA-PRO" name="c7120"/>
+  </language>
+  <language processor="C7x"
+            endian="little"
+            size="64"
+            variant="C7504"
+            version="1.0"
+            slafile="c7504.sla"
+            processorspec="c7x.pspec"
+            id="C7x:LE:64:C7504">
+    <description>TI C7x C7504 DSP (256-bit vectors)</description>
+    <compiler name="default" spec="c7x.cspec" id="default"/>
+    <external_name tool="IDA-PRO" name="c7504"/>
+  </language>
+  <language processor="C7x"
+            endian="little"
+            size="64"
+            variant="C7524"
+            version="1.0"
+            slafile="c7524.sla"
+            processorspec="c7x.pspec"
+            id="C7x:LE:64:C7524">
+    <description>TI C7x C7524 DSP (256-bit vectors)</description>
+    <compiler name="default" spec="c7x.cspec" id="default"/>
+    <external_name tool="IDA-PRO" name="c7524"/>
+  </language>
+</language_definitions>
