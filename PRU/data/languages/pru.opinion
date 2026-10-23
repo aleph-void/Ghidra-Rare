@@ -1,7 +1,10 @@
 <opinions>
   <!-- EM_TI_PRU = 144.  TI and GNU PRU ELFs carry no core revision in e_flags
-       (TI keeps it in the __TI_build_attributes section), so default to V3. -->
+       (TI keeps it in the __TI_build_attributes section), so the opinion
+       cannot tell V3 (AM335x/AM437x/AM57xx PRU-ICSS) from V4 (ICSSG) apart.
+       ELF imports default to V4: its decoder is V3 plus the two TSEN words,
+       which are reserved on V3, so it disassembles firmware for either. -->
   <constraint loader="Executable and Linking Format (ELF)" compilerSpecID="default">
-    <constraint primary="144" processor="PRU" endian="little" size="32" variant="v3"/>
+    <constraint primary="144" processor="PRU" endian="little" size="32" variant="v4"/>
   </constraint>
 </opinions>

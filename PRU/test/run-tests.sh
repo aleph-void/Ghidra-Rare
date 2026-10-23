@@ -23,6 +23,7 @@ echo "[1] compiling SLEIGH"
 python3 "$MOD/tools/gen_pru_sinc.py" > "$MOD/data/languages/pru.sinc"
 "$GHIDRA_INSTALL_DIR/support/sleigh" -a "$MOD/data/languages" 2>&1 | grep -E "^ERROR .*(sinc|slaspec)|No output" && exit 1 || true
 [[ -e $GHIDRA_INSTALL_DIR/Ghidra/Processors/PRU ]] || ln -sfn "$MOD" "$GHIDRA_INSTALL_DIR/Ghidra/Processors/PRU"
+"$HERE/build-jar.sh"   # PRU_ElfExtension -> lib/PRU.jar (ELF import tweaks)
 
 echo "[2] corpus"
 python3 "$HERE/gen_corpus.py" "$WORK/corpus.bin" "$NRAND" 1

@@ -50,6 +50,7 @@ def emit_header():
 #   PRU_MVI   MVIB/MVIW/MVID              (>= V2)
 #   PRU_SXFR  SXIN/SXOUT/SXCHG            (>= V3)
 #   PRU_LOOP  LOOP/ILOOP                  (>= V3)
+#   PRU_TSEN  TSEN (ICSSG task manager)   (V4)
 
 define endian=little;
 define alignment=4;
@@ -119,7 +120,9 @@ define token instr(32)
   mvisz   = (16,17)
   mvires  = (18,20)
   mvisrc  = (21,22)
-  mvidst  = (23,24)""")
+  mvidst  = (23,24)
+  low23   = (0,22)
+  rdbnz   = (5,6)    # = rdb, for constraints next to an rdb operand""")
     for f in ("rd", "rs1", "rs2"):
         lo = {"rd": 0, "rs1": 8, "rs2": 16}[f]
         for s in SELS:
@@ -134,6 +137,7 @@ define token instr(32)
     w("""
 define pcodeop halt;
 define pcodeop sleep;
+define pcodeop tsen;       # tsen(enable): ICSSG task manager enable/disable (V4)
 define pcodeop xin;        # xin(device_id, byte_index) -> data from XFR bus
 define pcodeop xout;       # xout(device_id, byte_index, data)
 define pcodeop xchg;       # xchg(device_id, byte_index, data) -> data
@@ -185,10 +189,19 @@ JT:  dest is io=1 & imm16 [ dest = imm16 << 2; ] { export *[code]:4 dest; }
 """)
 
 
-def chunks(n):
+UNALIGNED_UNROLL = 44  # unroll unaligned (rdb != 0) bursts up to this length
+
+
+def chunks(n, align=0):
+    """Split a register-file byte range of length n that starts at byte
+    'align' (0-3) of a register into naturally aligned 4/2/1-byte pieces, so
+    every varnode is a whole register or one of its b0-b3/w0/w2 parts and no
+    varnode straddles two registers (the decompiler cannot reconcile inputs
+    that partially overlap a parameter register)."""
     off = 0
     while n > 0:
-        c = 4 if n >= 4 else (2 if n >= 2 else 1)
+        pos = (align + off) % 4
+        c = next(c for c in (4, 2, 1) if c <= n and pos % c == 0)
         yield off, c
         off += c
         n -= c
@@ -253,8 +266,9 @@ def emit_blocks():
     # varnode at register-file byte offset (rd*4 + rdb + k)
     need = set()
     for L in range(1, 125):
-        for k, size in chunks(L):
-            need.add((k, size))
+        for a in range(4 if L <= UNALIGNED_UNROLL else 1):
+            for k, size in chunks(L, a):
+                need.add((k, size))
     for k, size in sorted(need):
         w("RF%d_%d: o is rd & rdb [ o = (rd << 2) + rdb + %d; ] { export *[register]:%d o; }" % (
             k, size, k, size))
@@ -271,15 +285,32 @@ def emit_blocks():
                 cons = "xlen=%d" % v
             if v < 124:
                 L = v + 1
-                body = []
-                ops = []
-                for k, size in chunks(L):
-                    name = "RF%d_%d" % (k, size)
-                    ops.append(name)
-                    body.append(stmt(kind, size, name, k))
                 extra = " & EA" if lk == "burst" else " & xwba"
-                w("%s: %d is %s%s & %s { %s }" % (
-                    kind, L, cons, extra, " & ".join(ops), " ".join(body)))
+                # One constructor per start byte (rdb) so that the pieces are
+                # aligned.  A start at .b1-.b3 with a long length is rare in
+                # real code, and unrolling it for every rdb would push the
+                # .sla past the 16 MB the Java decoder accepts, so lengths
+                # above UNALIGNED_UNROLL use a byte loop when rdb != 0.
+                for a in range(4 if L <= UNALIGNED_UNROLL else 1):
+                    body = []
+                    ops = []
+                    for k, size in chunks(L, a):
+                        name = "RF%d_%d" % (k, size)
+                        ops.append(name)
+                        body.append(stmt(kind, size, name, k))
+                    w("%s: %d is %s & rdb=%d%s & %s { %s }" % (
+                        kind, L, cons, a, extra, " & ".join(ops), " ".join(body)))
+                if L > UNALIGNED_UNROLL:
+                    w("%s: %d is %s & rd & rdb & rdbnz!=0%s {\n"
+                      "  local i:1 = 0;\n"
+                      "  <top>\n"
+                      "  if (i >= %d:1) goto <done>;\n"
+                      "  local p:4 = (rd << 2) + rdb + zext(i);\n"
+                      "  %s\n"
+                      "  i = i + 1;\n"
+                      "  goto <top>;\n"
+                      "  <done>\n"
+                      "}" % (kind, L, cons, extra, L, dyn_stmt(kind)))
             else:
                 b = v - 124
                 extra = " & EA" if lk == "burst" else " & xwba"
@@ -429,8 +460,17 @@ with : phase=1 {
             w(":lmbd D%d, N%d, OP2 is op3=1 & subop=3 & %s & %s & D%d & N%d & OP2 { %s }" % (
                 dsz, ssz, dc, sc, dsz, ssz, body))
     w("@endif")
-    w(""":halt is op3=1 & subop=5 { halt(); goto inst_start; }
+    # HALT stops the core until the host restarts it.  Firmware using the
+    # pru_rproc "syscall"/downcall convention (and asm that waits for the host)
+    # expects the host to resume it at the next instruction, so HALT falls
+    # through instead of being a terminator.
+    w(""":halt is op3=1 & subop=5 { halt(); }
 :slp wake is op3=1 & subop=15 & wake { sleep(wake:1); }
+@ifdef PRU_TSEN
+# TSEN 0/1 (task-manager enable, ICSSG).  dispru -v4 decodes exactly these
+# two words (0x32000000 / 0x32800000) and nothing else of subop 9.
+:tsen wake is op3=1 & subop=9 & io=0 & wake & low23=0 { tsen(wake:1); }
+@endif
 """)
     # XFR
     xfr = [(1, 0, "xin", "XINB", "PRU_XFR"), (2, 0, "xout", "XOUTB", "PRU_XFR"),

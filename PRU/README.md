@@ -16,18 +16,35 @@ two reference disassemblers: GNU binutils 2.45 `objdump -m pru` and TI PRU CGT
 | `PRU:LE:32:v0`  | V0            | base ISA (ALU, LDI, JMP/JAL, QBxx, LBBO/SBBO/LBCO/SBCO, HALT, SLP) |
 | `PRU:LE:32:v1`  | V1 (AM18xx / OMAP-L138 PRUSS) | + LMBD |
 | `PRU:LE:32:v2`  | V2            | + MVIB/MVIW/MVID, XIN/XOUT/XCHG (and ZERO/FILL = XIN 255/254) |
-| `PRU:LE:32:v3`  | V3 (AM335x, AM437x, AM57xx PRU-ICSS) **default** | + LOOP/ILOOP, SXIN/SXOUT/SXCHG |
-| `PRU:LE:32:v4`  | V4 (ICSSG)    | same decode as V3. TI CGT 2.3.3 assembles and disassembles nothing extra for `-v4`. |
+| `PRU:LE:32:v3`  | V3 (AM335x, AM437x, AM57xx PRU-ICSS) | + LOOP/ILOOP, SXIN/SXOUT/SXCHG |
+| `PRU:LE:32:v4`  | V4 (ICSSG: AM64x, AM65x, ...) **ELF default** | + TSEN 0/1 (task manager enable). That is the only addition TI CGT 2.3.3 knows: `clpru -v4` accepts it and `dispru -v4` decodes exactly the two words `0x32000000`/`0x32800000`. |
 
 The per-revision differences come from probing TI `clpru -vN` (which
 instructions it accepts) and `dispru` (which words it decodes for objects built
-with `-vN`). On a 25,886-word corpus, `dispru` gives identical output for V3 and
-V4.
+with `-vN`). A sweep of 196,096 patterned words (every top byte combined with
+every value of one other byte) found TSEN as the only V3/V4 difference.
 
 ELF: `EM_TI_PRU` (144), little-endian ELF32. Both TI and GNU executables import
 automatically (`data/languages/pru.opinion`). Neither ELF flavour records the
-core revision in `e_flags` (TI keeps it in `__TI_build_attributes`), so ELF
-imports default to **V3**. Pick another variant by hand if needed.
+core revision in `e_flags` (TI keeps it in `__TI_build_attributes`), so the
+opinion cannot tell V3 from V4. ELF imports default to **V4**: its decoder is
+V3 plus the two TSEN words, which are reserved on V3, so it disassembles
+firmware for either revision (V3 firmware simply never contains TSEN). Pick
+another variant by hand for V0-V2 firmware.
+
+`PRU_ElfExtension` (Java, `src/main/java`, built into `lib/PRU.jar`) adjusts
+PRU ELF imports:
+* **Entry point 0.** TI firmware is normally linked with `e_entry = 0`, which
+  Ghidra's ELF loader ignores. Stripped firmware then got no function and no
+  disassembly at all. The extension creates `entry` at code:0.
+* **TI local labels.** clpru/asmpru emit compiler and assembler local labels
+  (`$C$L12`, `$run$exit`, macro labels `$M$45$`, ...) as zero-size `STT_FUNC`
+  symbols. Names starting with `$` cannot be C functions, so these become
+  plain labels instead of one-instruction pseudo-functions.
+* **Constant table.** TI links record each constant-table base they use as an
+  absolute symbol `__PRU_CREG_BASE_C<n>`. These values are applied to `c<n>`
+  over the code, so LBCO/SBCO resolve without running
+  `PRUSetConstantTable.java`.
 
 ## Model
 
@@ -53,8 +70,11 @@ imports default to **V3**. Pick another variant by hand if needed.
   file.
   * Names follow binutils: `sp` = r2, `ra` = r3, `fp` = r4, with pspec aliases
     r2/r3/r4.
-  * R30 (GPO) and R31 (GPI/event status) are declared as cspec globals so their
-    reads and writes survive decompilation.
+  * R30 (GPO) and R31 (GPI/event status) are cspec globals and also a
+    `volatile` register range in the pspec. Every read and write is kept: a
+    sampling loop `mov r21.w0, r31.w0` is not folded into the last value
+    written to R31, and back-to-back `r30` writes (bit-banging) or an R31 event
+    write before HALT are not dropped as dead stores.
 * **Constant table.** `c0`..`c31` are registers that LBCO/SBCO read as their
   base address. Set their values with *Set Register Value*, or run
   `ghidra_scripts/PRUSetConstantTable.java`. That script loads the AM335x table
@@ -84,12 +104,24 @@ imports default to **V3**. Pick another variant by hand if needed.
   * LDI, JMP, JAL/CALL (link = word address of the next instruction) and RET
     (`return`).
   * QBxx compares `OP(255) <cond> REG1`. QBA, QBBS/QBBC, WBS/WBC.
-  * HALT is a self-loop terminator. SLP calls the `sleep` pcodeop.
+  * HALT calls the `halt` pcodeop and **falls through**. The core stops, and
+    the host restarts it. Firmware using the pru_rproc syscall/downcall
+    convention, or assembly that waits for the host, relies on the host
+    resuming at the next instruction (BeagleLogic does both). With HALT as a
+    terminator, that code was never disassembled. SLP calls the `sleep`
+    pcodeop. TSEN (V4) calls `tsen(enable)`.
   * MVIB/MVIW/MVID read and write the register file through a pointer, with
     post-increment and pre-decrement.
   * LBBO/SBBO/LBCO/SBCO with an immediate length 1..124 are unrolled into direct
     register varnodes, so the decompiler sees exactly which registers are
-    loaded or stored. A length in `r0.bN` becomes a byte loop.
+    loaded or stored. The pieces are naturally aligned (a whole register, `w0`,
+    `w2` or a byte) and never straddle two registers. A straddling varnode,
+    such as `sbbo &r13.b1, ..., 4`, made the decompiler fail with "Cannot
+    properly adjust input varnodes". There is one constructor per start byte up
+    to 44 bytes, which covers the TI prologue/epilogue `sbbo &r3.b2, sp, 0, 2+4n`.
+    An unaligned burst longer than 44 bytes, or a length in `r0.bN`, becomes a
+    byte loop. Unrolling those too would push the `.sla` past the 16 MB the
+    Java decoder accepts.
   * ZERO/FILL (XIN 255/254) write the register range.
 * **Named pcodeops that still read/write the right registers:**
   * XIN/XOUT/XCHG/SXIN/SXOUT/SXCHG: `xin(dev, byte)`, `xout(dev, byte, val)`
@@ -105,7 +137,7 @@ imports default to **V3**. Pick another variant by hand if needed.
 
 ## Coverage, measured by `test/run-tests.sh`
 
-The corpus has 25,886 words. The structured part covers:
+The corpus has 25,892 words. The structured part covers:
 * every opcode and sub-opcode, every register selector, IO on/off;
 * all 128 burst and XFR length encodings;
 * every MVI size and mode;
@@ -119,7 +151,8 @@ pseudo-ops.
 | comparison                      | words decoded by the reference | exact  | semantic |
 |---------------------------------|------------------|--------|----------|
 | V3/V4 vs GNU objdump 2.45       | 18,443 | **100.00 %** | 100.00 % |
-| V3/V4 vs TI dispru (`-v3`/`-v4`) | 17,555 | 99.90 % | **100.00 %** |
+| V3 vs TI dispru `-v3`           | 17,555 | 99.90 % | **100.00 %** |
+| V4 vs TI dispru `-v4`           | 17,557 | 99.90 % | **100.00 %** |
 | V2 vs TI dispru `-v2`           | 17,429 | 99.90 % | 100.00 % |
 | V1 vs TI dispru `-v1`           | 17,125 | 99.91 % | 100.00 % |
 | V0 vs TI dispru `-v0`           | 16,915 | 99.91 % | 100.00 % |
@@ -129,9 +162,9 @@ pseudo-ops.
   instructions.
 * Ghidra never fails on a word that a reference decodes.
 * Words Ghidra decodes but a reference rejects:
-  * **vs objdump: 187.** 97 are `not` with IO=0, which is how TI `clpru`
-    encodes NOT and which binutils cannot decode. The other 90 are MVIx, which
-    binutils lacks; those match TI.
+  * **vs objdump: 187 (V3), 189 (V4).** 97 are `not` with IO=0, which is how
+    TI `clpru` encodes NOT and which binutils cannot decode. 90 are MVIx, which
+    binutils lacks; those match TI. The V4 extra 2 are TSEN.
   * **vs dispru: 850 to 1,075.** These are JMP/JAL/LDI/HALT/SLP/LOOP words
     whose reserved fields are non-zero. dispru rejects them; binutils, the
     primary reference, decodes them, and so does this module.
@@ -149,17 +182,77 @@ Other checks:
   * `test/elf/demo_v3.elf` is built with TI clpru 2.3.3 `-O2`: C plus an
     assembly file using LBCO/SBCO, LOOP, MVI and XOUT.
   * `test/elf/gnu_demo.elf` is built with GNU as/ld 2.45.
-  * Both import as `PRU:LE:32:v3`, auto-analyze, and decompile every function
+  * Both import as `PRU:LE:32:v4` (the ELF default), auto-analyze, and decompile every function
     without errors. Calls, arguments, returns, loops, the switch chain, the
     constant-table addresses and the R30/R31 I/O all come out readable.
+
+## Real-world binaries (`test/real-binaries.sh`)
+
+`test/fetch-real-samples.sh` downloads the samples from pinned release URLs and
+checks their SHA-256. The binaries are not committed.
+`test/real-binaries.sh` then runs `test/real-check.sh` on each sample:
+* headless import **without** `-processor`;
+* auto-analysis;
+* decompile every function (`PruRealCheck.java`);
+* diff the analysed listing of the executable sections against
+  `objdump -D -z -m pru` and `dispru -v3` over the same bytes
+  (`elf_code.py`, `real_compare.py`, same normalization as `compare.py`).
+
+Samples: **BeagleLogic release-v1.1** (GPL-3.0, Kumar Abhishek),
+`beaglelogic-pru0` and `beaglelogic-pru1`. They are TI clpru ELFs for AM335x
+with debug info, built from `beaglelogic-firmware/` at tag `release-v1.1`
+(commit aa771f4c). pru0 is C plus an assembly capture loop and the pru_rproc
+syscall stubs. pru1 is hand-written assembly: the sampling loops and
+`HALT`-and-wait.
+
+| | beaglelogic-pru0 | beaglelogic-pru1 |
+|---|---|---|
+| language picked by the ELF opinion | `PRU:LE:32:v4` | `PRU:LE:32:v4` |
+| functions after analysis | 12 | 8 |
+| code words disassembled by analysis | 205 / 205 | 481 / 482 (the remaining word is a dead `halt` after `jmp`) |
+| bad-instruction / error bookmarks | 0 | 0 |
+| functions decompiled (no failures, no timeouts) | 12 / 12 | 8 / 8 |
+| vs objdump (exact) | 205 / 205 | 481 / 481 |
+| vs dispru (exact / semantic) | 180 / 205 (pseudo-op spelling), 205 / 205 | 477 / 481, 481 / 481 |
+
+The decompiled output was checked against the source:
+* `configure_capture`, `main` (event polling, the `run()` call, the PRU1
+  reset) and the `run()` assembly loop (`xin 10, &r21, 36` into the
+  scatter/gather buffers) read like the source.
+* `handle_downcall` comes out as the right `if` chain over the downcall ids.
+  Its returns, however, are `jmp ra.w0` (the downcall ABI), so they show up as
+  "Treating indirect jump as call".
+
+Bugs this check found and fixed, with the numbers before each fix:
+* **HALT was a terminator.** The code after `HALT` in the syscall stubs and
+  in pru1's `main` was never disassembled (pru0 had 196/205 words, pru1 had
+  471/482).
+* **TI local labels became functions.** pru0 had 39 functions and pru1 had
+  116 (`$C$L*`, `$run$*`, `$M$*`/`$E$*` macro labels). The new
+  `PRU_ElfExtension` fixes this.
+* **R31 reads were constant-folded.** In pru1's sampling loops, every
+  `mov r21.w0, r31.w0` decompiled to the last value written to R31 (`0x2b`)
+  instead of a pin sample. R30 and R31 are now volatile.
+
+Other fixes made during the same review, found by probing the reference
+tools and stress-testing analysis:
+* **`e_entry = 0` imports.** A stripped ELF linked at entry 0 (the TI
+  default) got no function and no disassembly at all. Fixed in
+  `PRU_ElfExtension`.
+* **TSEN (V4).** It was undecodable. It is now added for V4, and ELF imports
+  default to V4.
+* **Unaligned bursts.** Bursts such as `lbco &r21.b3, ...` and
+  `sbbo &r3.b2, sp, 0, 34` were unrolled into register varnodes that
+  straddled two registers, so a function could fail to decompile with
+  "Cannot properly adjust input varnodes". The pieces are now aligned.
 
 ## Known gaps
 
 * **SCAN (V0 only, deprecated)** is not decoded. Its encoding is not
   documented, and neither clpru 2.3.3 nor binutils supports it.
-* **V4 / ICSSG extensions** beyond the V3 instruction set are not modelled,
-  because the TI CGT used here has none. Additions such as task manager or
-  broadside device semantics would need newer TI tools or docs.
+* **V4 / ICSSG extensions** beyond TSEN are not modelled, because the TI CGT
+  used here knows no others. TSEN is an opaque pcodeop. The task manager's
+  effect on control flow (hardware task switches) is not modelled.
 * **XFR devices other than MPY/MAC** (scratchpad banks 10-12, the other PRU's
   registers, broadside accelerators) are opaque pcodeops. SXIN/SXOUT/SXCHG
   have the same data flow as XIN/XOUT/XCHG.
@@ -173,17 +266,32 @@ Other checks:
 * **Decode strictness follows binutils.** Words with non-zero reserved fields
   decode where dispru prints `.word`. MVIx follows TI: pointers must be
   `r1.b0`..`r1.b3` and the reserved bits must be zero.
-* **TI local labels.** TI emits `$C$Ln` and assembly labels as zero-size
-  `STT_FUNC` symbols, so Ghidra creates functions at them.
-  `ghidra_scripts/PRUFixupTiLabels.java` removes these and re-derives the
-  function bodies. Use it as a `-preScript` and/or `-postScript`, or run it
-  from the Script Manager. It is not run automatically.
+* **TI assembly labels.** `PRU_ElfExtension` turns `$`-prefixed local labels
+  into plain labels. Assembly labels with ordinary names (BeagleLogic's
+  `sample100m8`, `samplexm`, ...) are still zero-size `STT_FUNC` symbols and
+  still become functions, so a jump to one looks like a tail call.
+  `ghidra_scripts/PRUFixupTiLabels.java` removes these after analysis and
+  re-derives the function bodies. Use it as a `-postScript`, or run it from
+  the Script Manager. It is not run automatically.
+* **Hand-written assembly calling conventions.** `jal rX.w2, f` with a link
+  register other than `r3.w2`, and returns such as `jmp r24.w2` or `jmp ra.w0`,
+  are modelled as a call and an indirect jump. The decompiler shows such a
+  return as "Treating indirect jump as call". It is still correct, but noisy.
+  Ghidra does not infer that a routine reached by `jal` never returns. A
+  `jal` as the last word of `.text` then shows up as flow into non-existent
+  memory and `halt_baddata()` in its callers.
+* **HALT falls through** (see Semantics). After the last HALT of a routine
+  that the host never resumes, analysis continues into whatever follows. For
+  example, BeagleLogic's `sc_downcall` runs into `_c_int00`.
+* **Register-offset LBCO/SBCO** (`sbco &r8, c0, r0.w0, 4`) do not get a data
+  reference even when `cN` is known. The decompiler shows the base as a
+  constant plus the offset.
 * **The constant-table helper only knows AM335x.** Use overrides, or set the
   registers by hand, for other devices: AM437x/AM57xx/K3 entries differ for
   some indexes.
 * **Untested:** big-endian PRU ELFs, which the TI tools can produce but which
   are not declared; relocatable `.obj` imports; V0/V1/V2 ELFs on real
-  firmware.
+  firmware; GNU-toolchain (pru-gcc) firmware beyond `test/elf/gnu_demo.elf`.
 
 ## Files
 
@@ -198,6 +306,11 @@ test/run-tests.sh                  full test: corpus, objdump, dispru, Ghidra, c
 test/gen_corpus.py, compare.py, ti_dis.py, ghidra-dis.sh, PruDumpDisasm.java
 test/emu-test.sh, PruEmuTest.java, emu/   p-code emulation test (TI-assembled emu_test.bin)
 test/elf-check.sh, PruElfCheck.java, elf/ ELF import/decompile check (demo_v3.elf, gnu_demo.elf)
+test/build-jar.sh                  compile src/main/java into lib/PRU.jar (quick path for tests)
+test/fetch-real-samples.sh         download the public real-world samples (pinned, sha256-checked)
+test/real-binaries.sh              real-world check: fetch + real-check.sh per sample -> real-report.txt
+test/real-check.sh, PruRealCheck.java, elf_code.py, real_compare.py   import/analyze/decompile/diff one ELF
+src/main/java/.../PRU_ElfExtension.java  ELF import tweaks (entry 0, TI labels, constant table)
 ```
 
 ## Running the tests
@@ -207,7 +320,14 @@ export GHIDRA_INSTALL_DIR=/path/to/ghidra_12.1.4_PUBLIC
 export OBJDUMP=/path/to/binutils-2.45/build/binutils/objdump   # built with --enable-targets=pru-elf
 export TI_CGT=/path/to/ti-cgt-pru_2.3.3                          # optional: per-version TI comparison
 test/run-tests.sh /tmp/pru-test        # report in /tmp/pru-test/report.txt
+test/real-binaries.sh /tmp/pru-real    # real-world firmware; report in /tmp/pru-real/real-report.txt
 ```
+
+Both scripts build `lib/PRU.jar` with `test/build-jar.sh`, which needs `javac`
+21 or newer. Ghidra loads a module's Java code only from `<module>/lib/*.jar`.
+Without the jar, the language still works, but the ELF import tweaks
+(`PRU_ElfExtension`) are inactive. Delete `lib/` before running
+`gradle buildExtension`, which builds and packages its own `lib/PRU.jar`.
 
 The TI CGT Linux installer (`ti_cgt_pru_2.3.3_linux_installer_x86.bin`) is a
 32-bit BitRock installer. On current distributions, run it with

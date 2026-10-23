@@ -39,6 +39,8 @@ def main():
     for sub in range(16):
         for _ in range(24):
             ws.append((1 << 29) | (sub << 25) | rnd.getrandbits(25))
+    # TSEN (V4 only: exactly 0x32000000 / 0x32800000) and near misses
+    ws += [0x32000000, 0x32800000, 0x33000000, 0x32800001, 0x32400000, 0x33800000]
     # JMP/JAL/ret/call specials
     ws += [0x20c30000, 0x21001234, 0x230000c3, 0x228100c3, 0x2300ffc3, 0x2100ffff]
     # XFR: all xsub x S, special device ids, all lengths

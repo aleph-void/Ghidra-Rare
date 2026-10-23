@@ -16,5 +16,9 @@
   <volatile outputop="write_volatile" inputop="read_volatile">
     <!-- PRU-ICSS local peripherals (INTC, CFG, UART, eCAP, IEP, MII_RT, MDIO) -->
     <range space="data" first="0x20000" last="0x3ffff"/>
+    <!-- R30 (GPO: every write drives the output pins, e.g. bit-banging) and
+         R31 (a write generates a system event, a read returns the GPI pins and
+         interrupt status): no access may be merged, folded or dropped -->
+    <range space="register" first="0x78" last="0x7f"/>
   </volatile>
 </processor_spec>

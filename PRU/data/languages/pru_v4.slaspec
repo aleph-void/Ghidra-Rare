@@ -4,4 +4,5 @@
 @define PRU_MVI ""
 @define PRU_SXFR ""
 @define PRU_LOOP ""
+@define PRU_TSEN ""
 @include "pru.sinc"
