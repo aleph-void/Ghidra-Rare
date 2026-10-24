@@ -89,7 +89,7 @@ def main():
             f.write('# %s test vectors: %d instruction words from %s, %d random words nvdisasm accepts\n' % (
                 v, len(real), ', '.join(srcs), len(fw)))
             f.write('# bitsandbytes (https://github.com/bitsandbytes-foundation/bitsandbytes) is MIT licensed;\n')
-            f.write('# k*.cubin are built by ptxas from test/ptx/kernels.ptx.\n')
+            f.write('# k*.cubin are built from test/ptx/kernels.ptx (ptxas) and test/cuda/kernels.cu (test/build-cu-cubins.sh).\n')
             for w in real + fw:
                 f.write('%0*x\n' % (2 * isz, w))
     else:

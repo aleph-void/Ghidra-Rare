@@ -73,6 +73,11 @@ def _check(fj):
 def LN_to_json(f):
     return to_json(f)
 
+def reliable(f, thr=0.9):
+    sc = f.get('score', {})
+    ok = sc.get('ok', 0); bad = sc.get('bad', 0) + sc.get('under', 0)
+    return ok + bad == 0 or ok / (ok + bad) >= thr
+
 class Spec:
     def __init__(self, arch):
         self.arch = arch
@@ -84,7 +89,8 @@ class Spec:
             self.byop[k].append(f)
     def match(self, w, text):
         """Return (form, ok) of the first form whose pattern matches w and renders text."""
-        cands = [f for f in self.byop.get(word_key(self.arch, w), []) + self.byop.get(None, []) if (w & f['mask']) == f['val']]
+        cands = [f for f in self.byop.get(word_key(self.arch, w), []) + self.byop.get(None, []) if (w & f['mask']) == f['val']
+                 and reliable(f)]
         for f in cands:
             try:
                 if same_text(render(f, w), text):
@@ -104,6 +110,10 @@ def main():
     ap.add_argument('--max-new', type=int, default=4000)
     ap.add_argument('--resume', action='store_true')
     ap.add_argument('--init', help='spec of a related architecture to transfer forms from')
+    ap.add_argument('--relearn', action='store_true',
+                    help='first relearn (from their seeds) all forms below 90%% validation accuracy, keeping the better form')
+    ap.add_argument('--alias-probes', action='store_true',
+                    help='also seed every immediate with powers of two (nvdisasm prints aliases such as IMAD.SHL for them)')
     a = ap.parse_args()
     arch = a.arch
     out = a.out or os.path.join(HERE, '..', 'spec', arch + '.json')
@@ -129,6 +139,30 @@ def main():
         for f in json.load(open(out))['forms']:
             spec.add(from_json(f))
     allseeds = seeds + probes
+    if a.alias_probes and spec.forms:
+        aw = []
+        for f in spec.forms:
+            w0 = int(f['seed'], 16)
+            for s_ in f['slots']:
+                if s_['cls'] != 'hex' or s_.get('pcrel') or len(s_['bits']) < 5:
+                    continue
+                rz = [r for r in f['slots'] if r['cls'] in ('R', 'UR') and len(r['bits']) in (6, 8)]
+                for k in range(min(len(s_['bits']) - (1 if s_.get('signed') else 0), 32)):
+                    x = w0
+                    for i, b in enumerate(s_['bits']):
+                        x = (x & ~(1 << b)) | ((((1 << k) >> i) & 1) << b)
+                    aw.append(x)
+                    # aliases often also need one register operand to be RZ (IMAD.SHL Rd, Ra, 2^k, RZ)
+                    for r in rz[1:]:
+                        y = x
+                        for b in r['bits']:
+                            y |= 1 << b
+                        aw.append(y)
+        aw = sorted(set(aw))
+        at = nvd.disasm(arch, aw, use_cache=False)
+        extra = [(w, t) for w, t in zip(aw, at) if t]
+        allseeds += extra
+        print('alias probes', len(aw), 'valid', len(extra), flush=True)
     tried = set()
     errors = []
     with mp.Pool(a.jobs, initializer=_init, initargs=(arch,)) as pool:
@@ -139,6 +173,28 @@ def main():
                 if fj:
                     spec.add(from_json(fj)); kept += 1
             print('transferred', kept, 'of', len(src), 'forms from', a.init, '%.0fs' % (time.time() - t0), flush=True)
+        if a.relearn:
+            def acc(f):
+                sc = f.get('score', {})
+                ok = sc.get('ok', 0); bad = sc.get('bad', 0) + sc.get('under', 0)
+                return ok / max(1, ok + bad)
+            weak = [k for k, f in enumerate(spec.forms) if not reliable(f)]
+            bymask = {int(spec.forms[k]['seed'], 16): k for k in weak}
+            print('relearning', len(weak), 'weak forms', flush=True)
+            better = 0
+            forms = list(spec.forms)
+            for seed, fj, err, dt in pool.imap_unordered(_learn, list(bymask), chunksize=1):
+                if fj is None:
+                    continue
+                f = from_json(fj)
+                k = bymask[seed]
+                if acc(f) > acc(forms[k]):
+                    forms[k] = f; better += 1
+            spec = Spec(arch)
+            for f in forms:
+                spec.add(f)
+            json.dump(dict(arch=arch, forms=[to_json(f) for f in spec.forms]), open(out, 'w'))
+            print('  improved', better, '%.0fs' % (time.time() - t0), flush=True)
         for rnd in range(a.rounds):
             unc = []
             for w, t in allseeds:

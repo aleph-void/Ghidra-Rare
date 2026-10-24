@@ -25,9 +25,11 @@ import semantics as SEM
 
 GUARD_BITS = [12, 13, 14, 15]
 SEG_MAX = int(os.environ.get('SASS_SEG_MAX', '1024'))
+KEEP_NESTED = os.environ.get('SASS_KEEP_NESTED', '0') == '1'
+EXC_BITS = int(os.environ.get('EXC_BITS', '8'))
 CUBE_CAP = int(os.environ.get('SASS_CUBE_CAP', '100000'))
 RSIZE = {'d4': 4, 'd8': 8, 'd16': 16, 's4': 4, 's8': 8, 's16': 16, 'f4': 4, 'f8': 8, 'p': 1, 'pd': 1,
-         'a': 8, 'h': 2, 'cb1': 4, 'cb2': 4, 'cb4': 4, 'cb8': 8, 'cb16': 16, 'sr': 4, 't': 8}
+         'a': 8, 'h': 2, 'cb1': 1, 'cb2': 2, 'cb4': 4, 'cb8': 8, 'cb16': 16, 'sr': 4, 't': 8}
 
 def runs(bits):
     """Contiguous runs of bit positions; never crossing the 64-bit boundary of the
@@ -171,14 +173,51 @@ class Gen:
             GUARD_BITS = [18, 19, 20, 21] if arch in ('SM35', 'SM37') else [16, 17, 18, 19]
         self.forms = forms
         self.fields = {}
+        self.stats = collections.Counter()
+        for f in forms:
+            self.repair_gis(f)
         self.attach = {}
         self.tables = collections.OrderedDict()
         self.tabkey = {}
         self.roots = []
-        self.stats = collections.Counter()
         self.pcodeops = set(['sass_exit'])
         self.used_forms = []
         self.srs = set()
+
+    def repair_gis(self, f):
+        """Specials refer to groups by index; specs processed by an older
+        fix_reuse.py could have the groups reordered.  Re-point an index whose group
+        is outside the special's token range (or is the guard) at the unique
+        group that fits."""
+        G = f['groups']
+        keep = []
+        for sp in f.get('specials', []):
+            if 'gis' not in sp:
+                keep.append(sp); continue
+            try:
+                # case keys: "<slot states>|<group values>", each part comma separated
+                vals = [{int(k.split('|')[1].split(',')[n]) for k in sp['cases']} for n in range(len(sp['gis']))]
+            except (IndexError, ValueError):
+                keep.append(sp); continue
+            def fits(k, n):
+                g = G[k] if 0 <= k < len(G) else None
+                return (g is not None and not set(g['bits']) & set(GUARD_BITS) and sp['lo'] <= g['lo'] and g['hi'] <= sp['hi']
+                        and vals[n] <= {int(x) for x in g['table']})
+            gis = list(sp['gis'])
+            ok = True
+            for n, k in enumerate(gis):
+                if fits(k, n):
+                    continue
+                cand = [j for j in range(len(G)) if j not in gis and fits(j, n)]
+                if len(cand) == 1:
+                    gis[n] = cand[0]; self.stats['gis_repaired'] += 1
+                else:
+                    ok = False
+            if ok:
+                sp['gis'] = gis; keep.append(sp)
+            else:
+                self.stats['gis_dropped'] += 1
+        f['specials'] = keep
 
     # ------------------------------------------------------------ fields
     def field(self, lo, hi, signed=False):
@@ -672,7 +711,7 @@ class Gen:
             total *= len(x)
         if total > SEG_MAX:
             raise Unsupported('segment too large')
-        cons = []
+        recs = []
         for gv in itertools.product(*gvals):
             for sv in itertools.product(*svals):
                 w = w0
@@ -733,11 +772,110 @@ class Gen:
                             body += ' local ex:%d = %s; export ex;' % (sz, val.split(':')[0])
                     else:
                         body += ' export %s;' % val
-                pat = ' & '.join(c + ops) if (c + ops) else 'epsilon'
-                cons.append('@@: %s is %s { %s }' % (disp, pat, body))
+                recs.append((gv, sv, disp, c, ops, body))
+        cons = self.collapse_numeric(groups, recs)
         if not cons:
             raise Unsupported('empty segment')
         return self.table('G', cons)
+
+    def collapse_numeric(self, groups, recs):
+        """Constructors of a segment that differ only in one hex literal which is a
+        linear function of a large group's raw value (an immediate the learner kept
+        as a modifier group) become one constructor computing the value."""
+        def plain(r):
+            gv, sv, disp, c, ops, body = r
+            pat = ' & '.join(c + ops) if (c + ops) else 'epsilon'
+            return '@@: %s is %s { %s }' % (disp, pat, body)
+        big = [] if os.environ.get('SASS_NO_COLLAPSE') else [j for j, g in enumerate(groups) if len(g['bits']) >= 5 and sum(1 for o in g['table'].values() if o is not None) >= 32]
+        if not big:
+            return [plain(r) for r in recs]
+        j = max(big, key=lambda j: len(groups[j]['bits']))
+        g = groups[j]
+        gcons = set(self.cons_bits(g['bits'], 0))
+        gfields = {x.split('=')[0] for x in gcons}
+        HEX = re.compile(r'-?0x[0-9a-f]+')
+        EXP = re.compile(r'local ex:(\d+) = (0x[0-9a-f]+|\d+); export ex;')
+        classes = collections.defaultdict(list)
+        for k, r in enumerate(recs):
+            gv, sv, disp, c, ops, body = r
+            ms = list(HEX.finditer(disp))
+            for i, m in enumerate(ms):
+                tmpl = disp[:m.start()] + '#' + disp[m.end():]
+                h = int(m.group(0), 16)
+                be = EXP.search(body)
+                btmpl = EXP.sub('#EX', body)
+                rest = tuple(x for x in c if x.split('=')[0] not in gfields)
+                key = (tuple(v for q, v in enumerate(gv) if q != j), sv, i, tmpl, btmpl, rest, tuple(ops),
+                       be.group(1) if be else None)
+                classes[key].append((gv[j], h, be, k))
+        used = set()
+        out = []
+        for key, mem in sorted(classes.items(), key=lambda kv: -len(kv[1])):
+            mem = [x for x in mem if x[3] not in used]
+            if len(mem) < 16:
+                continue
+            mem.sort()
+            (v0, h0, _, _), (v1, h1, _, _) = mem[0], mem[1]
+            if (h1 - h0) % (v1 - v0):
+                continue
+            sc = (h1 - h0) // (v1 - v0); a = h0 - sc * v0
+            if sc == 0 or any(h != a + sc * v for v, h, _, _ in mem):
+                self.stats['collapse_nonlinear'] += 1
+                continue
+            neg = h0 < 0
+            if any((h < 0) != neg for _, h, _, _ in mem):
+                continue
+            # the general constructor must not match more values than before: restrict
+            # it to the cube of values the class shares, all of which must be valid
+            nb = len(g['bits'])
+            vals = [v for v, _, _, _ in mem]
+            cm = (1 << nb) - 1
+            for v in vals:
+                cm &= ~(v ^ vals[0])
+            cv = vals[0] & cm
+            if any(g['table'].get(x, g['table'].get(str(x))) is None for x in range(1 << nb) if (x & cm) == cv):
+                self.stats['collapse_invalid_cube'] += 1
+                continue
+            imask = ival = 0
+            for i, b in enumerate(g['bits']):
+                if (cm >> i) & 1:
+                    imask |= 1 << b
+                    ival |= ((cv >> i) & 1) << b
+            sz = key[7]
+            if sz is not None:
+                msk = (1 << (8 * int(sz))) - 1
+                if int(sz) > 8 or any(int(be.group(2), 0) != (h & msk) for _, h, be, _ in mem):
+                    continue
+            raw = self.value_expr({'bits': g['bits'], 'scale': 1, 'add': 0})
+            fs = sorted(set(re.findall(r'f\d+_\d+s?', raw)))
+            # magnitude shown: |a + sc*v|
+            ms_, ma = (-sc, -a) if neg else (sc, a)
+            e = '(%s)' % raw
+            if ms_ < 0:
+                e = '0 - %s * %d' % (e, -ms_)
+            elif ms_ != 1:
+                e = '%s * %d' % (e, ms_)
+            if ma:
+                e = '%s %s %d' % (e, '+' if ma > 0 else '-', abs(ma))
+            r0 = recs[mem[0][3]]
+            gvx, sv, disp, c, ops, body = r0
+            tmpl, btmpl, rest = key[3], key[4], key[5]
+            d = tmpl.replace('#', ('-' if neg else '') + '"^gnv^"', 1)
+            d = re.sub(r'(^|\^)""(\^|$)', lambda m_: '^' if m_.group(1) and m_.group(2) else '', d).strip('^')
+            act = '[ gnv = %s; ]' % e
+            if sz is None:
+                b = btmpl
+            elif neg:
+                b = btmpl.replace('#EX', 'local ex:%s = 0 - gnv; export ex;' % sz)
+            else:
+                b = btmpl.replace('#EX', 'export *[const]:%s gnv;' % sz)
+            pat = ' & '.join(list(rest) + self.cons_mask(imask, ival) + list(ops) + fs)
+            out.append('@@: %s is %s %s { %s }' % (d, pat, act, b))
+            for x in mem:
+                used.add(x[3])
+            self.stats['numeric_collapsed'] += 1
+        out += [plain(r) for k, r in enumerate(recs) if k not in used]
+        return out
 
     def guard_table(self, g):
         cons = []
@@ -904,6 +1042,10 @@ class Gen:
                             nxt.append((m, v)); continue
                         if m != m2 and (m2 & ~m) == 0:
                             nxt.append((m, v)); continue
+                        if m != m2 and (m & ~m2) == 0 and (KEEP_NESTED or bin(m2 & ~m).count('1') >= EXC_BITS):
+                            # the placed cube is more specific: SLEIGH prefers it (nesting is
+                            # re-checked after all forms are placed)
+                            nxt.append((m, v)); continue
                         if m == m2:
                             continue
                         extra = [b for b in range(128) if (m2 >> b) & 1 and not (m >> b) & 1]
@@ -912,11 +1054,17 @@ class Gen:
                             nxt.append((mm | (1 << b), vv | (((~v2 >> b) & 1) << b)))
                             mm |= 1 << b
                             vv |= ((v2 >> b) & 1) << b
+                        if bin(m & ~m2).count('1') >= EXC_BITS:
+                            # a value-specific exception (alias with a fixed immediate,
+                            # RZ operand ...): its overlap with the placed cube is strictly
+                            # more specific than that cube, so SLEIGH prefers it there
+                            nxt.append((mm, vv))
                     mine = nxt
                     if len(mine) > CUBE_CAP:
                         mine = mine[:CUBE_CAP]
                         self.stats['cube_cap'] += 1
-                if len(mine) > 32 and f.get('evidence', [0, 0])[0] == 0:
+                ev_ok = f.get('evidence', [0, 0])[0]
+                if (len(mine) > 32 and ev_ok == 0) or (len(mine) > 96 and ev_ok < 500):
                     # an exotic form (never seen in real code or probes) that would need many
                     # root constructors to stay out of the way of better forms: leave it out
                     self.stats['dropped_exotic'] += 1
@@ -927,6 +1075,52 @@ class Gen:
                 cubes[i] = mine
                 if not mine:
                     self.stats['dropped'] += 1
+            # fix-up: a cube kept whole because a higher-priority cube was nested inside it
+            # may have been split later so that the two only partly overlap; subtract then
+            order = [(i, c) for i in ids for c in cubes.get(i, [])]
+            for _ in range(4):
+                changed = False
+                new = {i: [] for i in ids}
+                done = []
+                for i, (m, v) in order:
+                    pieces = [(m, v)]
+                    for j, (m2, v2) in done:
+                        if j == i:
+                            continue
+                        nxt = []
+                        for (pm, pv) in pieces:
+                            common = pm & m2
+                            if (pv & common) != (v2 & common):
+                                nxt.append((pm, pv)); continue
+                            if pm == m2:
+                                changed = True
+                                continue    # identical to an earlier cube: drop
+                            if (m2 & ~pm) == 0 or (pm & ~m2) == 0:
+                                nxt.append((pm, pv)); continue
+                            changed = True
+                            extra = [b for b in range(128) if (m2 >> b) & 1 and not (pm >> b) & 1]
+                            mm, vv = pm, pv
+                            for b in extra:
+                                nxt.append((mm | (1 << b), vv | (((~v2 >> b) & 1) << b)))
+                                mm |= 1 << b
+                                vv |= ((v2 >> b) & 1) << b
+                        pieces = nxt
+                    for p in pieces:
+                        new[i].append(p)
+                        done.append((i, p))
+                seen = set()
+                for i in ids:
+                    u = []
+                    for (pm, pv) in new[i]:
+                        k = (pm, pv & pm)
+                        if k not in seen:
+                            seen.add(k); u.append((pm, pv))
+                    new[i] = u
+                order = [(i, c) for i in ids for c in new[i]]
+                for i in ids:
+                    cubes[i] = new[i]
+                if not changed:
+                    break
         return cubes
 
     def generate(self):
@@ -971,18 +1165,32 @@ class Gen:
             self.stats['split_forms'] += 1
             work.extend(subs)
         self.forms = out
-        cubes = self.resolve()
+        # forms whose constructors cannot be generated are left out and the patterns
+        # resolved again, so that they do not leave holes in the forms they overlap
+        for attempt in range(3):
+            cubes = self.resolve()
+            built = {}
+            failed = []
+            for i, f in enumerate(self.forms):
+                if not cubes.get(i):
+                    continue
+                try:
+                    built[i] = self.form_constructors(i, f, cubes[i])
+                except Unsupported as e:
+                    failed.append((i, 'unsupported:' + str(e)[:30]))
+                except Exception as e:
+                    failed.append((i, 'error:' + type(e).__name__))
+            if not failed or attempt == 2:
+                break
+            bad = {i for i, _ in failed}
+            self.forms = [f for i, f in enumerate(self.forms) if i not in bad]
+            self.tables.clear(); self.tabkey.clear()
+        for _, why in failed:
+            self.stats[why] += 1
         for i, f in enumerate(self.forms):
-            if not cubes.get(i):
+            if i not in built:
                 continue
-            try:
-                cs = self.form_constructors(i, f, cubes[i])
-            except Unsupported as e:
-                self.stats['unsupported:' + str(e)[:30]] += 1
-                continue
-            except Exception as e:
-                self.stats['error:' + type(e).__name__] += 1
-                continue
+            cs = built[i]
             self.stats['forms'] += 1
             self.used_forms.append(f)
             self.stats['constructors'] += len(cs)

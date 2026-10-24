@@ -55,15 +55,15 @@ def fix(fj):
         if hit:
             # the flag prints next to another modifier group (e.g. R2.reuse.H0_H0): merge them
             g = hit[0]
-            if len(g['bits']) >= 8:
+            gi = f['groups'].index(g)
+            if len(g['bits']) >= 8 or any(gi in sp.get('gis', []) for sp in f.get('specials', [])):
                 continue
             L = learner()
             L.O.rebase = False
             ng = L.enum_one(w, base, sorted(g['bits'] + [b]), min(g['lo'], lo), max(g['hi'], hi), dict(f, groups=[x for x in f['groups'] if x is not g]))
             if ng is None:
                 continue
-            f['groups'].remove(g)
-            f['groups'].append(ng)
+            f['groups'][gi] = ng     # in place: specials refer to groups by index
         else:
             f['groups'].append(dict(bits=[b], lo=lo, hi=hi, table={0: [], 1: ['.reuse']}))
         f['mask'] &= ~(1 << b)

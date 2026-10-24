@@ -13,7 +13,7 @@ import sys, os, io, struct, zipfile, urllib.request, subprocess, tempfile
 
 URL = ('https://files.pythonhosted.org/packages/a5/6e/e4e8b75716dbe5e50964f070266e06f4e6806ce051bfb97f52ee162b9310/'
        'bitsandbytes-0.50.2-py3-none-manylinux_2_24_x86_64.whl')
-WANT = {'cuda118': [60], 'cuda124': [75, 86, 90], 'cuda130': [100, 120]}
+WANT = {'cuda118': [60], 'cuda124': [70, 75, 86, 90], 'cuda130': [100, 120]}
 
 class HttpFile(io.RawIOBase):
     def __init__(self, url):

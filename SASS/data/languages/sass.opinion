@@ -3,12 +3,26 @@
   <!-- e_machine 190 = EM_CUDA; secondary = e_flags with the SM number in bits 0-7
        (CUDA <= 12) or bits 8-15 (CUDA 13). -->
   <constraint loader="Executable and Linking Format (ELF)" compilerSpecID="default">
+    <constraint primary="190" secondary="0b........................00100011" processor="SASS" endian="little" size="64" variant="SM35"/> <!-- sm_35, CUDA <= 12 -->
+    <constraint primary="190" secondary="0b................00100011........" processor="SASS" endian="little" size="64" variant="SM35"/> <!-- sm_35, CUDA 13 -->
+    <constraint primary="190" secondary="0b........................00100101" processor="SASS" endian="little" size="64" variant="SM35"/> <!-- sm_37, CUDA <= 12 -->
+    <constraint primary="190" secondary="0b................00100101........" processor="SASS" endian="little" size="64" variant="SM35"/> <!-- sm_37, CUDA 13 -->
     <constraint primary="190" secondary="0b........................00110010" processor="SASS" endian="little" size="64" variant="SM52"/> <!-- sm_50, CUDA <= 12 -->
     <constraint primary="190" secondary="0b................00110010........" processor="SASS" endian="little" size="64" variant="SM52"/> <!-- sm_50, CUDA 13 -->
     <constraint primary="190" secondary="0b........................00110100" processor="SASS" endian="little" size="64" variant="SM52"/> <!-- sm_52, CUDA <= 12 -->
     <constraint primary="190" secondary="0b................00110100........" processor="SASS" endian="little" size="64" variant="SM52"/> <!-- sm_52, CUDA 13 -->
     <constraint primary="190" secondary="0b........................00110101" processor="SASS" endian="little" size="64" variant="SM52"/> <!-- sm_53, CUDA <= 12 -->
     <constraint primary="190" secondary="0b................00110101........" processor="SASS" endian="little" size="64" variant="SM52"/> <!-- sm_53, CUDA 13 -->
+    <constraint primary="190" secondary="0b........................00111100" processor="SASS" endian="little" size="64" variant="SM60"/> <!-- sm_60, CUDA <= 12 -->
+    <constraint primary="190" secondary="0b................00111100........" processor="SASS" endian="little" size="64" variant="SM60"/> <!-- sm_60, CUDA 13 -->
+    <constraint primary="190" secondary="0b........................00111101" processor="SASS" endian="little" size="64" variant="SM60"/> <!-- sm_61, CUDA <= 12 -->
+    <constraint primary="190" secondary="0b................00111101........" processor="SASS" endian="little" size="64" variant="SM60"/> <!-- sm_61, CUDA 13 -->
+    <constraint primary="190" secondary="0b........................00111110" processor="SASS" endian="little" size="64" variant="SM60"/> <!-- sm_62, CUDA <= 12 -->
+    <constraint primary="190" secondary="0b................00111110........" processor="SASS" endian="little" size="64" variant="SM60"/> <!-- sm_62, CUDA 13 -->
+    <constraint primary="190" secondary="0b........................01000110" processor="SASS" endian="little" size="64" variant="SM70"/> <!-- sm_70, CUDA <= 12 -->
+    <constraint primary="190" secondary="0b................01000110........" processor="SASS" endian="little" size="64" variant="SM70"/> <!-- sm_70, CUDA 13 -->
+    <constraint primary="190" secondary="0b........................01001000" processor="SASS" endian="little" size="64" variant="SM70"/> <!-- sm_72, CUDA <= 12 -->
+    <constraint primary="190" secondary="0b................01001000........" processor="SASS" endian="little" size="64" variant="SM70"/> <!-- sm_72, CUDA 13 -->
     <constraint primary="190" secondary="0b........................01001011" processor="SASS" endian="little" size="64" variant="SM75"/> <!-- sm_75, CUDA <= 12 -->
     <constraint primary="190" secondary="0b................01001011........" processor="SASS" endian="little" size="64" variant="SM75"/> <!-- sm_75, CUDA 13 -->
     <constraint primary="190" secondary="0b........................01010000" processor="SASS" endian="little" size="64" variant="SM80"/> <!-- sm_80, CUDA <= 12 -->
@@ -23,5 +37,17 @@
     <constraint primary="190" secondary="0b................01011001........" processor="SASS" endian="little" size="64" variant="SM89"/> <!-- sm_89, CUDA 13 -->
     <constraint primary="190" secondary="0b........................01011010" processor="SASS" endian="little" size="64" variant="SM90"/> <!-- sm_90, CUDA <= 12 -->
     <constraint primary="190" secondary="0b................01011010........" processor="SASS" endian="little" size="64" variant="SM90"/> <!-- sm_90, CUDA 13 -->
+    <constraint primary="190" secondary="0b........................01100100" processor="SASS" endian="little" size="64" variant="SM100"/> <!-- sm_100, CUDA <= 12 -->
+    <constraint primary="190" secondary="0b................01100100........" processor="SASS" endian="little" size="64" variant="SM100"/> <!-- sm_100, CUDA 13 -->
+    <constraint primary="190" secondary="0b........................01100101" processor="SASS" endian="little" size="64" variant="SM100"/> <!-- sm_101, CUDA <= 12 -->
+    <constraint primary="190" secondary="0b................01100101........" processor="SASS" endian="little" size="64" variant="SM100"/> <!-- sm_101, CUDA 13 -->
+    <constraint primary="190" secondary="0b........................01100111" processor="SASS" endian="little" size="64" variant="SM100"/> <!-- sm_103, CUDA <= 12 -->
+    <constraint primary="190" secondary="0b................01100111........" processor="SASS" endian="little" size="64" variant="SM100"/> <!-- sm_103, CUDA 13 -->
+    <constraint primary="190" secondary="0b........................01101110" processor="SASS" endian="little" size="64" variant="SM100"/> <!-- sm_110, CUDA <= 12 -->
+    <constraint primary="190" secondary="0b................01101110........" processor="SASS" endian="little" size="64" variant="SM100"/> <!-- sm_110, CUDA 13 -->
+    <constraint primary="190" secondary="0b........................01111000" processor="SASS" endian="little" size="64" variant="SM120"/> <!-- sm_120, CUDA <= 12 -->
+    <constraint primary="190" secondary="0b................01111000........" processor="SASS" endian="little" size="64" variant="SM120"/> <!-- sm_120, CUDA 13 -->
+    <constraint primary="190" secondary="0b........................01111001" processor="SASS" endian="little" size="64" variant="SM120"/> <!-- sm_121, CUDA <= 12 -->
+    <constraint primary="190" secondary="0b................01111001........" processor="SASS" endian="little" size="64" variant="SM120"/> <!-- sm_121, CUDA 13 -->
   </constraint>
 </opinions>

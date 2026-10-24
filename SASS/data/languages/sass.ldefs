@@ -1,8 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <language_definitions>
+  <language processor="SASS" endian="little" size="64" variant="SM35" version="1.0"
+            slafile="sass_SM35.sla" processorspec="sass.pspec" id="SASS:LE:64:SM35">
+    <description>NVIDIA SASS Kepler (sm_35, sm_37), 64-bit encoding</description>
+    <compiler name="default" spec="sass.cspec" id="default"/>
+    <external_name tool="gnu" name="cuda"/>
+  </language>
   <language processor="SASS" endian="little" size="64" variant="SM52" version="1.0"
             slafile="sass_SM52.sla" processorspec="sass.pspec" id="SASS:LE:64:SM52">
     <description>NVIDIA SASS Maxwell (sm_50, sm_52, sm_53), 64-bit encoding</description>
+    <compiler name="default" spec="sass.cspec" id="default"/>
+    <external_name tool="gnu" name="cuda"/>
+  </language>
+  <language processor="SASS" endian="little" size="64" variant="SM60" version="1.0"
+            slafile="sass_SM60.sla" processorspec="sass.pspec" id="SASS:LE:64:SM60">
+    <description>NVIDIA SASS Pascal (sm_60, sm_61, sm_62), 64-bit encoding</description>
+    <compiler name="default" spec="sass.cspec" id="default"/>
+    <external_name tool="gnu" name="cuda"/>
+  </language>
+  <language processor="SASS" endian="little" size="64" variant="SM70" version="1.0"
+            slafile="sass_SM70.sla" processorspec="sass.pspec" id="SASS:LE:64:SM70">
+    <description>NVIDIA SASS Volta (sm_70, sm_72)</description>
     <compiler name="default" spec="sass.cspec" id="default"/>
     <external_name tool="gnu" name="cuda"/>
   </language>
@@ -33,6 +51,18 @@
   <language processor="SASS" endian="little" size="64" variant="SM90" version="1.0"
             slafile="sass_SM90.sla" processorspec="sass.pspec" id="SASS:LE:64:SM90">
     <description>NVIDIA SASS Hopper (sm_90, sm_90a)</description>
+    <compiler name="default" spec="sass.cspec" id="default"/>
+    <external_name tool="gnu" name="cuda"/>
+  </language>
+  <language processor="SASS" endian="little" size="64" variant="SM100" version="1.0"
+            slafile="sass_SM100.sla" processorspec="sass.pspec" id="SASS:LE:64:SM100">
+    <description>NVIDIA SASS Blackwell datacenter (sm_100, sm_101, sm_103, sm_110)</description>
+    <compiler name="default" spec="sass.cspec" id="default"/>
+    <external_name tool="gnu" name="cuda"/>
+  </language>
+  <language processor="SASS" endian="little" size="64" variant="SM120" version="1.0"
+            slafile="sass_SM120.sla" processorspec="sass.pspec" id="SASS:LE:64:SM120">
+    <description>NVIDIA SASS Blackwell consumer (sm_120, sm_121)</description>
     <compiler name="default" spec="sass.cspec" id="default"/>
     <external_name tool="gnu" name="cuda"/>
   </language>

@@ -12,12 +12,14 @@
 #      libcurand corpus the module was learned from
 #   3. per variant: a fresh random fuzz set (seed fixed per run date unless
 #      FUZZ_SEED is set), only words nvdisasm accepts are scored
-#   4. ELF: build cubins from test/ptx/kernels.ptx with ptxas (if available) and
-#      the bitsandbytes cubins (test/fetch-real-samples.sh) - import + analyze +
+#   4. ELF: cubins built from test/ptx/kernels.ptx (ptxas) and test/cuda/kernels.cu
+#      (clang + ptxas, test/build-cu-cubins.sh) if the tools are available, and the
+#      bitsandbytes cubins (test/fetch-real-samples.sh) - import + analyze +
 #      decompile headless, and diff every .text section against nvdisasm
 #
-# Needs: python3, java 21, nvdisasm 13.x (SASS_NV or default scratch path, see
-# test/nvd.py); ptxas optional.
+# Needs: python3, java 21+, nvdisasm 13.x for SM75+, 12.x for SM50-72, 11.8 for
+# SM35 (SASS_NV or default scratch path, see test/nvd.py); ptxas (11.8 / 12.9 /
+# 13.x) and clang (NVPTX target) optional.
 set -uo pipefail
 : "${GHIDRA_INSTALL_DIR:?set GHIDRA_INSTALL_DIR}"
 HERE=$(cd "$(dirname "$0")" && pwd)
@@ -69,18 +71,34 @@ done
 
 echo "== ELF import / analysis / decompile"
 PTXAS=${PTXAS:-$(python3 -c "import sys; sys.path.insert(0,'$HERE'); import nvd, os; print(os.path.join(os.path.dirname(nvd.TOOLS['13']), 'ptxas'))")}
-if [[ -x $PTXAS ]]; then
-	PTXAS12=${PTXAS12:-$(python3 -c "import sys; sys.path.insert(0,'$HERE'); import nvd; print(nvd.NV + '/12.9/nvidia/cuda_nvcc/bin/ptxas')")}
-	for a in 52 60 70 75 80 86 89 90 100 120; do
-		[[ -f $MOD/data/languages/sass_SM$a.slaspec ]] || continue
-		P=$PTXAS; ver=8.7
-		if [[ $a -lt 75 ]]; then P=$PTXAS12; ver=8.0; fi
-		[[ -x $P ]] || continue
-		sed "s/sm_80/sm_$a/; s/version 8.7/version $ver/" "$HERE/ptx/kernels.ptx" >"$WORK/k$a.ptx"
-		"$P" -arch=sm_$a "$WORK/k$a.ptx" -o "$WORK/k$a.cubin" || continue
-		echo "-- k$a.cubin"
-		"$HERE/ghidra-import.sh" "$WORK/k$a.cubin" "$WORK/k$a.c" 20 | grep SASS-CHECK
-		python3 "$HERE/cubin_compare.py" "$WORK/k$a.cubin"
+NV=$(python3 -c "import sys; sys.path.insert(0,'$HERE'); import nvd; print(nvd.NV)")
+PTXAS12=${PTXAS12:-$NV/12.9/nvidia/cuda_nvcc/bin/ptxas}
+PTXAS11=${PTXAS11:-$NV/11.8/nvidia/cuda_nvcc/bin/ptxas}
+SMS=()
+for a in 35 52 60 70 75 80 86 89 90 100 120; do
+	[[ -f $MOD/data/languages/sass_SM$a.slaspec ]] && SMS+=($a)
+done
+# hand-written PTX (test/ptx/kernels.ptx)
+for a in "${SMS[@]}"; do
+	P=$PTXAS; ver=8.7
+	if [[ $a -lt 50 ]]; then P=$PTXAS11; ver=7.8; elif [[ $a -lt 75 ]]; then P=$PTXAS12; ver=8.0; fi
+	[[ -x $P ]] || continue
+	sed "s/sm_80/sm_$a/; s/version 8.7/version $ver/" "$HERE/ptx/kernels.ptx" >"$WORK/k$a.ptx"
+	"$P" -arch=sm_$a "$WORK/k$a.ptx" -o "$WORK/k$a.cubin" 2>/dev/null || continue
+	echo "-- k$a.cubin"
+	"$HERE/ghidra-import.sh" "$WORK/k$a.cubin" "$WORK/k$a.c" 20 | grep SASS-CHECK
+	python3 "$HERE/cubin_compare.py" "$WORK/k$a.cubin"
+done
+# CUDA C kernels (test/cuda/kernels.cu) compiled by clang + ptxas
+if command -v "${CLANG:-clang}" >/dev/null && [[ ${#SMS[@]} -gt 0 ]]; then
+	"$HERE/build-cu-cubins.sh" "$WORK/cu" "${SMS[@]}" >/dev/null
+	for a in "${SMS[@]}"; do
+		for f in "$WORK/cu/k${a}_c3p3.cubin" "$WORK/cu/k${a}_c1p1.cubin"; do
+			[[ -f $f ]] || continue
+			echo "-- cu/$(basename "$f")"
+			[[ $f == *c3p3* ]] && "$HERE/ghidra-import.sh" "$f" "$f.c" 30 | grep SASS-CHECK
+			python3 "$HERE/cubin_compare.py" "$f"
+		done
 	done
 fi
 SAMPLES=${SASS_SAMPLES:-$MOD/test/samples}

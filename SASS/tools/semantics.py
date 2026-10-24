@@ -114,7 +114,9 @@ def roles(info):
     return r
 
 # ------------------------------------------------------------------ templates
-def _dst_src(info, kinds, mods, w=4, f=False):
+def _dst_src(info, kinds, mods, w=None, f=False):
+    if w is None:
+        w = 8 if '.64' in mods else 4
     n = len(kinds)
     R = [None] * n
     if n == 0 or kinds[0] != 'reg':
@@ -321,7 +323,8 @@ def r_dsetp(info, kinds, mods):
 def r_sel(info, kinds, mods, f=False):
     n = len(kinds); R = [None] * n
     if n < 4 or kinds[0] != 'reg' or kinds[3] != 'pred': return R
-    R[0] = 'd4'; R[1] = R[2] = 's4'; R[3] = 'p'
+    w = 8 if '.64' in mods else 4
+    R[0] = 'd%d' % w; R[1] = R[2] = 's%d' % w; R[3] = 'p'
     return R
 
 def p_sel(info, o, R):
@@ -375,7 +378,8 @@ def p_iabs(info, o, R):
 def r_imnmx(info, kinds, mods):
     n = len(kinds); R = [None] * n
     if n < 4 or kinds[0] != 'reg' or kinds[3] != 'pred': return R
-    R[0] = 'd4'; R[1] = R[2] = 's4'; R[3] = 'p'
+    w = 8 if '.64' in mods else 4
+    R[0] = 'd%d' % w; R[1] = R[2] = 's%d' % w; R[3] = 'p'
     return R
 
 def p_imnmx(info, o, R):

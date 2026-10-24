@@ -33,10 +33,11 @@ GUARD_BITS = [12, 13, 14, 15]
 REUSE_BITS = [122, 123, 124, 125]
 SHIFT_MULT = 1          # physical/logical address ratio of the oracle (64-bit bundles: 4)
 MAXG = 10
+MAX_SPLIT = 5
 
 def set_profile(arch):
     """Select the bit layout for 128-bit (Volta+) or 64-bit (Maxwell/Pascal) encodings."""
-    global OPC_BITS, LEARN_BITS, CTRL_MASK, CTRL_STD, GUARD_BITS, REUSE_BITS, SHIFT_MULT, MAXG
+    global OPC_BITS, LEARN_BITS, CTRL_MASK, CTRL_STD, GUARD_BITS, REUSE_BITS, SHIFT_MULT, MAXG, MAX_SPLIT
     if nvd.isz_of(arch) == 8:
         OPC_BITS = []
         LEARN_BITS = list(range(0, 64))
@@ -44,6 +45,7 @@ def set_profile(arch):
         CTRL_STD = 0
         GUARD_BITS = [18, 19, 20, 21] if arch in nvd.KEPLER else [16, 17, 18, 19]
         MAXG = 8
+        MAX_SPLIT = 12
         REUSE_BITS = []
         SHIFT_MULT = nvd.bundle_of(arch)[0]
     else:
@@ -54,6 +56,8 @@ def set_profile(arch):
         GUARD_BITS = [12, 13, 14, 15]
         REUSE_BITS = [122, 123, 124, 125]
         SHIFT_MULT = 1
+        MAXG = 10
+        MAX_SPLIT = 5
 # Modifiers that p-code semantics depend on: for these mnemonics, groups that
 # print one of the listed modifiers are fixed (each value becomes its own form).
 _CMP = {'.F', '.LT', '.EQ', '.LE', '.GT', '.NE', '.GE', '.T', '.NUM', '.NAN', '.LTU', '.EQU', '.LEU',
@@ -986,7 +990,9 @@ class Learner:
         form['struct'] = sorted(set(form['struct']))
         return form
 
-    def learn(self, seed, max_split=5):
+    def learn(self, seed, max_split=None):
+        if max_split is None:
+            max_split = MAX_SPLIT
         w, a = self.prepare(seed)
         if w is None:
             return None
@@ -1065,7 +1071,7 @@ class Learner:
             if raw in (0, (1 << n) - 1):
                 gen = word_set(w, s['bits'], 0x15 & ((1 << n) - 2) or 1)
                 cands.append(('slot', list(s['bits']), lambda x, s=s, raw=raw: slot_raw(s, x) == raw, gen))
-        best = None
+        stats = []
         for kind, bits, cond, sw in cands:
             bt = bf = nt = nf = 0
             for x, ok in samples:
@@ -1075,11 +1081,25 @@ class Learner:
                     nf += 1; bf += (not ok)
             if bf == 0 or nf == 0:
                 continue
-            score = (bf / nf) - 2.0 * (bt / max(1, nt))
-            if bt > 0 and bt / max(1, nt) > 0.05:
+            stats.append((bt / max(1, nt), bf / nf, kind, bits, sw))
+        best = None
+        for et, ef, kind, bits, sw in stats:
+            score = ef - 2.0 * et
+            if et > 0.05:
                 continue
             if best is None or score > best[0]:
                 best = (score, kind, bits, sw)
+        if best is None or best[0] <= 0:
+            # several interacting bits (e.g. register/immediate selectors of two
+            # operands): no single bit explains the failures on its own, so take the
+            # bit that separates them best
+            best = None
+            for et, ef, kind, bits, sw in stats:
+                if ef < 0.5 or et > 0.5 * ef:
+                    continue
+                score = ef - et
+                if best is None or score > best[0]:
+                    best = (score, kind, bits, sw)
         if best is None or best[0] <= 0:
             return None
         return best[1], best[2], best[3]
