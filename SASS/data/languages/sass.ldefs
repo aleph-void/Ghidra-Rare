@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <language_definitions>
+  <language processor="SASS" endian="little" size="64" variant="SM52" version="1.0"
+            slafile="sass_SM52.sla" processorspec="sass.pspec" id="SASS:LE:64:SM52">
+    <description>NVIDIA SASS Maxwell (sm_50, sm_52, sm_53), 64-bit encoding</description>
+    <compiler name="default" spec="sass.cspec" id="default"/>
+    <external_name tool="gnu" name="cuda"/>
+  </language>
+  <language processor="SASS" endian="little" size="64" variant="SM75" version="1.0"
+            slafile="sass_SM75.sla" processorspec="sass.pspec" id="SASS:LE:64:SM75">
+    <description>NVIDIA SASS Turing (sm_75)</description>
+    <compiler name="default" spec="sass.cspec" id="default"/>
+    <external_name tool="gnu" name="cuda"/>
+  </language>
   <language processor="SASS" endian="little" size="64" variant="SM80" version="1.0"
             slafile="sass_SM80.sla" processorspec="sass.pspec" id="SASS:LE:64:SM80">
     <description>NVIDIA SASS Ampere GA100 (sm_80)</description>
@@ -15,6 +27,12 @@
   <language processor="SASS" endian="little" size="64" variant="SM89" version="1.0"
             slafile="sass_SM89.sla" processorspec="sass.pspec" id="SASS:LE:64:SM89">
     <description>NVIDIA SASS Ada Lovelace (sm_89)</description>
+    <compiler name="default" spec="sass.cspec" id="default"/>
+    <external_name tool="gnu" name="cuda"/>
+  </language>
+  <language processor="SASS" endian="little" size="64" variant="SM90" version="1.0"
+            slafile="sass_SM90.sla" processorspec="sass.pspec" id="SASS:LE:64:SM90">
+    <description>NVIDIA SASS Hopper (sm_90, sm_90a)</description>
     <compiler name="default" spec="sass.cspec" id="default"/>
     <external_name tool="gnu" name="cuda"/>
   </language>

@@ -24,6 +24,7 @@ from sassmodel import from_json, render_items, group_value, slot_state, REGZ, cl
 import semantics as SEM
 
 GUARD_BITS = [12, 13, 14, 15]
+SEG_MAX = int(os.environ.get('SASS_SEG_MAX', '1024'))
 CUBE_CAP = int(os.environ.get('SASS_CUBE_CAP', '100000'))
 RSIZE = {'d4': 4, 'd8': 8, 'd16': 16, 's4': 4, 's8': 8, 's16': 16, 'f4': 4, 'f8': 8, 'p': 1, 'pd': 1,
          'a': 8, 'h': 2, 'cb1': 4, 'cb2': 4, 'cb4': 4, 'cb8': 8, 'cb16': 16, 'sr': 4, 't': 8}
@@ -72,6 +73,94 @@ def srname(t):
 
 class Unsupported(Exception):
     pass
+
+def specialize(form, gi, v):
+    """Copy of form with group gi fixed to value v: the group's text is spliced into the
+    token skeleton and its bits become fixed bits."""
+    g = form['groups'][gi]
+    out = g['table'][v]
+    lo, hi = g['lo'], g['hi']
+    toks = form['toks']
+    delta = len(out) - (hi - lo)
+    newtoks = list(toks[:lo])
+    slots = [dict(s) for s in form['slots']]
+    for x in out:
+        if isinstance(x, int):
+            slots[x]['pos'] = len(newtoks)
+            newtoks.append(toks[form['slots'][x]['pos']])
+        else:
+            newtoks.append(x)
+    newtoks += toks[hi:]
+    inside = {k for k, s in enumerate(form['slots']) if lo <= s['pos'] < hi}
+    shown = {x for x in out if isinstance(x, int)}
+    for k, s in enumerate(form['slots']):
+        if k in inside:
+            continue
+        if s['pos'] >= hi:
+            slots[k]['pos'] = s['pos'] + delta
+    def mv(p, end=False):
+        if p > lo or (p == lo and end and hi > lo):
+            return p + delta if p >= hi else p
+        return p
+    groups = []
+    for j, h in enumerate(form['groups']):
+        if j == gi:
+            continue
+        h = dict(h)
+        if h['lo'] >= hi:
+            h['lo'] += delta; h['hi'] += delta
+        elif h['hi'] <= lo:
+            pass
+        else:
+            return None        # overlapping groups: cannot splice
+        groups.append(h)
+    specials = []
+    gmap = {j: (j if j < gi else j - 1) for j in range(len(form['groups'])) if j != gi}
+    for sp in form.get('specials', []):
+        sp = dict(sp)
+        if any(k in inside and k not in shown for k in sp['slots']):
+            continue
+        if 'gis' in sp:
+            gis = sp['gis']
+            if gi in gis:
+                i = gis.index(gi)
+                cases = {}
+                for key, o in sp['cases'].items():
+                    st, gv = key.split('|')
+                    gvs = gv.split(',')
+                    if gvs[i] != str(v):
+                        continue
+                    rest = [x for j2, x in enumerate(gvs) if j2 != i]
+                    cases[st + '|' + ','.join(rest)] = o
+                sp['cases'] = cases
+                gis = [x for x in gis if x != gi]
+            if sp['lo'] >= hi:
+                sp['lo'] += delta; sp['hi'] += delta
+            elif sp['hi'] > lo:
+                return None
+            sp['gis'] = [gmap[x] for x in gis]
+            if not sp['gis']:
+                # no groups left: becomes a plain relative special anchored at its first slot
+                a = slots[sp['slots'][0]]['pos']
+                cases = {key.split('|')[0]: o for key, o in sp['cases'].items()}
+                sp = dict(slots=sp['slots'], rlo=sp['lo'] - a, rhi=sp['hi'] - a, cases=cases)
+        specials.append(sp)
+    f = dict(form)
+    f['toks'] = newtoks
+    f['slots'] = slots
+    f['groups'] = groups
+    f['specials'] = specials
+    m = f['mask']; val = f['val']
+    for i, b in enumerate(g['bits']):
+        m |= 1 << b
+        val = (val & ~(1 << b)) | (((v >> i) & 1) << b)
+    f['mask'] = m; f['val'] = val
+    w = int(form['seed'], 16)
+    for i, b in enumerate(g['bits']):
+        w = (w & ~(1 << b)) | (((v >> i) & 1) << b)
+    f['seed'] = '%x' % w
+    f['text'] = ''.join(str(x) for x in newtoks)
+    return f
 
 class Gen:
     def __init__(self, arch, forms):
@@ -208,7 +297,12 @@ class Gen:
         if cls == 'flt':
             name = 'SF_%s' % h
             fmt = s['fmt']
-            if fmt == 'f64hi':
+            mt = re.match(r'f(32|64)t(\d+)$', fmt)
+            if mt:
+                # top bits of an f32/f64: show and export the full IEEE pattern
+                wd, nt = int(mt.group(1)), int(mt.group(2))
+                cons = '%s: v is epsilon [ v = (%s) << %d; ] { export *[const]:%d v; }' % (name, e, wd - nt, wd // 8)
+            elif fmt == 'f64hi':
                 cons = '%s: v is epsilon [ v = %s; ] { local t:8 = v; t = t << 32; export t; }' % (name, e)
             elif fmt == 'f16':
                 cons = '%s: v is epsilon [ v = %s; ] { export *[const]:2 v; }' % (name, e)
@@ -283,6 +377,10 @@ class Gen:
             rest()
             return tabs, [], None
         lit = shape.strip()
+        if re.fullmatch(r'-?0x[0-9a-f]+', lit) and role in ('s4', 's8'):
+            rest()
+            v = int(lit, 16)
+            return tabs, [], '0x%x:%d' % (v & ((1 << (8 * RSIZE[role])) - 1), RSIZE[role])
         if lit in ('RZ', 'URZ', 'PT', 'UPT', '!PT', '!UPT'):
             rest()
             if role in ('d4', 'd8', 'd16', 'pd'):
@@ -399,7 +497,9 @@ class Gen:
             elif c == 'hex':
                 val = tab(k, 's4'); vs = 4
             elif c == 'flt':
-                val = tab(k, 'x'); vs = {'f32': 4, 'f64hi': 8, 'f16': 2, 'f64': 8}[slots[k]['fmt']]
+                fm = slots[k]['fmt']
+                vs = {'f32': 4, 'f64hi': 8, 'f16': 2, 'f64': 8}.get(fm) or int(re.match(r'f(32|64)', fm).group(1)) // 8
+                val = tab(k, 'x')
             else:
                 val = tab(k, 'x'); vs = 4
             rest()
@@ -538,6 +638,24 @@ class Gen:
                     break
         return sorted(regs, key=lambda r: (r[0], r[1])), U, span
 
+    def big_segment(self, form):
+        """Index of the largest group of a segment needing more than SEG_MAX constructors."""
+        try:
+            segs, U, span = self.segments(form)
+        except Exception:
+            return None
+        for lo, hi, gis, sis in segs:
+            gis = sorted(set(gis))
+            tot = 1
+            for gi in gis:
+                tot *= max(1, sum(1 for o in form['groups'][gi]['table'].values() if o is not None))
+            for si in set(sis):
+                for k in form['specials'][si]['slots']:
+                    tot *= 1 + len(form['slots'][k].get('spec', []))
+            if tot > SEG_MAX and gis:
+                return max(gis, key=lambda gi: sum(1 for o in form['groups'][gi]['table'].values() if o is not None))
+        return None
+
     def seg_table(self, form, seg, role):
         lo, hi, gis, sis = seg
         gis = sorted(set(gis)); sis = sorted(set(sis))
@@ -552,7 +670,7 @@ class Gen:
         total = 1
         for x in gvals + svals:
             total *= len(x)
-        if total > 1024:
+        if total > SEG_MAX:
             raise Unsupported('segment too large')
         cons = []
         for gv in itertools.product(*gvals):
@@ -608,7 +726,7 @@ class Gen:
                             val = {1: 'DUMMYP', 4: 'DUMMY4', 8: 'DUMMY8', 16: 'DUMMY16'}[sz]
                         else:
                             val = '0:%d' % sz
-                    if re.fullmatch(r'\d+:\d+', val):
+                    if re.fullmatch(r'(0x[0-9a-f]+|\d+):\d+', val):
                         if sz > 8:
                             body += ' local ex:%d = zext(%s:8); export ex;' % (sz, val.split(':')[0])
                         else:
@@ -662,7 +780,14 @@ class Gen:
             shape = shape.replace('.reuse', '')
             ops.append(dict(shape=shape, slots=ks, classes=[slots[k]['cls'] for k in ks],
                             pcrel=any(slots[k].get('pcrel') for k in ks), seg=cov[0] if cov else None))
-        mnem = ''.join(base[i] for i, u in enumerate(U) if u == -1)
+        # only modifiers that are literal in this form (not produced by a modifier group,
+        # whose value varies) may drive the semantics
+        ingroup = set()
+        for g in form['groups']:
+            if set(g['bits']) & set(GUARD_BITS):
+                continue
+            ingroup |= set(range(g['lo'], g['hi']))
+        mnem = ''.join(base[i] for i, u in enumerate(U) if u == -1 and i not in ingroup)
         mods = re.findall(r'\.[A-Z0-9_?]+', mnem)
         info = dict(mn=form['mn'], mods=mods, ops=ops, text=form['text'])
         R = SEM.roles(info)
@@ -779,8 +904,6 @@ class Gen:
                             nxt.append((m, v)); continue
                         if m != m2 and (m2 & ~m) == 0:
                             nxt.append((m, v)); continue
-                        if m != m2 and (m & ~m2) == 0:
-                            nxt.append((m, v)); continue
                         if m == m2:
                             continue
                         extra = [b for b in range(128) if (m2 >> b) & 1 and not (m >> b) & 1]
@@ -809,12 +932,45 @@ class Gen:
     def generate(self):
         keep = []
         for f in self.forms:
-            if any(len(g['table']) > 16 and any(o and any(isinstance(t, str) and classify(t) and classify(t)[0] == 'flt' for t in o)
-                                                for o in g['table'].values()) for g in f['groups']):
+            def fltgroup(g):
+                outs = [o for o in g['table'].values() if o]
+                nf = sum(1 for o in outs if any(isinstance(t, str) and classify(t) and classify(t)[0] == 'flt'
+                                                and not re.fullmatch(r'\d+', t) for t in o))
+                return len(g['table']) > 16 and nf * 2 > len(outs)
+            if any(fltgroup(g) for g in f['groups']):
                 self.stats['skip_float_group'] += 1
                 continue
             keep.append(f)
-        self.forms = keep
+        # forms whose segments would need too many constructors are split on their
+        # largest modifier group (each value becomes a root-level form)
+        out = []
+        work = list(keep)
+        while work:
+            f = work.pop()
+            big = self.big_segment(f)
+            if big is None:
+                out.append(f)
+                continue
+            gi = big
+            subs = []
+            for v, o in sorted(f['groups'][gi]['table'].items()):
+                if o is None:
+                    continue
+                sf = specialize(f, gi, v)
+                if sf is None:
+                    subs = None
+                    break
+                subs.append(sf)
+            budget = f.get('_budget', 64)
+            if subs is None or len(subs) > budget:
+                out.append(f)
+                continue
+            for sf in subs:
+                sf['_budget'] = budget // len(subs)
+                sf['_root'] = f.get('_root', f)
+            self.stats['split_forms'] += 1
+            work.extend(subs)
+        self.forms = out
         cubes = self.resolve()
         for i, f in enumerate(self.forms):
             if not cubes.get(i):

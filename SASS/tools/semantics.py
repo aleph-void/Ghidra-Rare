@@ -53,6 +53,8 @@ def opkind(o):
         return 'true'
     if sh in ('!PT', '!UPT'):
         return 'false'
+    if re.fullmatch(r'-?0x[0-9a-f]+', sh):
+        return 'imm'
     if re.search(r'\bc\[|\bcx\[', sh):
         return 'cbank'
     if sh.startswith('[') or 'desc[' in sh or sh.startswith('-['):
@@ -332,8 +334,10 @@ def r_lea(info, kinds, mods):
     R[0] = 'd4'
     j = split_preds(kinds)
     for i in range(1, j): R[i] = 'pd'
-    hi = '.HI' in mods
+    hi = '.HI' in mods and '.SX32' not in mods
     cnt = 4 if hi else 3
+    for i in range(j + cnt, n):
+        if kinds[i] == 'pred': R[i] = 'p'
     for i in range(j, min(j + cnt, n)):
         if kinds[i] in ('reg', 'imm', 'cbank'): R[i] = 's4'
     info['lea'] = (j, cnt)
@@ -344,13 +348,22 @@ def p_lea(info, o, R):
     if len(o) < j + cnt or not all(o[j:j + cnt]):
         return None
     m = mods_of(info)
+    n = len(o)
+    cin = ''
     if '.X' in m:
-        return None
+        cp = [o[i] for i in range(j + cnt, n) if R[i] == 'p' and o[i]]
+        if not cp:
+            return None
+        cin = ' + zext(%s)' % cp[0]
     if '.HI' in m:
+        if '.SX32' in m:
+            a, b, s = o[j:j + 3]
+            # high part of (sext(a) << s): (a s>> (32 - s))
+            return 'local v:8 = sext(%s) << zext(%s & 31); %s = %s + v(4)%s;' % (a, s, o[0], b, cin)
         a, b, c, s = o[j:j + 4]
-        return 'local v:8 = (zext(%s) << 32) | zext(%s); local r:8 = v >> (32 - zext(%s & 31)); %s = %s + r:4;' % (c, a, s, o[0], b)
+        return 'local v:8 = (zext(%s) << 32) | zext(%s); local r:8 = v >> (32 - zext(%s & 31)); %s = %s + r:4%s;' % (c, a, s, o[0], b, cin)
     a, b, s = o[j:j + 3]
-    return '%s = (%s << (%s & 31)) + %s;' % (o[0], a, s, b)
+    return '%s = (%s << (%s & 31)) + %s%s;' % (o[0], a, s, b, cin)
 
 def r_iabs(info, kinds, mods):
     return _dst_src(info, kinds, mods)
@@ -530,7 +543,72 @@ def p_hfma2(info, o, R):
                 '<g> %s = sass_HFMA2(%s, %s, hv); <e>') % (o[3], o[4], o[1], o[2], o[0], o[0], o[1], o[2])
     return None
 
+def r_prmt(info, kinds, mods):
+    n = len(kinds); R = [None] * n
+    if n >= 4 and kinds[0] == 'reg' and all(kinds[i] in ('reg', 'imm', 'cbank') for i in (1, 2, 3)):
+        R[0] = 'd4'; R[1] = R[2] = R[3] = 's4'
+    return R
+
+def p_prmt(info, o, R):
+    if len(info['mods']) > 0 and any(m in info['mods'] for m in ('.F4E', '.B4E', '.RC8', '.ECL', '.ECR', '.RC16')):
+        return None
+    if not all(o[:4]):
+        return None
+    d, a, sel, b = o[:4]
+    parts = []
+    for i in range(4):
+        parts.append('(((c >> zext(((%s >> %d) & 7) * 8)) & 0xff) << %d)' % (sel, 4 * i, 8 * i))
+    return 'local c:8 = (zext(%s) << 32) | zext(%s); local r:8 = %s; %s = r:4;' % (b, a, ' | '.join(parts), d)
+
+def r_bin(info, kinds, mods):
+    n = len(kinds); R = [None] * n
+    # OP Rd[.CC], Ra, Rb/imm  (Maxwell/Pascal style two-source ALU)
+    if n >= 3 and kinds[0] == 'reg' and all(kinds[i] in ('reg', 'imm', 'cbank') for i in (1, 2)):
+        R[0] = 'd4'; R[1] = R[2] = 's4'
+        for i in range(3, n):
+            if kinds[i] in ('reg', 'imm', 'cbank'): R[i] = 's4'
+    return R
+
+def p_iadd(info, o, R):
+    if not all(o[:3]): return None
+    m = mods_of(info)
+    if '.X' in m or '.CC' in info.get('text', ''):
+        return None
+    return '%s = %s + %s;' % (o[0], o[1], o[2])
+
+def p_shl(info, o, R):
+    if not all(o[:3]): return None
+    return '%s = %s << (%s & 31);' % (o[0], o[1], o[2])
+
+def p_shr(info, o, R):
+    if not all(o[:3]): return None
+    op = '>>' if '.U32' in mods_of(info) else 's>>'
+    return '%s = %s %s (%s & 31);' % (o[0], o[1], op, o[2])
+
+def p_lop(info, o, R):
+    if not all(o[:3]): return None
+    m = mods_of(info)
+    for k, op in (('.AND', '&'), ('.OR', '|'), ('.XOR', '^')):
+        if k in m:
+            return '%s = %s %s %s;' % (o[0], o[1], op, o[2])
+    if '.PASS_B' in m:
+        return '%s = %s;' % (o[0], o[2])
+    return None
+
+def p_iscadd(info, o, R):
+    if len(o) < 4 or not all(o[:4]): return None
+    if '.CC' in info.get('text', ''):
+        return None
+    return '%s = (%s << (%s & 31)) + %s;' % (o[0], o[1], o[3], o[2])
+
 TEMPL = {
+    'IADD': (r_bin, p_iadd), 'IADD32I': (r_bin, p_iadd),
+    'SHL': (r_bin, p_shl), 'SHR': (r_bin, p_shr),
+    'LOP': (r_bin, p_lop), 'LOP32I': (r_bin, p_lop),
+    'ISCADD': (r_bin, p_iscadd), 'ISCADD32I': (r_bin, p_iscadd),
+    'MOV32I': (r_mov, p_mov),
+    'CAL': (r_flow, p_call), 'JCAL': (r_flow, p_call),
+    'PRMT': (r_prmt, p_prmt),
     'HFMA2': (r_hfma2, p_hfma2),
     'MOV': (r_mov, p_mov),
     'IADD3': (r_iadd3, p_iadd3),

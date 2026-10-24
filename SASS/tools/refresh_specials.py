@@ -37,7 +37,7 @@ def main():
     d = json.load(open(path))
     idx = [i for i, f in enumerate(d['forms']) if '--all' in sys.argv or crosses(f) or any(s.get('xspec') for s in f['slots'])]
     print('refreshing', len(idx), 'forms', flush=True)
-    with mp.Pool(20, initializer=_init, initargs=(arch,)) as pool:
+    with mp.Pool(int(os.environ.get("JOBS", "10")), initializer=_init, initargs=(arch,)) as pool:
         for i, fj in zip(idx, pool.imap(_do, [d['forms'][i] for i in idx], chunksize=2)):
             d['forms'][i] = fj
     json.dump(d, open(path, 'w'))

@@ -46,7 +46,7 @@ done
 echo "== test vectors (Ghidra vs nvdisasm)"
 for v in "${VARIANTS[@]}"; do
 	[[ -f $HERE/vectors/$v.txt ]] || continue
-	python3 "$HERE/vectors.py" tobin "$HERE/vectors/$v.txt" "$WORK/vec_$v.bin"
+	python3 "$HERE/vectors.py" tobin "$HERE/vectors/$v.txt" "$WORK/vec_$v.bin" "$v"
 	python3 "$HERE/compare.py" "$v" "$WORK/vec_$v.bin" --show 5 --json "$WORK/vec_$v.json"
 done
 
@@ -54,9 +54,9 @@ CORPUS=${SASS_CORPUS:-$HERE/corpus}
 if [[ -d $CORPUS ]]; then
 	echo "== LOCAL check: libcurand corpus (test/fetch-libcurand-corpus.py; never committed)"
 	for v in "${VARIANTS[@]}"; do
-		sm=$(echo "$v" | sed 's/SM/sm/')
+		sm=$(echo "$v" | sed 's/SM/sm/; s/sm52/sm50/')
 		[[ -f $CORPUS/$sm.txt ]] || continue
-		python3 "$HERE/vectors.py" tobin "$CORPUS/$sm.txt" "$WORK/corpus_$v.bin"
+		python3 "$HERE/vectors.py" tobin "$CORPUS/$sm.txt" "$WORK/corpus_$v.bin" "$v"
 		python3 "$HERE/compare.py" "$v" "$WORK/corpus_$v.bin" --show 3
 	done
 fi
@@ -70,10 +70,14 @@ done
 echo "== ELF import / analysis / decompile"
 PTXAS=${PTXAS:-$(python3 -c "import sys; sys.path.insert(0,'$HERE'); import nvd, os; print(os.path.join(os.path.dirname(nvd.TOOLS['13']), 'ptxas'))")}
 if [[ -x $PTXAS ]]; then
-	for a in 75 80 86 89 90 100 120; do
+	PTXAS12=${PTXAS12:-$(python3 -c "import sys; sys.path.insert(0,'$HERE'); import nvd; print(nvd.NV + '/12.9/nvidia/cuda_nvcc/bin/ptxas')")}
+	for a in 52 60 70 75 80 86 89 90 100 120; do
 		[[ -f $MOD/data/languages/sass_SM$a.slaspec ]] || continue
-		sed "s/sm_80/sm_$a/" "$HERE/ptx/kernels.ptx" >"$WORK/k$a.ptx"
-		"$PTXAS" -arch=sm_$a "$WORK/k$a.ptx" -o "$WORK/k$a.cubin" || continue
+		P=$PTXAS; ver=8.7
+		if [[ $a -lt 75 ]]; then P=$PTXAS12; ver=8.0; fi
+		[[ -x $P ]] || continue
+		sed "s/sm_80/sm_$a/; s/version 8.7/version $ver/" "$HERE/ptx/kernels.ptx" >"$WORK/k$a.ptx"
+		"$P" -arch=sm_$a "$WORK/k$a.ptx" -o "$WORK/k$a.cubin" || continue
 		echo "-- k$a.cubin"
 		"$HERE/ghidra-import.sh" "$WORK/k$a.cubin" "$WORK/k$a.c" 20 | grep SASS-CHECK
 		python3 "$HERE/cubin_compare.py" "$WORK/k$a.cubin"

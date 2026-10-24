@@ -29,18 +29,41 @@ def fuzz_words(n, seed, isz=16):
         out.append(w)
     return out
 
-def tobin(words, path, isz=16):
+def tobin(words, path, isz=16, arch=None):
+    """Raw image; 64-bit encodings get a scheduling control word before every
+    3 (Kepler: 7) instructions, as in real code."""
     with open(path, 'wb') as f:
+        if isz == 8:
+            import nvd
+            nb, ctrl, fill = nvd.bundle_of(arch)
+            words = list(words)
+            while len(words) % (nb - 1):
+                words.append(fill)
+            for i in range(0, len(words), nb - 1):
+                f.write(ctrl.to_bytes(8, 'little'))
+                for w in words[i:i + nb - 1]:
+                    f.write(w.to_bytes(8, 'little'))
+            return
         for w in words:
             f.write(w.to_bytes(isz, 'little'))
 
 def main():
     cmd = sys.argv[1]
     if cmd == 'tobin':
+        # tobin <words.txt> <out.bin> [VARIANT]
+        import nvd
+        arch = sys.argv[4] if len(sys.argv) > 4 else 'SM80'
         ws = [int(l.split()[0], 16) for l in open(sys.argv[2]) if l.strip() and not l.startswith('#')]
-        tobin(ws, sys.argv[3])
+        tobin(ws, sys.argv[3], nvd.isz_of(arch), arch)
     elif cmd == 'fuzz':
-        tobin(fuzz_words(int(sys.argv[5]), int(sys.argv[4])), sys.argv[3])
+        import nvd
+        arch = sys.argv[2]
+        isz = nvd.isz_of(arch)
+        ws = fuzz_words(int(sys.argv[5]), int(sys.argv[4]), isz)
+        if isz == 8:
+            g = 18 if arch in nvd.KEPLER else 16
+            ws = [(w & ~(0xf << g)) | (random.Random(w).randrange(16) << g) for w in ws]
+        tobin(ws, sys.argv[3], isz, arch)
     elif cmd == 'make':
         # make <VARIANT> <out.txt> <n_real> <n_fuzz> <cubin>...
         import nvd, cubin_words
@@ -51,7 +74,8 @@ def main():
         real = []
         srcs = []
         for p in cubs:
-            ws = sorted({w for _, l in cubin_words.text_words(p, isz) for w in l})
+            nb = nvd.bundle_of(v)[0] if isz == 8 else 0
+            ws = sorted({w for _, l in cubin_words.text_words(p, isz) for i, w in enumerate(l) if not (nb and i % nb == 0)})
             real += ws
             srcs.append(os.path.basename(p))
         real = sorted(set(real))

@@ -86,10 +86,29 @@ def parse_flt(tok):
     if u in ('QNAN', 'SNAN', 'NAN'): return ('nan', s, u)
     return float(t)
 
+def flt_full(fmt, raw):
+    """(width, IEEE bit pattern) of a float slot value.  Formats: f16, f32, f64hi (32-bit
+    field = upper half of a double), f64, and f32tN / f64tN: an N-bit field holding the
+    top N bits of an f32 / f64 (Maxwell/Pascal 20-bit float immediates)."""
+    if fmt in ('f16', 'f32', 'f64'):
+        return FLTFMT[fmt][0], raw
+    if fmt == 'f64hi':
+        return 64, (raw & 0xffffffff) << 32
+    m = re.match(r'f(32|64)t(\d+)$', fmt)
+    if m:
+        wd, n = int(m.group(1)), int(m.group(2))
+        return wd, (raw & ((1 << n) - 1)) << (wd - n)
+    raise KeyError(fmt)
+
+def fdec(fmt, raw):
+    wd, b = flt_full(fmt, raw)
+    return {16: f16, 32: f32, 64: f64}[wd](b)
+
 def flt_match(tok, fmt, raw):
     """Does raw (encoded per fmt) print as tok?"""
     try:
-        x = FLTFMT[fmt][1](raw)
+        x = fdec(fmt, raw)
+        wd, full = flt_full(fmt, raw)
     except Exception:
         return False
     y = parse_flt(tok)
@@ -97,13 +116,7 @@ def flt_match(tok, fmt, raw):
         if not math.isnan(x): return False
         neg = math.copysign(1.0, x) < 0
         if (y[1] < 0) != neg: return False
-        bits = FLTFMT[fmt][0]
-        if fmt == 'f16':
-            quiet = (raw >> 9) & 1
-        elif fmt == 'f32':
-            quiet = (raw >> 22) & 1
-        else:
-            quiet = (raw >> 19) & 1
+        quiet = (full >> {16: 9, 32: 22, 64: 51}[wd]) & 1
         return (y[2] == 'QNAN') == bool(quiet) or y[2] == 'NAN'
     if math.isnan(x): return False
     if x == y:
@@ -255,7 +268,7 @@ def render(form, w):
     return None if r is None else ''.join(r)
 
 # ------------------------------------------------------------------ comparison
-FLTTOK = re.compile(r'%(f16|f32|f64hi|f64):(0x[0-9a-f]+)')
+FLTTOK = re.compile(r'%(f16|f32|f64hi|f64|f32t\d+|f64t\d+):(0x[0-9a-f]+)')
 
 def same_text(model_text, nv_text):
     """Compare a model rendering (floats as %fmt:raw) with nvdisasm text."""

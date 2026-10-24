@@ -47,10 +47,10 @@ def main():
                 res[i] = False
         for i, ok in res.items():
             if not ok:
-                # a wrong rendering does not count against a form when a strictly more
-                # specific form (which SLEIGH prefers) gets the word right
+                # a wrong rendering only counts against a form that SLEIGH would pick for
+                # this word, i.e. when no strictly more specific form also matches it
                 m = forms[i]['mask']
-                if any(ok2 and (forms[j]['mask'] & m) == m and forms[j]['mask'] != m for j, ok2 in res.items()):
+                if any((forms[j]['mask'] & m) == m and forms[j]['mask'] != m for j in res):
                     continue
             ev[i][0 if ok else 1] += c
     for i, f in enumerate(d['forms']):

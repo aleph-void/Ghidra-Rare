@@ -33,6 +33,8 @@ def ghidra_dis(arch, path, out=None):
 def norm_tokens(t):
     t = re.sub(r'\s+', ' ', t.strip().rstrip(';').strip())
     t = re.sub(r' ?, ?', ',', t)
+    # Maxwell/Pascal dual-issue braces (nvdisasm only)
+    t = t.replace('{', '').replace('}', '').strip()
     return tokenize(t)
 
 def tok_eq(g, n):

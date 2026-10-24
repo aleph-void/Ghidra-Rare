@@ -36,13 +36,14 @@ MAXG = 10
 
 def set_profile(arch):
     """Select the bit layout for 128-bit (Volta+) or 64-bit (Maxwell/Pascal) encodings."""
-    global OPC_BITS, LEARN_BITS, CTRL_MASK, CTRL_STD, GUARD_BITS, REUSE_BITS, SHIFT_MULT
+    global OPC_BITS, LEARN_BITS, CTRL_MASK, CTRL_STD, GUARD_BITS, REUSE_BITS, SHIFT_MULT, MAXG
     if nvd.isz_of(arch) == 8:
         OPC_BITS = []
         LEARN_BITS = list(range(0, 64))
         CTRL_MASK = 0
         CTRL_STD = 0
         GUARD_BITS = [18, 19, 20, 21] if arch in nvd.KEPLER else [16, 17, 18, 19]
+        MAXG = 8
         REUSE_BITS = []
         SHIFT_MULT = nvd.bundle_of(arch)[0]
     else:
@@ -70,6 +71,9 @@ CORE_MODS = {
     'IMNMX': {'.U32'}, 'UIMNMX': {'.U32'},
     'LDG': _SIZE, 'STG': _SIZE, 'LD': _SIZE, 'ST': _SIZE, 'LDS': _SIZE, 'STS': _SIZE,
     'LDL': _SIZE, 'STL': _SIZE, 'LDC': _SIZE, 'ULDC': _SIZE,
+    # Kepler/Maxwell/Pascal
+    'LOP': {'.AND', '.OR', '.XOR', '.PASS_B'}, 'LOP32I': {'.AND', '.OR', '.XOR', '.PASS_B'},
+    'SHR': {'.U32'}, 'IADD': {'.X'}, 'IADD32I': {'.X'}, 'ISCADD': set(),
 }
 STDW = {'R': 8, 'UR': 6, 'P': 3, 'UP': 3, 'B': 4}
 
@@ -325,8 +329,16 @@ class Learner:
                 tries.append((lo, width, fmts))
         # prefer windows starting at the lowest observed bit, then aligned ones
         tries.sort(key=lambda t: (t[0] != lo0, t[0] % 16 != 0, t[1]))
-        for lo, width, fmts in tries:
-            s = dict(pos=pos, cls='flt', bits=list(range(lo, lo + width)), scale=1, signed=False, add=0)
+        tries = [(list(range(lo, lo + width)), fmts) for lo, width, fmts in tries]
+        # truncated floats: a contiguous run holding the top bits + a separate sign bit
+        if len(bits) >= 3:
+            run, sb = bits[:-1], bits[-1]
+            r0 = run[0]
+            if run == list(range(r0, r0 + len(run))) and sb > run[-1] + 1:
+                n = len(run) + 1
+                tries.insert(0, (run + [sb], ('f32t%d' % n, 'f64t%d' % n)))
+        for bl, fmts in tries:
+            s = dict(pos=pos, cls='flt', bits=bl, scale=1, signed=False, add=0)
             for f in fmts:
                 s['fmt'] = f
                 ok = flt_match(base[pos], f, slot_raw(s, w))
@@ -347,9 +359,16 @@ class Learner:
             for s in a['slots']:
                 n = len(s['bits'])
                 if s['cls'] == 'flt':
-                    base_ = {'f32': 0x3e800000, 'f64hi': 0x3fd00000, 'f16': 0x3400, 'f64': 0x3fd0000000000000}[s['fmt']]
-                    mant = {'f32': 23, 'f64hi': 20, 'f16': 10, 'f64': 52}[s['fmt']]
-                    v = base_ | self.rng.getrandbits(mant)
+                    fm = s['fmt']
+                    m_ = re.match(r'f(32|64)t(\d+)$', fm)
+                    if m_:
+                        wd_, n_ = int(m_.group(1)), int(m_.group(2))
+                        full = (0x3e800000 | self.rng.getrandbits(23)) if wd_ == 32 else (0x3fd0000000000000 | self.rng.getrandbits(52))
+                        v = full >> (wd_ - n_)
+                    else:
+                        base_ = {'f32': 0x3e800000, 'f64hi': 0x3fd00000, 'f16': 0x3400, 'f64': 0x3fd0000000000000}[fm]
+                        mant = {'f32': 23, 'f64hi': 20, 'f16': 10, 'f64': 52}[fm]
+                        v = base_ | self.rng.getrandbits(mant)
                     x = word_set(x, s['bits'], v)
                     continue
                 if n <= 1:
@@ -458,8 +477,23 @@ class Learner:
         w = a['word']; base = a['base']
         regs = {b: (i[1], i[2]) for b, i in a['info'].items() if i[0] == 'enum' and b not in fixed}
         width0 = {b: r[1] - r[0] for b, r in regs.items()}
-        for it in range(8):
+        for it in range(16):
             groups = self.merge(regs, fixed)
+            # a group whose text spans the mnemonic and the operands cannot be a SLEIGH
+            # sub-table: fix its widest bit(s) instead (each value becomes its own form)
+            Ub = units(base)
+            cross = []
+            for g in groups:
+                if set(g[2]) & set(GUARD_BITS):
+                    continue
+                us = {u for u in Ub[g[0]:g[1]] if u is not None}
+                if (-1 in us and len(us) > 1) or crosses_sep(Ub, g[0], g[1]):
+                    cross.append(g)
+            if cross:
+                for g in cross:
+                    b = max(g[2], key=lambda b: width0[b])
+                    fixed.add(b); regs.pop(b)
+                continue
             big = [g for g in groups if len(g[2]) > MAXG]
             if big:
                 # make the bits with the widest regions fixed
@@ -612,6 +646,31 @@ class Learner:
                     items.append([min(a_[0], b_[0]), max(a_[1], b_[1]), a_[2] + b_[2]])
                     changed = True
                     break
+        for _round in range(4):
+            out = self._special_clusters(form, w, items, single, anchor, kword, base_items, slots)
+            # clusters widened by their modifier groups may now overlap: merge and redo
+            rng = []
+            for it, sp in zip(items, out):
+                if 'gis' in sp:
+                    rng.append((sp['lo'], sp['hi']))
+                else:
+                    a0 = anchor(sp['slots'][0]); rng.append((a0 + sp['rlo'], a0 + sp['rhi']))
+            merged = False
+            for i in range(len(items)):
+                for j in range(i + 1, len(items)):
+                    if rng[i][0] < rng[j][1] and rng[j][0] < rng[i][1]:
+                        a_, b_ = items[i], items[j]
+                        items = [x for k_, x in enumerate(items) if k_ not in (i, j)]
+                        items.append([min(rng[i][0], rng[j][0]), max(rng[i][1], rng[j][1]), a_[2] + b_[2]])
+                        merged = True
+                        break
+                if merged:
+                    break
+            if not merged:
+                break
+        return out
+
+    def _special_clusters(self, form, w, items, single, anchor, kword, base_items, slots):
         out = []
         for lo, hi, ks in items:
             ks = sorted(ks, key=anchor)
@@ -971,6 +1030,13 @@ class Learner:
             if sw is not None:
                 spawn.append(sw)
         f = best[1]
+        # special values that change the mnemonic (e.g. RZ destination -> ".CLEAR"):
+        # learn them as separate forms with that operand fixed
+        for s_ in f['slots']:
+            for kd in s_.get('xspec', []):
+                n_ = len(s_['bits'])
+                val_ = {'max': (1 << n_) - 1, 'zero': 0, 'neg': (1 << (n_ - 1)) | (0x5 & ((1 << (n_ - 1)) - 1))}[kd]
+                spawn.append(word_set(w, s_['bits'], val_))
         for g in f['groups']:
             if set(g['bits']) & set(GUARD_BITS):
                 continue

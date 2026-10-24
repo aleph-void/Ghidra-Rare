@@ -10,24 +10,28 @@ encoding model per instruction *form*; a generator turns those models into
 SLEIGH.  No NVIDIA documentation, no third-party disassembler code and nothing
 from the closed-source IDA module was used.
 
-> **Milestone 1 (checkpoint):** 128-bit Ampere / Ada variants SM80, SM86, SM89
-> complete and tested.  Turing, Hopper, Blackwell, Volta and the 64-bit
-> Maxwell/Pascal/Kepler encodings are being added in the same module (the
-> learner and generator already support them; see "Status").
+> **Milestone 2 (checkpoint):** Turing, Ampere, Ada, Hopper (SM75, SM80, SM86,
+> SM89, SM90) and Maxwell (SM52, 64-bit encoding) complete and tested.
+> Blackwell, Volta, Pascal and Kepler are being added in the same module.
 
 ## Languages
 
 | Language ID          | GPUs (ELF `sm_NN`)                    | Encoding | Status |
 |----------------------|---------------------------------------|----------|--------|
+| `SASS:LE:64:SM75`    | Turing (sm_75)                        | 128-bit  | done   |
 | `SASS:LE:64:SM80`    | Ampere GA100 (sm_80)                  | 128-bit  | done   |
 | `SASS:LE:64:SM86`    | Ampere GA10x, Orin (sm_86, sm_87, sm_88) | 128-bit | done |
 | `SASS:LE:64:SM89`    | Ada Lovelace (sm_89)                  | 128-bit  | done   |
-| `SASS:LE:64:SM75`    | Turing (sm_75)                        | 128-bit  | in progress |
-| `SASS:LE:64:SM90`    | Hopper (sm_90, sm_90a)                | 128-bit  | in progress |
-| `SASS:LE:64:SM100`   | Blackwell (sm_100/101/103/110)        | 128-bit  | planned |
-| `SASS:LE:64:SM120`   | Blackwell (sm_120/121)                | 128-bit  | planned |
+| `SASS:LE:64:SM90`    | Hopper (sm_90, sm_90a)                | 128-bit  | done   |
+| `SASS:LE:64:SM52`    | Maxwell (sm_50, sm_52, sm_53)         | 64-bit + control words | done |
+| `SASS:LE:64:SM100`   | Blackwell (sm_100/101/103/110)        | 128-bit  | in progress |
+| `SASS:LE:64:SM120`   | Blackwell (sm_120/121)                | 128-bit  | in progress |
 | `SASS:LE:64:SM70`    | Volta (sm_70, sm_72)                  | 128-bit  | planned |
-| `SASS:LE:64:SM52` / `SM60` / `SM35` | Maxwell / Pascal / Kepler | 64-bit + control words | in progress |
+| `SASS:LE:64:SM60`    | Pascal (sm_60, sm_61, sm_62)          | 64-bit + control words | in progress |
+| `SASS:LE:64:SM35`    | Kepler (sm_35, sm_37)                 | 64-bit + control words | planned |
+
+sm_50 code is decoded with the SM52 language: nvdisasm treats both identically
+except that sm_50 rejects a few sm_52 additions.
 
 Only the variants listed in `data/languages/sass.ldefs` are built.
 
@@ -47,6 +51,16 @@ the decompiler shows as `cbank` globals.
 
 Raw instruction images can be loaded with the Raw Binary loader and a
 `SASS:LE:64:SMxx` language.
+
+### 64-bit encodings (Kepler, Maxwell, Pascal)
+
+These architectures put one 64-bit scheduling *control word* in front of every
+3 instructions (Kepler: 7), i.e. at every 32-byte (64-byte) aligned address.
+The languages have a context bit `ctl`; constructors decode control words as a
+`SCHED <raw value>` pseudo-instruction that falls through.  The cubin loader
+extension sets `ctl` at every bundle start of the executable sections.  For a
+raw image run `test/SassDumpDisasm.java` (it marks the bundles first) or set
+the `ctl` context register yourself at each 32-byte boundary.
 
 ## What the disassembly looks like
 
@@ -140,18 +154,24 @@ tools/fix_reuse.py SM80 spec/SM80.json && tools/pack_spec.py spec/SM80.json
 
 | Variant | committed vectors (`test/vectors/`) | random fuzz, 20k words (FUZZ_SEED=7) | held-out real code | LOCAL check: libcurand corpus (training set, not committed) |
 |---------|------------------|------------------------------|--------------------|--------------------|
-| SM80    | 99.38 % of 3,848 | 97.6 % of 1,395 valid        | ptxas kernels 100 % | 99.99 % of 88,924 |
-| SM86    | 99.33 % of 3,872 | 96.9 % of 1,439 valid        | bitsandbytes sm_86: 99.94 % of 112,216; ptxas kernels 100 % | 99.99 % of 78,770 |
-| SM89    | 99.33 % of 3,862 | 96.9 % of 1,428 valid        | ptxas kernels 100 % | 99.99 % of 78,770 |
+| SM75    | 99.89 % of 3,759 | 99.76 % of 1,258 valid | bitsandbytes sm_75: 99.92 % of 114,080; ptxas kernels 100 % | 100.00 % of 78,639 |
+| SM80    | 99.84 % of 3,848 | 99.71 % of 1,395 valid | ptxas kernels 100 % | 100.00 % of 88,924 |
+| SM86    | 99.92 % of 3,872 | 99.93 % of 1,439 valid | bitsandbytes sm_86: 99.94 % of 112,216; ptxas kernels 100 % | 100.00 % of 78,770 |
+| SM89    | 99.92 % of 3,862 | 99.93 % of 1,428 valid | ptxas kernels 100 % | 100.00 % of 78,770 |
+| SM90    | 99.77 % of 3,956 | 99.17 % of 1,567 valid | bitsandbytes sm_90: 99.87 % of 96,488; ptxas kernels 100 % | 100.00 % of 90,894 |
+| SM52    | 97.60 % of 4,002 | 94.72 % of 7,749 valid | ptxas kernels 100 % | 100.00 % of 84,678 (sm_50 build) |
 
 The committed vectors are 3,000 words from the MIT-licensed bitsandbytes 0.50.2
-sm_86 cubin (https://github.com/bitsandbytes-foundation/bitsandbytes) and the
-ptxas-built test kernels, plus ~850 random words nvdisasm accepts.  None of these
-were used for learning.
+cubins (https://github.com/bitsandbytes-foundation/bitsandbytes; the sm_75 / sm_86
+/ sm_90 builds, the sm_86 build for SM80/SM89 and the sm_60 build for SM52) and
+the ptxas-built test kernels, plus ~1,000 random words nvdisasm accepts.  None of
+these were used for learning.
 
 Fuzz words are uniform over the 4096 opcode values with random operand bits, so
 they over-represent rare instructions; "ghidra-only" (words Ghidra decodes but
-nvdisasm rejects, mostly scheduling-control constraints) was 36-37 per 20k.
+nvdisasm rejects, mostly scheduling-control constraints) was 39-101 per 20k for
+the 128-bit variants; for SM52 random 64-bit words are dense in valid opcodes and
+Ghidra decodes many that nvdisasm rejects (6.6k of 20k).
 
 "Exact" means Ghidra's text equals nvdisasm's after normalising whitespace,
 hex padding and float-vs-hex immediates (`test/compare.py`).
@@ -164,11 +184,17 @@ PyPI by HTTP range requests and extracts one cubin per SM (sm_60, 75, 86, 90,
 headless (language chosen by the opinion), runs auto-analysis, decompiles
 functions and diffs all `.text` sections against nvdisasm.
 
-* sm_86 (`libbitsandbytes_cuda124_sm86_1.cubin`, CUDA 12.4): opinion selects
-  `SASS:LE:64:SM86`; 112,216 instructions, **99.94 %** identical to nvdisasm
-  (14 undecoded `ULEA.HI.X.SX32` encodings never seen in training; 50
-  `IMAD.SHL.U32` printed as `IMAD.U32` - nvdisasm's alias for power-of-two
-  multipliers).
+| cubin (CUDA)   | language picked by opinion | instructions | identical to nvdisasm | functions / decompiled |
+|----------------|----------------------------|--------------|----------------------|-------------------------|
+| sm_75 (12.4)   | `SASS:LE:64:SM75` | 114,080 | **99.92 %** | 207 functions, 30/30 sampled decompile |
+| sm_86 (12.4)   | `SASS:LE:64:SM86` | 112,216 | **99.94 %** | 1,187 functions, 30/30 |
+| sm_90 (12.4)   | `SASS:LE:64:SM90` | 96,488  | **99.87 %** | 203 functions, 30/30 |
+| sm_60, sm_100, sm_120 | pending (variants in progress) | | | |
+
+The remaining differences are mostly nvdisasm's `IMAD.SHL.U32` alias for
+power-of-two multipliers (printed as `IMAD.U32` unless that multiplier was in the
+training data) and a few encodings never seen in training (e.g.
+`ULEA.HI.X.SX32`).
 
 ptxas-built test kernels (`test/ptx/kernels.ptx`: vector add, a loop calling a
 non-inlined device function, shared memory, `bar.sync`, `shfl`, atomics) import,

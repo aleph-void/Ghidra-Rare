@@ -41,7 +41,13 @@ def canonical(f, arch, alt=1):
     for s in f['slots']:
         n = len(s['bits'])
         if s['cls'] == 'flt':
-            v = FONE[s['fmt']]
+            import re as _re
+            mt = _re.match(r'f(32|64)t(\d+)$', s['fmt'])
+            if mt:
+                wd, nt = int(mt.group(1)), int(mt.group(2))
+                v = (0x3f800000 if wd == 32 else 0x3ff0000000000000) >> (wd - nt)
+            else:
+                v = FONE[s['fmt']]
         else:
             v = alt if n >= 3 else 1
         w = setbits(w, s['bits'], v)
@@ -49,7 +55,8 @@ def canonical(f, arch, alt=1):
 
 def flt_text(s, w):
     from sassmodel import slot_raw
-    x = FLTFMT[s['fmt']][1](slot_raw(s, w))
+    from sassmodel import fdec
+    x = fdec(s['fmt'], slot_raw(s, w))
     return repr(float(x)).rstrip('0').rstrip('.') if x == int(x) else repr(x)
 
 def main():
@@ -60,7 +67,8 @@ def main():
     forms = [from_json(f) for f in d['forms']]
     g = G.Gen(arch, forms)
     g.generate()
-    used = [f for f in forms if any(f is u for u in g.used_forms)]
+    uid = {id(u.get('_root', u)) for u in g.used_forms}
+    used = [f for f in forms if id(f) in uid]
     cands = []
     out = []
     bad = 0

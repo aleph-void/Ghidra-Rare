@@ -15,6 +15,13 @@ from sassmodel import from_json, to_json, tokenize, load_spec, save_spec
 REUSE = [122, 123, 124, 125]
 CTRL = (0x000fe4 << 104) & LN.CTRL_MASK
 ARCH = None
+_L = None
+
+def learner():
+    global _L
+    if _L is None:
+        _L = LN.Learner(ARCH, jobs=1)
+    return _L
 
 def fix(fj):
     f = from_json(fj)
@@ -43,9 +50,22 @@ def fix(fj):
         lo, hi, out = LN.region(base, tk)
         if not (lo == hi and out == ['.reuse']):
             continue
-        if any(LN.overlaps((g['lo'], g['hi']), (lo, hi)) for g in f['groups']):
-            continue
-        f['groups'].append(dict(bits=[b], lo=lo, hi=hi, table={0: [], 1: ['.reuse']}))
+        hit = [g for g in f['groups'] if LN.overlaps((g['lo'], g['hi']), (lo, hi)) or g['hi'] == lo or g['lo'] == lo]
+        hit = [g for g in hit if not set(g['bits']) & set(LN.GUARD_BITS)]
+        if hit:
+            # the flag prints next to another modifier group (e.g. R2.reuse.H0_H0): merge them
+            g = hit[0]
+            if len(g['bits']) >= 8:
+                continue
+            L = learner()
+            L.O.rebase = False
+            ng = L.enum_one(w, base, sorted(g['bits'] + [b]), min(g['lo'], lo), max(g['hi'], hi), dict(f, groups=[x for x in f['groups'] if x is not g]))
+            if ng is None:
+                continue
+            f['groups'].remove(g)
+            f['groups'].append(ng)
+        else:
+            f['groups'].append(dict(bits=[b], lo=lo, hi=hi, table={0: [], 1: ['.reuse']}))
         f['mask'] &= ~(1 << b)
         f['val'] &= ~(1 << b)
         n += 1
