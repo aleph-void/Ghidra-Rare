@@ -58,13 +58,14 @@ Terms used below:
 | Real binaries | Demo program: 200/200 functions decompile on all four cores. TI local: 99.98–99.99% disassembly agreement, 0 bad instructions, 1 decompile failure in ~2,100 functions |
 | Doesn't work | Predicated `VST4D`/`VST16H` offsets print `(0x40)` where `dis7x` prints `(0)`. One C7524 `VAPYSB` form with an `SE0` source. Packet context is lost after an undecodable word (rare now). B0–B15 writes don't clear upper vector bits. The core isn't auto-selected; run `ghidra_scripts/C7xCoreCheck.java`, which reads `.c7xabi.attributes` and names the right language |
 
-### SASS: Ampere/Ada committed, other generations in progress
+### SASS: Maxwell, Turing, Ampere, Ada, Hopper committed; other generations in progress
 
 | Area | State |
 |---|---|
-| Done | SM80, SM86, SM89 committed. vs `nvdisasm`: 96.9–97.6% of random words, 99.94% of a held-out bitsandbytes sm_86 cubin, 100% of our own ptxas kernels; 99.99% on the cuRAND corpus (local-only check, never committed). Auto language selection from `e_flags` (CUDA ≤12 and CUDA 13 layouts) |
-| In progress | SM75, SM90, SM100, SM120 (128-bit); SM52 (64-bit) learning; 64-bit control-word support written, untested |
-| Not started | Volta (SM70/72), Kepler (SM35/37), remaining Pascal/Maxwell variants |
+| Done | SM52 (Maxwell, 64-bit with control words), SM75, SM80, SM86, SM89, SM90. vs `nvdisasm`: held-out bitsandbytes cubins 99.92% (sm_75), 99.94% (sm_86), 99.87% (sm_90); random fuzz 99.2–99.9% (128-bit), 94.7% (SM52); 100% of our own ptxas kernels on all six; 100.00% on the cuRAND corpus (local-only check, never committed). Auto language selection from `e_flags` (CUDA ≤12 and CUDA 13 layouts) |
+| Doesn't work | `IMAD.SHL.U32` alias printed as `IMAD.U32` unless the multiplier was in training; a few encodings never seen in training (e.g. `ULEA.HI.X.SX32`). SM52 decodes many random words `nvdisasm` rejects. Raw images of 64-bit variants need the `ctl` context set at each bundle (the cubin loader does it) |
+| In progress | SM100, SM120 (Blackwell), SM60 (Pascal) |
+| Not started | Volta (SM70/72), Kepler (SM35/37) |
 
 ## Lessons
 
@@ -103,6 +104,8 @@ Terms used below:
 - **Opinion files only see `e_machine` and `e_flags`.** Variants recorded in sections, notes or
   build attributes (xCORE, C7x, TI PRU) need a script or loader extension; `e_flags` layout also
   changed between CUDA 12 and 13.
+- **Size blow-ups in generated SLEIGH.** SASS's first Maxwell spec produced an 11.9 MB `.sinc`;
+  the regenerated one is 5.3 MB (1.6 MB `.sla`). Check `.sla` size per variant before wiring it up.
 - **Non-deterministic generators** make reruns regress silently (C7x). Fix seeds and sort.
 - **Generated constructors can shadow hand-written ones.** C7x's generator learned its own
   `RET`/`RETS` as plain pcodeops; SLEIGH preferred them, every function ran into the next and
