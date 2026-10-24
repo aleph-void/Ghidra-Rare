@@ -62,10 +62,10 @@ Terms used below:
 
 | Area | State |
 |---|---|
-| Decode | Held-out bitsandbytes cubins vs `nvdisasm`: 100.00% (sm_60, sm_70, sm_100), 99.98% (sm_75), 99.99% (sm_86), all but 2 instructions (sm_90, sm_120). Random-word fuzz 99.3–99.9% for SM70–SM90. Own kernels 100% on SM70–SM120, 99.5–99.9% on SM35/52/60. cuRAND corpus 100% (local-only check, never committed) |
-| Semantics | Integer, memory and control flow in p-code; tensor, texture, conversion and most special-function ops are pcodeops |
-| Real binaries | Every bitsandbytes cubin imports with the language the opinion picks (CUDA ≤12 and CUDA 13 `e_flags` layouts) and every sampled function decompiles |
-| Doesn't work | Blackwell random-word fuzz is weak (SM100 87.4%, SM120 83.1%). 64-bit variants decode many words `nvdisasm` rejects. Kepler was learned only from our kernels plus random probes and prints the hidden second `ATOM.CAS` register as a number. SM52 still has a `SHFL` bug fixed on Pascal. Turing prints `RED [UR]` as `[RZ.64+UR4]`; one `ULEA.HI.X.SX32` encoding undecoded; float immediates print as hex. Raw 64-bit images need the `ctl` context set per bundle (the cubin loader does it) |
+| Decode | Held-out bitsandbytes cubins vs `nvdisasm`: 100.00% (sm_60, sm_70, sm_100), 99.98% (sm_75), 99.99% (sm_86), all but 2 instructions (sm_90, sm_120). Random-word fuzz 98.9–99.9% (128-bit), 94.9–96.6% (64-bit). Own kernels 100% on SM70–SM120, 99.9% on SM35/52/60. cuRAND corpus 100% (local-only check, never committed) |
+| Semantics | Integer, memory and control flow in p-code; tensor, texture, conversion and most special-function ops are `sass_*` pcodeops |
+| Real binaries | Every bitsandbytes cubin imports with the language the opinion picks (CUDA ≤12 and CUDA 13 `e_flags` layouts) and decompiles with 0 failures |
+| Doesn't work | 64-bit variants decode many random words `nvdisasm` rejects. Kepler was learned only from our kernels plus random probes, and prints `ATOM.CAS`'s implicit register pair as a number. Turing prints `RED [UR]` with an `RZ.64` base; one `ULEA.HI.X.SX32` encoding undecoded; float immediates print as hex. Raw 64-bit images need the `ctl` context set per bundle (the cubin loader does it) |
 | Unverified | Real third-party Kepler and Maxwell code: no held-out cubins for SM35 or SM52 were tested |
 
 ## Lessons
@@ -107,8 +107,13 @@ Terms used below:
   changed between CUDA 12 and 13.
 - **Size blow-ups in generated SLEIGH.** SASS's first Maxwell spec produced an 11.9 MB `.sinc`, and
   SM35/SM75 hit SLEIGH's constructor limit (Kepler had 80k constructors before modifier groups that
-  were really immediates were collapsed into one computed constructor; now ~6.5k). Check constructor
-  count and `.sla` size per variant before wiring it up.
+  were really immediates were collapsed into one computed constructor; now ~6.5k). Above ~45k constructors Ghidra's `.sla` decoder
+  failed; the generator now splits into smaller segments. Check constructor count and `.sla` size
+  per variant before wiring it up.
+- **Register-file width can change between generations.** Blackwell widened uniform-register
+  fields from 6 to 8 bits (URZ 63 to 255); a fixed register table made Ghidra reject every
+  instruction using UR63 or above and capped Blackwell fuzz at 83–87% until it was keyed on field
+  width.
 - **Non-deterministic generators** make reruns regress silently (C7x). Fix seeds and sort.
 - **Generated constructors can shadow hand-written ones.** C7x's generator learned its own
   `RET`/`RETS` as plain pcodeops; SLEIGH preferred them, every function ran into the next and
