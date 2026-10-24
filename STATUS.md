@@ -66,7 +66,7 @@ Terms used below:
 | Semantics | Integer, memory and control flow in p-code; tensor, texture, conversion and most special-function ops are pcodeops |
 | Real binaries | Every bitsandbytes cubin imports with the language the opinion picks (CUDA ≤12 and CUDA 13 `e_flags` layouts) and every sampled function decompiles |
 | Doesn't work | Blackwell random-word fuzz is weak (SM100 87.4%, SM120 83.1%). 64-bit variants decode many words `nvdisasm` rejects. Kepler was learned only from our kernels plus random probes and prints the hidden second `ATOM.CAS` register as a number. SM52 still has a `SHFL` bug fixed on Pascal. Turing prints `RED [UR]` as `[RZ.64+UR4]`; one `ULEA.HI.X.SX32` encoding undecoded; float immediates print as hex. Raw 64-bit images need the `ctl` context set per bundle (the cubin loader does it) |
-| Unverified | Real Kepler and Maxwell code (no freely licensed cubins found; bitsandbytes starts at sm_60) |
+| Unverified | Real third-party Kepler and Maxwell code: no held-out cubins for SM35 or SM52 were tested |
 
 ## Lessons
 
