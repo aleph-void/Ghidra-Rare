@@ -26,6 +26,7 @@ import semantics as SEM
 GUARD_BITS = [12, 13, 14, 15]
 SEG_MAX = int(os.environ.get('SASS_SEG_MAX', '1024'))
 KEEP_NESTED = os.environ.get('SASS_KEEP_NESTED', '0') == '1'
+MAX_CONS = int(os.environ.get('SASS_MAX_CONS', '45000'))
 EXC_BITS = int(os.environ.get('EXC_BITS', '8'))
 CUBE_CAP = int(os.environ.get('SASS_CUBE_CAP', '100000'))
 RSIZE = {'d4': 4, 'd8': 8, 'd16': 16, 's4': 4, 's8': 8, 's16': 16, 'f4': 4, 'f8': 8, 'p': 1, 'pd': 1,
@@ -168,6 +169,7 @@ class Gen:
     def __init__(self, arch, forms):
         global GUARD_BITS
         self.arch = arch
+
         self.wide = not is64(arch)
         if not self.wide:
             GUARD_BITS = [18, 19, 20, 21] if arch in ('SM35', 'SM37') else [16, 17, 18, 19]
@@ -298,9 +300,9 @@ class Gen:
             f = self.regfield(cls, lo, hi)
             raw = self.field(lo, hi)
             n = len(bits)
-            z = REGZ.get(cls)
+            z = regz(cls, n)
             zero = z is not None and z[0] == (1 << n) - 1
-            regbase = {'R': 0, 'UR': 0x400, 'P': 0x500, 'UP': 0x508, 'B': 0x600}[cls]
+            regbase = {'R': 0, 'UR': 0x1000, 'P': 0x500, 'UP': 0x508, 'B': 0x600}[cls]
             if role in ('s8', 'f8', 's16', 'd8', 'd16') and cls in ('R', 'UR'):
                 w = RSIZE[role]
                 name = 'S%s%d_%d_%d%s' % (cls, lo, hi, w, 'd' if role[0] == 'd' else '')
@@ -1225,6 +1227,14 @@ class Gen:
         o.extend(self.roots)
         open(path, 'w').write('\n'.join(o) + '\n')
 
+def regz(cls, width):
+    """(raw value, name) of the zero register of a register field.  Uniform
+    register fields are 6 bits up to Hopper (URZ = 63) and 8 bits on Blackwell
+    (UR0..UR254, URZ = 255)."""
+    if cls == 'UR' and width == 8:
+        return (255, 'URZ')
+    return REGZ.get(cls)
+
 def regnames(cls, width):
     n = 1 << width
     out = []
@@ -1235,15 +1245,15 @@ def regnames(cls, width):
             elif cls == 'RQ':
                 out.append('RQ%d' % i if i <= 252 else 'RQZ')
             elif cls == 'URD':
-                out.append('URD%d' % i if i < 63 else 'URDZ')
+                out.append('URD%d' % i if i < n - 1 else 'URDZ')
             else:
-                out.append('URQ%d' % i if i % 4 == 0 and i <= 60 else 'RQZ')
+                out.append('URQ%d' % i if i % 4 == 0 and i <= n - 4 else 'RQZ')
         return out
-    z = REGZ.get(cls)
+    z = regz(cls, width)
     for i in range(n):
         if z and i == z[0]:
             out.append(z[1])
-        elif cls == 'R' or (cls == 'UR' and i < 63) or (cls in ('P', 'UP') and i < 7) or (cls == 'B' and i < 16):
+        elif cls == 'R' or (cls == 'UR' and i < n - 1) or (cls in ('P', 'UP') and i < 7) or (cls == 'B' and i < 16):
             out.append('%s%d' % (cls, i))
         else:
             out.append('_')
@@ -1252,9 +1262,18 @@ def regnames(cls, width):
 def main():
     from sassmodel import load_spec
     spec = load_spec(sys.argv[1])
+    global SEG_MAX
     forms = [from_json(f) for f in spec['forms']]
     g = Gen(spec['arch'], forms)
     g.generate()
+    total = len(g.roots and [c for r in g.roots for c in r.split('\n') if ' is ' in c]) + sum(len(t) for t in g.tables.values())
+    if total > MAX_CONS and 'SASS_SEG_MAX' not in os.environ and SEG_MAX > 512:
+        # Ghidra's .sla decoder fails on very large languages: use smaller segments
+        # (more root constructors, far fewer sub-table constructors)
+        SEG_MAX = 512
+        g = Gen(spec['arch'], [from_json(f) for f in spec['forms']])
+        g.generate()
+        g.stats['seg_max_512'] = 1
     g.emit(sys.argv[2])
     print(dict(g.stats), 'tables', len(g.tables), 'fields', len(g.fields))
 

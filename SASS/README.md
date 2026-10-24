@@ -10,7 +10,7 @@ encoding model per instruction *form*; a generator turns those models into
 SLEIGH.  No NVIDIA documentation, no third-party disassembler code and nothing
 from the closed-source IDA module was used.
 
-> **Milestone 3 (checkpoint):** every generation from Kepler to Blackwell has a
+> **Milestone 4 (final):** every generation from Kepler to Blackwell has a
 > language (11 variants, sm_35 .. sm_121), each learned, generated and tested
 > the same way.  The 128-bit variants (Volta .. Blackwell) reproduce nvdisasm on
 > 99.98-100 % of real code; the 64-bit ones (Kepler, Maxwell, Pascal) are less
@@ -72,7 +72,7 @@ the `ctl` context register yourself at each 32-byte boundary.
 Text follows nvdisasm (`cuobjdump -sass`) as closely as SLEIGH allows:
 
 * mnemonics, modifiers, operand order, register names (`R0..R254, RZ`,
-  `UR0..UR62, URZ`, `P0..P6, PT`, `UP0..UP6, UPT`, `B0..B15`), `SR_*` special
+  `UR0..UR62, URZ`; Blackwell `UR0..UR254, URZ`, `P0..P6, PT`, `UP0..UP6, UPT`, `B0..B15`), `SR_*` special
   registers, `c[bank][offset]`, `[R2.64+UR4+0x10]`, `desc[UR4][...]`, `.reuse`;
 * differences: Ghidra prints operands separated by `,` without a space, branch
   targets as absolute addresses, and **float immediates as raw hex bits**
@@ -179,7 +179,7 @@ optional) - numbers of the run with `FUZZ_SEED=7`:
 | Variant | committed vectors (`test/vectors/`) | random fuzz, 20k words | LOCAL check: libcurand corpus (training set, not committed) |
 |---------|------------------|------------------------|--------------------|
 | SM35    | 99.29 % of 3,780 | 96.58 % of 1,610 valid | (no Kepler code in libcurand) |
-| SM52    | 97.60 % of 4,002 | 94.72 % of 7,749 valid | 100.00 % of 84,678 (sm_50 build) |
+| SM52    | 98.93 % of 4,002 | 94.85 % of 7,749 valid | 100.00 % of 84,678 (sm_50 build) |
 | SM60    | 98.98 % of 4,002 | 94.94 % of 8,148 valid | 100.00 % of 85,185 |
 | SM70    | 99.92 % of 3,754 | 99.75 % of 1,218 valid | 100.00 % of 82,382 |
 | SM75    | 99.92 % of 3,759 | 99.76 % of 1,258 valid | 100.00 % of 78,639 |
@@ -187,8 +187,8 @@ optional) - numbers of the run with `FUZZ_SEED=7`:
 | SM86    | 99.95 % of 3,872 | 99.93 % of 1,439 valid | 100.00 % of 78,770 |
 | SM89    | 99.95 % of 3,862 | 99.93 % of 1,428 valid | 100.00 % of 78,770 |
 | SM90    | 99.92 % of 3,956 | 99.30 % of 1,567 valid | 100.00 % of 90,894 |
-| SM100   | 97.72 % of 3,691 | 87.39 % of 1,158 valid | 100.00 % of 102,143 |
-| SM120   | 96.94 % of 3,662 | 83.09 % of 1,118 valid | 100.00 % of 89,255 |
+| SM100   | 99.84 % of 3,691 | 98.88 % of 1,158 valid | 100.00 % of 102,143 |
+| SM120   | 99.84 % of 3,662 | 99.28 % of 1,118 valid | 100.00 % of 89,255 |
 
 The committed vectors are ~3,000 instruction words of real code - the
 MIT-licensed bitsandbytes 0.50.2 cubins
@@ -197,11 +197,9 @@ MIT-licensed bitsandbytes 0.50.2 cubins
 our ptxas-built test kernels - plus ~700-1,000 random words nvdisasm accepts.
 For SM35 the real-code words are the test kernels only.  The bitsandbytes
 words were never used for learning; the test-kernel words were (from milestone
-3 on).  Split by origin, the real-code words are 100 % exact for SM70-SM120,
-100 % for SM60, 99.89 % for SM35 and 98.20 % for SM52 (the SM52 relearn with the
-fixed learner is in progress); the random words 99.6-99.8 % for SM70-SM90,
-95.8-97.6 % for the 64-bit variants and 87.8 % /
-83.1 % for SM100 / SM120 (Blackwell's rarer encodings are less covered).
+3 on).  Split by origin, the real-code words are 100 % exact for every variant except
+SM35 (99.89 %); the random words 99.1-99.8 % for SM70-SM120 and 95.7-97.6 % for
+the 64-bit variants.
 
 Fuzz words are uniform over the 4096 opcode values with random operand bits, so
 they over-represent rare instructions.  "ghidra-only" (words Ghidra decodes but
@@ -258,16 +256,11 @@ if (iVar1 < _DAT_cbank_00000178) {
 * nvdisasm aliases that depend on operand *values* (e.g. `IMAD.SHL.U32` for
   power-of-two multipliers) are learned per value from probes; a value never
   probed prints in the generic form.
-* Blackwell (SM100/SM120): real code is reproduced exactly, but 12-17 % of
-  random valid encodings are still undecoded (rare instructions/modifier
-  combinations not yet learned).
 * 64-bit encodings: Ghidra does not know nvdisasm's validity rules beyond the
   learned forms, so it decodes many random words nvdisasm rejects.  Kepler was
   learned from ~2.8k words of our own kernels plus random probes only.
   Kepler/Maxwell `ATOM.CAS` print the implicit second compare register
-  (`R(n+1)`) as a number.  Maxwell `SHFL` with an immediate lane and a register
-  mask is printed with a wrong register (fixed for Pascal; Maxwell is being
-  re-learned with the fixed learner).
+  (`R(n+1)`) as a number.
 * `RED [URx]` (Turing) prints an explicit `RZ.64+` base.
 * Encodings seen neither in the corpus nor among the random probes may be
   undecoded (`??`) or, rarely, decoded where nvdisasm rejects them (Ghidra does
