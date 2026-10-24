@@ -58,14 +58,15 @@ Terms used below:
 | Real binaries | Demo program: 200/200 functions decompile on all four cores. TI local: 99.98–99.99% disassembly agreement, 0 bad instructions, 1 decompile failure in ~2,100 functions |
 | Doesn't work | Predicated `VST4D`/`VST16H` offsets print `(0x40)` where `dis7x` prints `(0)`. One C7524 `VAPYSB` form with an `SE0` source. Packet context is lost after an undecodable word (rare now). B0–B15 writes don't clear upper vector bits. The core isn't auto-selected; run `ghidra_scripts/C7xCoreCheck.java`, which reads `.c7xabi.attributes` and names the right language |
 
-### SASS: Maxwell, Turing, Ampere, Ada, Hopper committed; other generations in progress
+### SASS: done (11 variants, Kepler to Blackwell)
 
 | Area | State |
 |---|---|
-| Done | SM52 (Maxwell, 64-bit with control words), SM75, SM80, SM86, SM89, SM90. vs `nvdisasm`: held-out bitsandbytes cubins 99.92% (sm_75), 99.94% (sm_86), 99.87% (sm_90); random fuzz 99.2–99.9% (128-bit), 94.7% (SM52); 100% of our own ptxas kernels on all six; 100.00% on the cuRAND corpus (local-only check, never committed). Auto language selection from `e_flags` (CUDA ≤12 and CUDA 13 layouts) |
-| Doesn't work | `IMAD.SHL.U32` alias printed as `IMAD.U32` unless the multiplier was in training; a few encodings never seen in training (e.g. `ULEA.HI.X.SX32`). SM52 decodes many random words `nvdisasm` rejects. Raw images of 64-bit variants need the `ctl` context set at each bundle (the cubin loader does it) |
-| In progress | SM100, SM120 (Blackwell), SM60 (Pascal) |
-| Not started | Volta (SM70/72), Kepler (SM35/37) |
+| Decode | Held-out bitsandbytes cubins vs `nvdisasm`: 100.00% (sm_60, sm_70, sm_100), 99.98% (sm_75), 99.99% (sm_86), all but 2 instructions (sm_90, sm_120). Random-word fuzz 99.3–99.9% for SM70–SM90. Own kernels 100% on SM70–SM120, 99.5–99.9% on SM35/52/60. cuRAND corpus 100% (local-only check, never committed) |
+| Semantics | Integer, memory and control flow in p-code; tensor, texture, conversion and most special-function ops are pcodeops |
+| Real binaries | Every bitsandbytes cubin imports with the language the opinion picks (CUDA ≤12 and CUDA 13 `e_flags` layouts) and every sampled function decompiles |
+| Doesn't work | Blackwell random-word fuzz is weak (SM100 87.4%, SM120 83.1%). 64-bit variants decode many words `nvdisasm` rejects. Kepler was learned only from our kernels plus random probes and prints the hidden second `ATOM.CAS` register as a number. SM52 still has a `SHFL` bug fixed on Pascal. Turing prints `RED [UR]` as `[RZ.64+UR4]`; one `ULEA.HI.X.SX32` encoding undecoded; float immediates print as hex. Raw 64-bit images need the `ctl` context set per bundle (the cubin loader does it) |
+| Unverified | Real Kepler and Maxwell code (no freely licensed cubins found; bitsandbytes starts at sm_60) |
 
 ## Lessons
 
@@ -104,8 +105,10 @@ Terms used below:
 - **Opinion files only see `e_machine` and `e_flags`.** Variants recorded in sections, notes or
   build attributes (xCORE, C7x, TI PRU) need a script or loader extension; `e_flags` layout also
   changed between CUDA 12 and 13.
-- **Size blow-ups in generated SLEIGH.** SASS's first Maxwell spec produced an 11.9 MB `.sinc`;
-  the regenerated one is 5.3 MB (1.6 MB `.sla`). Check `.sla` size per variant before wiring it up.
+- **Size blow-ups in generated SLEIGH.** SASS's first Maxwell spec produced an 11.9 MB `.sinc`, and
+  SM35/SM75 hit SLEIGH's constructor limit (Kepler had 80k constructors before modifier groups that
+  were really immediates were collapsed into one computed constructor; now ~6.5k). Check constructor
+  count and `.sla` size per variant before wiring it up.
 - **Non-deterministic generators** make reruns regress silently (C7x). Fix seeds and sort.
 - **Generated constructors can shadow hand-written ones.** C7x's generator learned its own
   `RET`/`RETS` as plain pcodeops; SLEIGH preferred them, every function ran into the next and
