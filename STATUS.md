@@ -136,6 +136,16 @@ Imported from other authors and verified to the same bar. Each lives in an `alep
 | Fixed here | Standalone extension, complete core decode, IVC2/VLIW mode, big-endian support, ELF relocation handling, GCC return and switch recognition, DWARF map |
 | Unverified | Sony CMeP toolchain output and Toshiba IVC2 toolchain output |
 
+### FR60 / FR81: done for the FR30 core (community: @desrdev)
+
+| Area | State |
+|---|---|
+| Decode | FR60 vs GNU binutils 2.45: all 192,882 shared first-halfword slots exact and all 98,100 shared random slots semantically equal; zero Ghidra-only decodes. Reference-only slots print `???` for reserved registers. FR81's extra forms lack a GNU oracle |
+| Semantics | Nine hand-computed emulator cases pass in each language, including negative immediates, flags, shifts, loads and stores; 251/258 FR60 and 401/408 FR81 constructors reached (seven shadowed aliases) |
+| Real binaries | Six GCC-built Lua/zlib ELFs: 257,785 instructions exact against objdump, 3,523/3,523 functions decompile, zero bad-instruction bookmarks. DWARF negative line numbers cause 671 importer error bookmarks |
+| Fixed here | Negative immediate semantics, ASR2, coprocessor field and COPSV length, ELF opinion, malformed DWARF register map, extension metadata |
+| Unverified | FR81-only instructions and actual FR60/FR81 firmware; coprocessor hardware effects are opaque |
+
 ### Alpha: done (community: @kkaempf, @mattst88; 15 languages)
 
 | Area | State |
