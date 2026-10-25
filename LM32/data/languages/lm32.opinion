@@ -1,0 +1,8 @@
+<opinions>
+  <!-- EM_LATTICEMICO32 = 138. LatticeMico32 is big endian; an LSB ELF selects the
+       little-endian language. -->
+  <constraint loader="Executable and Linking Format (ELF)" compilerSpecID="default">
+    <constraint primary="138" processor="lm32" endian="big" size="32"/>
+    <constraint primary="138" processor="lm32" endian="little" size="32"/>
+  </constraint>
+</opinions>

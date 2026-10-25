@@ -83,6 +83,17 @@ Imported from other authors and verified to the same bar; see each module's `CRE
 | Doesn't work | Widths after PLP/RTI with no PHP/PEA, after XCE without CLC/SEC, or after REP/SEP in a callee. Code run at two widths gets a bookmark. WAI/STP are pcodeops. Bank wrap not modelled. Loader has no ExHiROM/SA-1/SRAM and doesn't track DBR |
 | Unverified | Large commercial-style ROMs, the 65802 |
 
+### LM32: done (community: @jevinskie, @cyrozap)
+
+| Area | State |
+|---|---|
+| Decode | 100% of non-explained words vs objdump 2.45 on the opcode table (3,360) and fuzz (50,000), BE and LE; differences are display classes (gp-relative form, unnamed CSRs) and manual-only div/mod. Upstream was at 60% on the table |
+| Semantics | Full p-code for ALU, memory, flow, CSRs; emulator 26/26 BE and LE |
+| Real binaries | 3 HDMI2USB/LiteX images: disassembly identical to objdump (31,353 instructions), 656 functions, 0 decompile failures, DWARF prototypes import (upstream: DWARF import failed on every function) |
+| Fixed here | Operand display, reserved bits, user/gp forms, CSRs as registers, ELF opinion, DWARF map, cspec per GCC ABI, relocation handler |
+| Doesn't work | Exceptions, interrupts and cache ops not modelled; `user`/`raise` are pcodeops; FDPIC not handled; ~200 DWARF line-table bookmarks per image (a generic Ghidra issue) |
+| Unverified | Stack-argument offsets on real code; relocation types 8/16/GOTOFF/dynamic; the LE language on real binaries (no LE hardware exists) |
+
 ### OpenRISC 1000: done (community: @smaeul, @Spritetm)
 
 | Area | State |

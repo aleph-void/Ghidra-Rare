@@ -1,0 +1,5 @@
+*.sla
+/build/
+/dist/
+/lib/
+/.gradle/

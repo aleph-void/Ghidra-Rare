@@ -1,0 +1,27 @@
+# Add sleigh compiler options to this file (one per line) which will
+# be used when compiling each language within this module.
+# All options should start with a '-' character.
+#
+# IMPORTANT: The -a option should NOT be specified
+#
+
+# Turn on parser debugging.
+-x
+
+# Print warnings for unnecessary pcode instructions.
+-u
+
+# Report pattern conflicts.
+-l
+
+# Print warnings for all NOP constructors.
+-n
+
+# Print warnings for dead temporaries.
+-t
+
+# Enforce use of 'local' keyword for temporaries.
+-e
+
+# Print warnings for unused token fields.
+-f

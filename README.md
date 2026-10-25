@@ -32,6 +32,7 @@ commits on an `aleph-void` fork of the original repository, under the original l
 | Module | Processor | Language IDs | Original authors | License |
 |---|---|---|---|---|
 | [65816](65816/README.md) | WDC 65C816 (SNES) and 65802, with a LoROM/HiROM SNES ROM loader | `65816:LE:16:default`, `65802:LE:16:default` | Adrian Chan (@achan1989), Greg Kennedy (@greg-kennedy), Kay (@kaayzouee) | MIT |
+| [LM32](LM32/README.md) | Lattice LatticeMico32 | `lm32:BE:32:default`, `lm32:LE:32:default` | Jevin Sweval (@jevinskie), with @cyrozap | MIT |
 | [OpenRISC](OpenRISC/README.md) | OpenRISC 1000 (ORBIS32, ORFPX32/64A32) | `OpenRISC:BE:32:default`, `OpenRISC:LE:32:default` | Samuel Holland (@smaeul), Jeroen Domburg (@Spritetm) | Apache-2.0 |
 | [RL78](RL78/README.md) | Renesas RL78 (S1/S2 and S3 cores) | `RL78:LE:16:default` (S3), `RL78:LE:16:S2` | Callum Thomson (@CUB3D) | Apache-2.0 |
 

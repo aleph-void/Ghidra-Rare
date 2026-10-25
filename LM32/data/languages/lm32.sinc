@@ -1,0 +1,184 @@
+# SLEIGH specification for the Lattice LatticeMico32 (LM32)
+#
+# Originally written by Jevin Sweval (jevinskie/ghidra-lm32). Reworked by Ghidra-Rare after
+# differential testing against GNU objdump 2.45 (-m lm32): operand fields, operand order and
+# reserved bits now follow the binutils opcode table (opcodes/lm32-opc.c), and the assembler
+# aliases objdump prints (mv, mvi, mvu, mvhi, mva, not, nop, ret, eret, bret, break, scall) are
+# decoded as such.
+#
+# Field names follow binutils: rs0 = bits 25..21, rs1 = bits 20..16, rs2 = bits 15..11.
+#   register-immediate:  rs1 = rs0 op imm16
+#   register-register:   rs2 = rs0 op rs1
+#   stores:              mem[rs0 + imm16] = rs1
+#   branches:            if (rs0 cond rs1) goto pc + (imm16 << 2)
+
+define endian=$(ENDIAN);
+define alignment=4;
+
+define space ram type=ram_space size=4 wordsize=1 default;
+define space register type=register_space size=4;
+
+# General purpose registers (r26..r31 have ABI names; r0 is zero by convention: the ABI
+# requires software to keep it 0, and the pspec tracks it as 0)
+define register offset=0x1000 size=4 [
+	r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15 r16 r17 r18 r19 r20 r21 r22 r23 r24 r25
+	gp fp sp ra ea ba
+];
+
+define register offset=0x2000 size=4 [ PC ];
+
+# Control and status registers, indexed by CSR number (names as in binutils lm32-desc.c)
+define register offset=0x2100 size=4 [
+	IE IM IP ICC DCC CC CFG EBA DC DEBA CFG2 csr11 csr12 csr13 JTX JRX
+	BP0 BP1 BP2 BP3 csr20 csr21 csr22 csr23 WP0 WP1 WP2 WP3 csr28 PSW TLBVADDR TLBPADDR
+];
+
+define pcodeop breakpoint;
+define pcodeop syscall;
+define pcodeop user_instruction;
+
+define token instr(32)
+	op     = (26, 31)
+	rs0    = (21, 25)
+	rs1    = (16, 20)
+	rs2    = (11, 15)
+	r0n    = (21, 25)
+	r1n    = (16, 20)
+	r2n    = (11, 15)
+	csr    = (21, 25)
+	imm16  = (0, 15) signed
+	uimm16 = (0, 15)
+	imm26  = (0, 25) signed
+	lo11   = (0, 10)
+	sh5    = (0, 4)
+;
+
+attach variables [ rs0 rs1 rs2 ] [
+	r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15 r16 r17 r18 r19 r20 r21 r22 r23 r24 r25
+	gp fp sp ra ea ba
+];
+
+attach variables [ csr ] [
+	IE IM IP ICC DCC CC CFG EBA DC DEBA CFG2 csr11 csr12 csr13 JTX JRX
+	BP0 BP1 BP2 BP3 csr20 csr21 csr22 csr23 WP0 WP1 WP2 WP3 csr28 PSW TLBVADDR TLBPADDR
+];
+
+rel16: addr is imm16 [ addr = inst_start + (imm16 << 2); ] { export *:4 addr; }
+rel26: addr is imm26 [ addr = inst_start + (imm26 << 2); ] { export *:4 addr; }
+
+# effective address of loads and stores
+ea16: (rs0+imm16) is rs0 & imm16 { local a:4 = rs0 + imm16; export a; }
+# gp-relative form; objdump prints only the offset for these (see README)
+ea16: (gp+imm16) is r0n=26 & gp & imm16 { local a:4 = gp + imm16; export a; }
+
+#
+# Register-immediate instructions
+#
+:srui rs1, rs0, imm16 is op=0x00 & rs1 & rs0 & imm16 & sh5 { rs1 = rs0 >> sh5; }
+:nori rs1, rs0, uimm16 is op=0x01 & rs1 & rs0 & uimm16 { rs1 = ~(rs0 | uimm16); }
+:muli rs1, rs0, imm16 is op=0x02 & rs1 & rs0 & imm16 { rs1 = rs0 * imm16; }
+:sh ea16, rs1 is op=0x03 & rs1 & ea16 { *:2 ea16 = rs1:2; }
+:lb rs1, ea16 is op=0x04 & rs1 & ea16 { rs1 = sext(*:1 ea16); }
+:sri rs1, rs0, imm16 is op=0x05 & rs1 & rs0 & imm16 & sh5 { rs1 = rs0 s>> sh5; }
+:xori rs1, rs0, uimm16 is op=0x06 & rs1 & rs0 & uimm16 { rs1 = rs0 ^ uimm16; }
+:lh rs1, ea16 is op=0x07 & rs1 & ea16 { rs1 = sext(*:2 ea16); }
+:andi rs1, rs0, uimm16 is op=0x08 & rs1 & rs0 & uimm16 { rs1 = rs0 & uimm16; }
+:xnori rs1, rs0, uimm16 is op=0x09 & rs1 & rs0 & uimm16 { rs1 = ~(rs0 ^ uimm16); }
+:lw rs1, ea16 is op=0x0a & rs1 & ea16 { rs1 = *:4 ea16; }
+:lhu rs1, ea16 is op=0x0b & rs1 & ea16 { rs1 = zext(*:2 ea16); }
+:sb ea16, rs1 is op=0x0c & rs1 & ea16 { *:1 ea16 = rs1:1; }
+:addi rs1, rs0, imm16 is op=0x0d & rs1 & rs0 & imm16 { rs1 = rs0 + imm16; }
+:mvi rs1, imm16 is op=0x0d & rs1 & r0n=0 & imm16 { rs1 = imm16; }
+:mva rs1, imm16 is op=0x0d & rs1 & r0n=26 & imm16 { rs1 = gp + imm16; }
+:nop is op=0x0d & r0n=0 & r1n=0 & uimm16=0 { }
+:ori rs1, rs0, uimm16 is op=0x0e & rs1 & rs0 & uimm16 { rs1 = rs0 | uimm16; }
+:mvu rs1, uimm16 is op=0x0e & rs1 & r0n=0 & uimm16 { rs1 = uimm16; }
+:sli rs1, rs0, imm16 is op=0x0f & rs1 & rs0 & imm16 & sh5 { rs1 = rs0 << sh5; }
+:lbu rs1, ea16 is op=0x10 & rs1 & ea16 { rs1 = zext(*:1 ea16); }
+:sw ea16, rs1 is op=0x16 & rs1 & ea16 { *:4 ea16 = rs1; }
+:andhi rs1, rs0, uimm16 is op=0x18 & rs1 & rs0 & uimm16 { rs1 = rs0 & (uimm16 << 16); }
+:cmpei rs1, rs0, imm16 is op=0x19 & rs1 & rs0 & imm16 { rs1 = zext(rs0 == imm16); }
+:cmpgi rs1, rs0, imm16 is op=0x1a & rs1 & rs0 & imm16 { rs1 = zext(rs0 s> imm16); }
+:cmpgei rs1, rs0, imm16 is op=0x1b & rs1 & rs0 & imm16 { rs1 = zext(rs0 s>= imm16); }
+:cmpgeui rs1, rs0, uimm16 is op=0x1c & rs1 & rs0 & uimm16 { rs1 = zext(rs0 >= uimm16); }
+:cmpgui rs1, rs0, uimm16 is op=0x1d & rs1 & rs0 & uimm16 { rs1 = zext(rs0 > uimm16); }
+:orhi rs1, rs0, uimm16 is op=0x1e & rs1 & rs0 & uimm16 { rs1 = rs0 | (uimm16 << 16); }
+:mvhi rs1, uimm16 is op=0x1e & rs1 & r0n=0 & uimm16 { rs1 = uimm16 << 16; }
+:cmpnei rs1, rs0, imm16 is op=0x1f & rs1 & rs0 & imm16 { rs1 = zext(rs0 != imm16); }
+
+#
+# Conditional branches
+#
+:be rs0, rs1, rel16 is op=0x11 & rs0 & rs1 & rel16 { if (rs0 == rs1) goto rel16; }
+:bg rs0, rs1, rel16 is op=0x12 & rs0 & rs1 & rel16 { if (rs0 s> rs1) goto rel16; }
+:bge rs0, rs1, rel16 is op=0x13 & rs0 & rs1 & rel16 { if (rs0 s>= rs1) goto rel16; }
+:bgeu rs0, rs1, rel16 is op=0x14 & rs0 & rs1 & rel16 { if (rs0 >= rs1) goto rel16; }
+:bgu rs0, rs1, rel16 is op=0x15 & rs0 & rs1 & rel16 { if (rs0 > rs1) goto rel16; }
+:bne rs0, rs1, rel16 is op=0x17 & rs0 & rs1 & rel16 { if (rs0 != rs1) goto rel16; }
+
+#
+# Register-register instructions (bits 10..0 must be zero)
+#
+with : lo11=0 {
+	# shift amounts use the low 5 bits of rs1
+	:sru rs2, rs0, rs1 is op=0x20 & rs2 & rs0 & rs1 { rs2 = rs0 >> (rs1 & 0x1f); }
+	:nor rs2, rs0, rs1 is op=0x21 & rs2 & rs0 & rs1 { rs2 = ~(rs0 | rs1); }
+	:mul rs2, rs0, rs1 is op=0x22 & rs2 & rs0 & rs1 { rs2 = rs0 * rs1; }
+	:divu rs2, rs0, rs1 is op=0x23 & rs2 & rs0 & rs1 { rs2 = rs0 / rs1; }
+	:rcsr rs2, csr is op=0x24 & rs2 & csr & r1n=0 { rs2 = csr; }
+	:sr rs2, rs0, rs1 is op=0x25 & rs2 & rs0 & rs1 { rs2 = rs0 s>> (rs1 & 0x1f); }
+	:xor rs2, rs0, rs1 is op=0x26 & rs2 & rs0 & rs1 { rs2 = rs0 ^ rs1; }
+	# div/mod are in the processor reference manual's opcode table; binutils has no entry
+	:div rs2, rs0, rs1 is op=0x27 & rs2 & rs0 & rs1 { rs2 = rs0 s/ rs1; }
+	:and rs2, rs0, rs1 is op=0x28 & rs2 & rs0 & rs1 { rs2 = rs0 & rs1; }
+	:xnor rs2, rs0, rs1 is op=0x29 & rs2 & rs0 & rs1 { rs2 = ~(rs0 ^ rs1); }
+	:not rs2, rs0 is op=0x29 & rs2 & rs0 & r1n=0 { rs2 = ~rs0; }
+	:sextb rs2, rs0 is op=0x2c & rs2 & rs0 & r1n=0 { rs2 = sext(rs0:1); }
+	:add rs2, rs0, rs1 is op=0x2d & rs2 & rs0 & rs1 { rs2 = rs0 + rs1; }
+	:or rs2, rs0, rs1 is op=0x2e & rs2 & rs0 & rs1 { rs2 = rs0 | rs1; }
+	:mv rs2, rs0 is op=0x2e & rs2 & rs0 & r1n=0 { rs2 = rs0; }
+	:sl rs2, rs0, rs1 is op=0x2f & rs2 & rs0 & rs1 { rs2 = rs0 << (rs1 & 0x1f); }
+	:modu rs2, rs0, rs1 is op=0x31 & rs2 & rs0 & rs1 { rs2 = rs0 % rs1; }
+	:sub rs2, rs0, rs1 is op=0x32 & rs2 & rs0 & rs1 { rs2 = rs0 - rs1; }
+	:wcsr csr, rs1 is op=0x34 & csr & rs1 & r2n=0 { csr = rs1; }
+	:mod rs2, rs0, rs1 is op=0x35 & rs2 & rs0 & rs1 { rs2 = rs0 s% rs1; }
+	:sexth rs2, rs0 is op=0x37 & rs2 & rs0 & r1n=0 { rs2 = sext(rs0:2); }
+	:cmpe rs2, rs0, rs1 is op=0x39 & rs2 & rs0 & rs1 { rs2 = zext(rs0 == rs1); }
+	:cmpg rs2, rs0, rs1 is op=0x3a & rs2 & rs0 & rs1 { rs2 = zext(rs0 s> rs1); }
+	:cmpge rs2, rs0, rs1 is op=0x3b & rs2 & rs0 & rs1 { rs2 = zext(rs0 s>= rs1); }
+	:cmpgeu rs2, rs0, rs1 is op=0x3c & rs2 & rs0 & rs1 { rs2 = zext(rs0 >= rs1); }
+	:cmpgu rs2, rs0, rs1 is op=0x3d & rs2 & rs0 & rs1 { rs2 = zext(rs0 > rs1); }
+	:cmpne rs2, rs0, rs1 is op=0x3f & rs2 & rs0 & rs1 { rs2 = zext(rs0 != rs1); }
+}
+
+# user-defined instruction (opcode 0x33, reserved in the manual's table; binutils "user")
+:user rs2, rs0, rs1, lo11 is op=0x33 & rs2 & rs0 & rs1 & lo11 {
+	rs2 = user_instruction(rs0, rs1, lo11:2);
+}
+
+#
+# Control flow
+#
+:b rs0 is op=0x30 & rs0 & r1n=0 & uimm16=0 { goto [rs0]; }
+:ret is op=0x30 & r0n=29 & r1n=0 & uimm16=0 { return [ra]; }
+# exception / breakpoint return: also restores IE.IE from IE.EIE / IE.BIE
+:eret is op=0x30 & r0n=30 & r1n=0 & uimm16=0 { IE = (IE & ~1) | ((IE >> 1) & 1); return [ea]; }
+:bret is op=0x30 & r0n=31 & r1n=0 & uimm16=0 { IE = (IE & ~1) | ((IE >> 2) & 1); return [ba]; }
+
+:call rs0 is op=0x36 & rs0 & r1n=0 & uimm16=0 {
+	local target = rs0;
+	ra = inst_next;
+	call [target];
+}
+
+:bi rel26 is op=0x38 & rel26 { goto rel26; }
+
+:calli rel26 is op=0x3e & rel26 {
+	ra = inst_next;
+	call rel26;
+}
+
+# raise: only the two encodings binutils defines. The exception handlers return to the next
+# instruction (scall is the system call; break is a debugger breakpoint), so both fall through.
+:break is op=0x2b & imm26=2 { ba = inst_next; breakpoint(); }
+:scall is op=0x2b & imm26=7 { ea = inst_next; syscall(); }

@@ -1,0 +1,93 @@
+// Runs the p-code semantic tests produced by emu_tests.py in Ghidra's p-code emulator.
+// The program must be the matching emu_<endian>.bin imported raw at address 0.
+// Script args: <tests.txt> <outfile>
+//   tests.txt lines: <name> <start-hex> <stop-hex> <init reg=val,...|-> <expect reg=val,...>
+//@category Testing
+
+import java.io.PrintStream;
+import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import ghidra.app.emulator.EmulatorHelper;
+import ghidra.app.script.GhidraScript;
+import ghidra.program.model.address.Address;
+import ghidra.program.model.lang.Register;
+
+public class EmuCheck extends GhidraScript {
+
+	@Override
+	protected void run() throws Exception {
+		String[] args = getScriptArgs();
+		PrintStream out = new PrintStream(args[1]);
+		int pass = 0, fail = 0;
+		for (String line : Files.readAllLines(Path.of(args[0]))) {
+			line = line.trim();
+			if (line.isEmpty() || line.startsWith("#")) {
+				continue;
+			}
+			String[] f = line.split("\\s+");
+			String err = runOne(f);
+			if (err == null) {
+				pass++;
+				out.println("PASS " + f[0]);
+			}
+			else {
+				fail++;
+				out.println("FAIL " + f[0] + ": " + err);
+			}
+		}
+		out.printf("emulator tests: %d passed, %d failed%n", pass, fail);
+		out.close();
+	}
+
+	private String runOne(String[] f) throws Exception {
+		Address start = toAddr(Long.parseUnsignedLong(f[1], 16));
+		Address stop = toAddr(Long.parseUnsignedLong(f[2], 16));
+		EmulatorHelper emu = new EmulatorHelper(currentProgram);
+		try {
+			for (int i = 0; i < 26; i++) {
+				emu.writeRegister("r" + i, 0);
+			}
+			for (String r : new String[] { "gp", "fp", "sp", "ra", "ea", "ba", "IE" }) {
+				emu.writeRegister(r, 0);
+			}
+			if (!f[3].equals("-")) {
+				for (String kv : f[3].split(",")) {
+					String[] p = kv.split("=");
+					emu.writeRegister(p[0], new BigInteger(p[1], 16));
+				}
+			}
+			emu.writeRegister(emu.getPCRegister(), start.getOffset());
+			// Step with a limit: memory outside the test is zero, and an instruction may branch back
+			// on itself, so a sequence that misses its stop address would otherwise never end.
+			int steps = 0;
+			while (!emu.getExecutionAddress().equals(stop) && steps < 1000) {
+				if (!emu.step(monitor)) {
+					return "emulation stopped at " + emu.getExecutionAddress() + ": " +
+						emu.getLastError();
+				}
+				steps++;
+			}
+			if (!emu.getExecutionAddress().equals(stop)) {
+				return "did not reach " + stop + " in 1000 steps (at " +
+					emu.getExecutionAddress() + ")";
+			}
+			StringBuilder bad = new StringBuilder();
+			for (String kv : f[4].split(",")) {
+				String[] p = kv.split("=");
+				Register r = currentProgram.getRegister(p[0]);
+				BigInteger mask = BigInteger.ONE.shiftLeft(r.getBitLength()).subtract(BigInteger.ONE);
+				BigInteger want = new BigInteger(p[1], 16).and(mask);
+				BigInteger got = emu.readRegister(r).and(mask);
+				if (!want.equals(got)) {
+					bad.append(String.format(" %s=%x (want %x)", p[0], got, want));
+				}
+			}
+			return bad.length() == 0 ? null : bad.toString().trim();
+		}
+		finally {
+			emu.dispose();
+		}
+	}
+}
