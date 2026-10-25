@@ -22,3 +22,7 @@
 	path = community/SPC700
 	url = https://github.com/aleph-void/SPCdra.git
 	branch = ghidra-rare
+[submodule "community/RH850"]
+	path = community/RH850
+	url = https://github.com/aleph-void/ghidra_v850.git
+	branch = ghidra-rare

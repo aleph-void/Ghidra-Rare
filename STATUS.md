@@ -128,6 +128,17 @@ Imported from other authors and verified to the same bar. Each lives in an `alep
 | Doesn't work | glibc `vfprintf` computed-goto tables (49 `.rodata` words disassembled). Kernel exception vectors not auto-disassembled. SR flag bits are separate registers, so `mfspr`/`mtspr SR` doesn't see them. TLS/GOT relocations reported, not applied. `l.muldu` as GNU as encodes it (0xd) doesn't decode |
 | Unverified | LE/no-delay-slot language on real binaries (hx330x images have no public license); `R_OR1K_16`/`8` relocations vs ld |
 
+### RH850 (V850E2/E3): done (community: @esaulenka and contributors)
+
+| Area | State |
+|---|---|
+| Decode | 100% semantic vs GNU objdump on the full binutils opcode table, all first halfwords and 100k random words, RH850 and V850E2M; every objdump-only encoding is an objdump bug. 556/556 and 374/374 constructors reached. Ghidra's built-in V850 `v850e3v5` language scores 73% on the same opcode table; upstream as imported 92% |
+| Semantics | Integer, flags, saturation, loads/stores incl. 23-bit, LD.DW and post-increment, PREPARE/DISPOSE, PUSHSP/POPSP, LOOP, SWITCH, LDL/STC, FPU single/double; emulator 51/51. System, debug, hypervisor, TLB, cache and DSP-extension ops are pcodeops |
+| Real binaries | 6 GCC-built ELFs (Lua, zlib; V850E2V3 and RH850): 301,610 instructions, 0 bad instructions, 3,290/3,290 functions decompile, disassembly identical to objdump. On the Lua build Ghidra's built-in module leaves 117 KB undisassembled; this one 138 bytes |
+| Fixed here | Renamed to RH850 (IDs collided with Ghidra's V850 by case), FPU generated from a table, condition operands, SLD sign extension, SST order, shifts, system registers and G4MH instructions, GCC's E2 indirect-call sequence, cspec/DWARF/opinion, CALLT resolution script (upstream issue #20); upstream issues #40, #42 and README TODOs |
+| Doesn't work | Shares EM_V800/EM_V850 with Ghidra's V850 module. libgcc `__save_*` helpers return via `jmp [r10]` (10 unrecovered jumps per E2 image). FPU conversions ignore the rounding mode. CALLT needs `RH850CallT.java` |
+| Unverified | G4MH post-increment/decrement loads/stores (no reference tool decodes them); CC-RH/GHS output; third-party firmware |
+
 ### RL78: done (community: @CUB3D; instruction set rebuilt here)
 
 | Area | State |
