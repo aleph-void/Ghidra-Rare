@@ -236,7 +236,7 @@ Imported from other authors and verified to the same bar. Each lives in an `alep
 | Doesn't work (inherent) | Register bank of an interrupt handler without SEL depends on PSW.RBS at run time (settable per handler). MAA = 1 mirror is selected at run time; the S1 mirror window differs per chip. BRK1 (erased flash) resets the chip. Ghidra's emulator ignores segmentop |
 | Unverified | CC-RL/IAR output (no freely licensed samples), RL78-S1 (G10) images |
 
-### TMS34010: done (community: @ZPaul2Fresh8; instruction set rewritten here)
+### TMS34010/TMS34020: done (community: @ZPaul2Fresh8; instruction set rewritten here)
 
 | Area | State |
 |---|---|
@@ -244,8 +244,9 @@ Imported from other authors and verified to the same bar. Each lives in an `alep
 | Semantics | Full p-code incl. bit-addressed fields and all graphics ops (PIXT, DRAV, LINE, FILL, PIXBLT with PPOP, transparency, plane mask, window modes); emulator 98/98 (20 from the User's Guide); 137 MAME graphics vectors match (18 differ only in B10-B14 scratch) |
 | Real binaries | NetBSD A2410 grf_ultms program (BSD): 259/259 instructions identical to MAME and to source, 0 bad, decompiles |
 | Fixed here | Module layout, instruction set rewrite, memory model, pspec/cspec, symbol scripts for bit addresses, vector script; all README/TODO limitations from upstream |
-| Doesn't work | Interrupts and PBX resume not modelled (block ops run atomically). Bit-addressed pointers decompile as `*(p>>3)`, so no stack frames or stack parameters. Field sizes unknown at function entry until a SETF. No TI COFF loader. TMS34020 not covered (gap pass queued) |
-| Unverified | Commercial arcade/TIGA code (not freely licensed), TI C compiler output, PIXBLT/FILL W=1/W=2 and PBV with L,L (MAME doesn't implement them) |
+| TMS34020 | All 65,536 opcode slots, 50,000 fuzz records and 64 special cases compared with MAME with zero unexplained differences; 376/376 constructors reached across both languages; 80/80 hand-computed emulator cases pass. TI COFF object and executable corpora checked against source and MAME. |
+| Doesn't work | Interrupts and PBX resume not modelled (block ops run atomically). Bit-addressed pointers decompile as `*(p>>3)`, so no stack frames or stack parameters. Field sizes unknown at function entry until a SETF. TMS34020 coprocessor execution needs external p-code callbacks. |
+| Unverified | Commercial arcade/TIGA and real TMS34020 code (no freely licensed samples found), TI C compiler output, PIXBLT/FILL W=1/W=2 and PBV with L,L (MAME doesn't implement them) |
 
 ## Lessons
 
