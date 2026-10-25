@@ -30,3 +30,7 @@
 	path = community/TMS34010
 	url = https://github.com/aleph-void/Ghidra_TMS34010.git
 	branch = ghidra-rare
+[submodule "community/ARCompact"]
+	path = community/ARCompact
+	url = https://github.com/aleph-void/ghidra-arcompact.git
+	branch = ghidra-rare

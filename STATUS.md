@@ -117,6 +117,17 @@ Imported from other authors and verified to the same bar. Each lives in an `alep
 | Doesn't work (inherent) | Widths decided by run-time data (PLP with no PHP/PEA, XCE after a computed carry); code executed at two widths (one instruction per address); instruction-stream wrap past $xx:FFFF; function pointers passed as data; DP is not carried into callees; SA-1/GSU coprocessor code and mapper switching |
 | Unverified | ExHiROM/SA-1/SuperFX maps on real cartridges (only synthetic images are freely available); large commercial-style ROMs |
 
+### ARCompact: done (community: @niooss-ledger, Ghidra PR #3006)
+
+| Area | State |
+|---|---|
+| Decode | 100% semantic vs objdump (ARC700, ARC600, both byte orders) on every opcode-table entry, every 16-bit halfword and 50k random slots, 0 unexplained; 884/884 constructors. The PR scored 26.8% on the table |
+| Semantics | Base ISA with flags, delay slots, zero-overhead loops, `j.f`/`rtie`, extended arithmetic, XMAC 32x16, FPX single, saturating ops; emulator 56/56 per byte order |
+| Real binaries | Synopsys arc-2024.12 uClibc (LE/BE) and Bootlin glibc: 8,701 functions, 368,266 instructions identical to objdump, 0 bad, all decompile; libstdc++ 302,490 instructions, 5,712/5,724 decompile (GCC DWARF quirk); relocations match GNU ld |
+| Fixed here | Instruction set reworked from differential testing, GCC calling convention, DWARF map, ELF relocation handler and PLT markup, big-endian language (token layout from Jackson Donaldson's fork), stand-alone extension build |
+| Doesn't work (inherent) | Undocumented extension ops (XMAC dual-16, CRC, Viterbi, FPX double assist, SIMD byte) are pcodeops: no public definition of what they compute. Customer-defined condition codes 16-31 and EXTnn. TLS relocations reported, not applied (Ghidra has no TLS model) |
+| Unverified | Real ARC600 binaries (none freely available) |
+
 ### LM32: done (community: @jevinskie, @cyrozap)
 
 | Area | State |

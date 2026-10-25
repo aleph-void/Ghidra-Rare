@@ -32,7 +32,8 @@ tracks what works and what doesn't across all modules, plus lessons learned.
 SLEIGH modules written by others for CPUs Ghidra doesn't support, collected from GitHub and from
 unmerged Ghidra pull requests ([candidates](community/CANDIDATES.md)), then tested to the same
 standard as the modules above and fixed where testing found problems. Each one lives in an
-`aleph-void` fork of the original repository, under the original license: branch `ghidra-rare`
+`aleph-void` fork of the original repository (for an unmerged Ghidra pull request, a standalone
+repository holding the PR's commits for that processor), under the original license: branch `ghidra-rare`
 carries the fixes, a `GHIDRA-RARE.md` with the test results, a `CREDITS.md` naming the original
 authors and every change, the test suites and release builds. This repository includes each fork
 as a git submodule under `community/`, pinned to the verified commit
@@ -41,6 +42,7 @@ as a git submodule under `community/`, pinned to the verified commit
 | Module | Processor | Language IDs | Original authors | License |
 |---|---|---|---|---|
 | [65816](https://github.com/aleph-void/ghidra-65816/blob/ghidra-rare/GHIDRA-RARE.md) | WDC 65C816 (SNES) and 65802, with a LoROM/HiROM SNES ROM loader | `65816:LE:16:default`, `65802:LE:16:default` | Adrian Chan (@achan1989), Greg Kennedy (@greg-kennedy), Kay (@kaayzouee) | MIT |
+| [ARCompact](https://github.com/aleph-void/ghidra-arcompact/blob/ghidra-rare/GHIDRA-RARE.md) | Synopsys ARCompact (ARC600, ARC700), LE and BE | see GHIDRA-RARE.md | Nicolas Iooss (@niooss-ledger, Ghidra PR #3006), with Jackson Donaldson (BE layout) | Apache-2.0 |
 | [Alpha](https://github.com/aleph-void/ghidra-alpha/blob/ghidra-rare/GHIDRA-RARE.md) | DEC Alpha 21064/21164/21264/21364/21464 for UNIX/Linux, OpenVMS and Windows NT | 15 languages, see GHIDRA-RARE.md | Klaus Kämpf (@kkaempf), Matt Turner (@mattst88) | Apache-2.0 |
 | [LM32](https://github.com/aleph-void/ghidra-lm32/blob/ghidra-rare/GHIDRA-RARE.md) | Lattice LatticeMico32 | `lm32:BE:32:default`, `lm32:LE:32:default` | Jevin Sweval (@jevinskie), with @cyrozap | MIT |
 | [OpenRISC](https://github.com/aleph-void/ghidra-or1k-le-hack/blob/ghidra-rare/GHIDRA-RARE.md) | OpenRISC 1000 (ORBIS32, ORFPX32/64A32) | `OpenRISC:BE:32:default`, `OpenRISC:LE:32:default` | Samuel Holland (@smaeul), Jeroen Domburg (@Spritetm) | Apache-2.0 |
