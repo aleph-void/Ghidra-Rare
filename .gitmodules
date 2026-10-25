@@ -42,3 +42,7 @@
 	path = community/MCORE
 	url = https://github.com/aleph-void/ghidra-mcore.git
 	branch = ghidra-rare
+[submodule "community/Blackfin"]
+	path = community/Blackfin
+	url = https://github.com/aleph-void/ghidra-blackfin.git
+	branch = ghidra-rare

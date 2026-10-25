@@ -115,6 +115,17 @@ Rockwell C39, .NET CIL.
 Imported from other authors and verified to the same bar. Each lives in an `aleph-void` fork
 (git submodule under `community/`); see its `GHIDRA-RARE.md` and `CREDITS.md`.
 
+### Blackfin: done (community: @geepot)
+
+| Area | State |
+|---|---|
+| Decode | All 65,536 16-bit words and 387,072 sampled longer encodings vs GNU objdump: 0 unexplained differences; 304 LSETUP offset differences are an objdump bug |
+| Semantics | GNU simulator differential: 59,914 scalar, 18,649 DSP packet, 456 video and 3,013 circular-DAG cases agree; emulator 28/28 hand-computed cases |
+| Real binaries | Seven FDPIC libraries/objects: 3,610 functions decompile with 0 failures; 232,390 analysed instructions, one explained LSETUP text difference, and 2 error bookmarks for a deliberate illegal opcode |
+| Fixed here | ELF relocations, FDPIC GOT tracking, DWARF map, calling convention, video instructions and circular-DAG addressing |
+| Doesn't work | Blackfin+ extensions; dynamic R_BFIN_FUNCDESC values; 72 large-function switch tables with a spilled GOT pointer; exception, cache and simulator-console operations are opaque |
+| Unverified | Hardware behavior beyond the GNU simulator |
+
 ### Alpha: done (community: @kkaempf, @mattst88; 15 languages)
 
 | Area | State |
