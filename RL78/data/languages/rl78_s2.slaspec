@@ -1,4 +1,0 @@
-# sleigh specification file for Renesas RL78
-# RL78-S1/S2 cores (RL78/G10, G12, G13, ...): no multiply/divide/multiply-accumulate instructions.
-
-@include "rl78_base.sinc"

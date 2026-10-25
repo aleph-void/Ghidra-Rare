@@ -1,7 +1,0 @@
-# OpenRISC 1000, little endian, no delay slot (hx330x-style cores)
-#
-
-@define ENDIAN "little"
-@define NO_DELAY_SLOT ""
-
-@include "OpenRISC.slaspec"

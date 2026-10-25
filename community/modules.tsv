@@ -1,0 +1,7 @@
+# name	submodule	module dir inside the submodule
+OpenRISC	community/OpenRISC	.
+RL78	community/RL78	RL78
+65816	community/65816	.
+LM32	community/LM32	.
+Alpha	community/Alpha	.
+SPC700	community/SPC700	.

@@ -1,7 +1,0 @@
-# sleigh specification file for Renesas RL78
-# RL78-S3 core (RL78/G14, G23, ...): the S1/S2 instruction set plus the multiply, divide and
-# multiply-accumulate instructions. RL78-S1/S2 code decodes the same except CE FB xx, which those
-# cores execute as a store to FFFFB; use rl78_s2.slaspec ("RL78:LE:16:S2") for them.
-
-@define RL78_S3 ""
-@include "rl78_base.sinc"

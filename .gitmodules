@@ -1,0 +1,24 @@
+[submodule "community/OpenRISC"]
+	path = community/OpenRISC
+	url = https://github.com/aleph-void/ghidra-or1k-le-hack.git
+	branch = ghidra-rare
+[submodule "community/RL78"]
+	path = community/RL78
+	url = https://github.com/aleph-void/ghidra-rl78.git
+	branch = ghidra-rare
+[submodule "community/65816"]
+	path = community/65816
+	url = https://github.com/aleph-void/ghidra-65816.git
+	branch = ghidra-rare
+[submodule "community/LM32"]
+	path = community/LM32
+	url = https://github.com/aleph-void/ghidra-lm32.git
+	branch = ghidra-rare
+[submodule "community/Alpha"]
+	path = community/Alpha
+	url = https://github.com/aleph-void/ghidra-alpha.git
+	branch = ghidra-rare
+[submodule "community/SPC700"]
+	path = community/SPC700
+	url = https://github.com/aleph-void/SPCdra.git
+	branch = ghidra-rare

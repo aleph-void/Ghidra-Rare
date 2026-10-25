@@ -56,6 +56,8 @@ jobs:
         ghidra: ${{ fromJSON(needs.versions.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Download Ghidra ${{ matrix.ghidra.version }}
         env:

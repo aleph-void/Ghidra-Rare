@@ -31,17 +31,21 @@ tracks what works and what doesn't across all modules, plus lessons learned.
 
 SLEIGH modules written by others for CPUs Ghidra doesn't support, collected from GitHub and from
 unmerged Ghidra pull requests ([candidates](community/CANDIDATES.md)), then tested to the same
-standard as the modules above and fixed where testing found problems. Each module's `CREDITS.md`
-names its original authors, the upstream commit and every change made here. Fixes are kept as
-commits on an `aleph-void` fork of the original repository, under the original license.
+standard as the modules above and fixed where testing found problems. Each one lives in an
+`aleph-void` fork of the original repository, under the original license: branch `ghidra-rare`
+carries the fixes, a `GHIDRA-RARE.md` with the test results, a `CREDITS.md` naming the original
+authors and every change, the test suites and release builds. This repository includes each fork
+as a git submodule under `community/`, pinned to the verified commit
+([community/modules.tsv](community/modules.tsv)).
 
 | Module | Processor | Language IDs | Original authors | License |
 |---|---|---|---|---|
-| [65816](65816/README.md) | WDC 65C816 (SNES) and 65802, with a LoROM/HiROM SNES ROM loader | `65816:LE:16:default`, `65802:LE:16:default` | Adrian Chan (@achan1989), Greg Kennedy (@greg-kennedy), Kay (@kaayzouee) | MIT |
-| [Alpha](Alpha/README.md) | DEC Alpha 21064/21164/21264/21364/21464 for UNIX/Linux, OpenVMS and Windows NT | 15 languages, see module README | Klaus Kämpf (@kkaempf), Matt Turner (@mattst88) | Apache-2.0 |
-| [LM32](LM32/README.md) | Lattice LatticeMico32 | `lm32:BE:32:default`, `lm32:LE:32:default` | Jevin Sweval (@jevinskie), with @cyrozap | MIT |
-| [OpenRISC](OpenRISC/README.md) | OpenRISC 1000 (ORBIS32, ORFPX32/64A32) | `OpenRISC:BE:32:default`, `OpenRISC:LE:32:default` | Samuel Holland (@smaeul), Jeroen Domburg (@Spritetm) | Apache-2.0 |
-| [RL78](RL78/README.md) | Renesas RL78 (S1/S2 and S3 cores) | `RL78:LE:16:default` (S3), `RL78:LE:16:S2` | Callum Thomson (@CUB3D) | Apache-2.0 |
+| [65816](https://github.com/aleph-void/ghidra-65816/blob/ghidra-rare/GHIDRA-RARE.md) | WDC 65C816 (SNES) and 65802, with a LoROM/HiROM SNES ROM loader | `65816:LE:16:default`, `65802:LE:16:default` | Adrian Chan (@achan1989), Greg Kennedy (@greg-kennedy), Kay (@kaayzouee) | MIT |
+| [Alpha](https://github.com/aleph-void/ghidra-alpha/blob/ghidra-rare/GHIDRA-RARE.md) | DEC Alpha 21064/21164/21264/21364/21464 for UNIX/Linux, OpenVMS and Windows NT | 15 languages, see GHIDRA-RARE.md | Klaus Kämpf (@kkaempf), Matt Turner (@mattst88) | Apache-2.0 |
+| [LM32](https://github.com/aleph-void/ghidra-lm32/blob/ghidra-rare/GHIDRA-RARE.md) | Lattice LatticeMico32 | `lm32:BE:32:default`, `lm32:LE:32:default` | Jevin Sweval (@jevinskie), with @cyrozap | MIT |
+| [OpenRISC](https://github.com/aleph-void/ghidra-or1k-le-hack/blob/ghidra-rare/GHIDRA-RARE.md) | OpenRISC 1000 (ORBIS32, ORFPX32/64A32) | `OpenRISC:BE:32:default`, `OpenRISC:LE:32:default` | Samuel Holland (@smaeul), Jeroen Domburg (@Spritetm) | Apache-2.0 |
+| [RL78](https://github.com/aleph-void/ghidra-rl78/blob/ghidra-rare/RL78/GHIDRA-RARE.md) | Renesas RL78 (S1/S2 and S3 cores) | `RL78:LE:16:default` (S3), `RL78:LE:16:S2` | Callum Thomson (@CUB3D) | Apache-2.0 |
+| [SPC700](https://github.com/aleph-void/SPCdra/blob/ghidra-rare/GHIDRA-RARE.md) | Sony SPC700 (SNES audio), Sony and 65816-style mnemonics, with an .spc loader | `spc700:LE:16:default`, `spc700:LE:16:65816` | @qwertymodo | Apache-2.0 |
 
 ## Relationship to the IDA modules
 
@@ -67,7 +71,8 @@ module for the three newest Ghidra releases. Each `v*` tag publishes the zips on
 [Releases](https://github.com/aleph-void/Ghidra-Rare/releases) page; other pushes keep them as
 workflow artifacts. A zip only installs into the Ghidra version in its name.
 
-**Build the extension zips yourself:**
+**Build the extension zips yourself** (clone with `--recurse-submodules`, or run
+`git submodule update --init`, to include the community modules):
 
 ```sh
 tools/build-release.sh /opt/ghidra_12.1.4_PUBLIC dist   # one zip per module in dist/
