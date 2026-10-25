@@ -46,3 +46,7 @@
 	path = community/Blackfin
 	url = https://github.com/aleph-void/ghidra-blackfin.git
 	branch = ghidra-rare
+[submodule "community/MeP"]
+	path = community/MeP
+	url = https://github.com/aleph-void/VitaLoaderRedux.git
+	branch = ghidra-rare

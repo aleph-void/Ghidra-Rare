@@ -126,6 +126,16 @@ Imported from other authors and verified to the same bar. Each lives in an `alep
 | Doesn't work | Blackfin+ extensions; dynamic R_BFIN_FUNCDESC values; 72 large-function switch tables with a spilled GOT pointer; exception, cache and simulator-console operations are opaque |
 | Unverified | Hardware behavior beyond the GNU simulator |
 
+### MeP: done (community: @CreepNT)
+
+| Area | State |
+|---|---|
+| Decode | Core and IVC2 opcode table, first-halfword, fuzz and VLIW corpora match GNU objdump semantically in both byte orders, with zero unexplained differences; all 881 IVC2 slot forms reached |
+| Semantics | Core emulator: 49/49 cases in each byte order; IVC2 emulator: 6/6 in each byte order. UCI, DSP and most IVC2 arithmetic remain user operations because their chip-specific or vector behavior lacks a public specification |
+| Real binaries | 17 GCC-built files: 9,117 functions and 790,111 instructions; zero bad-instruction bookmarks; every function decompiles with zero failures or timeouts |
+| Fixed here | Standalone extension, complete core decode, IVC2/VLIW mode, big-endian support, ELF relocation handling, GCC return and switch recognition, DWARF map |
+| Unverified | Sony CMeP toolchain output and Toshiba IVC2 toolchain output |
+
 ### Alpha: done (community: @kkaempf, @mattst88; 15 languages)
 
 | Area | State |
