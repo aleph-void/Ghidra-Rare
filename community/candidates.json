@@ -1336,9 +1336,10 @@
   "credit_also": [],
   "alternatives": [
    "hedgeberg/RL78_sleigh",
-   "zecoxao/yarl78s"
+   "zecoxao/yarl78s",
+   "xyzz/ghidra-rl78"
   ],
-  "why": "Apache, compiles, 577 constructors; zecoxao 1,601 unlicensed, half compiles",
+  "why": "Apache, compiles, 577 constructors; zecoxao 1,601 unlicensed, half compiles; xyzz/ghidra-rl78 (MIT, Ilya Zhuravlev), missed by the survey, scored 97.6% vs objdump against CUB3D upstream 52.9%; the imported module was rebuilt from the manual and reaches 100%",
   "url": "https://github.com/CUB3D/ghidra-rl78",
   "license_request": null
  },

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- GCC RL78 ABI (gcc/config/rl78): every argument is passed on the stack (even-aligned, the
+     first at SP+4 on entry, above the 4-byte return address); the return value is in the
+     virtual registers r8-r15, i.e. register bank 1 at FFEF0-FFEF7. r16-r21 (FFEE8-FFEED) are
+     callee-saved. -->
+<compiler_spec>
+  <data_organization>
+    <pointer_size value="2"/>
+    <short_size value="2"/>
+    <integer_size value="2"/>
+    <long_size value="4"/>
+    <long_long_size value="8"/>
+    <float_size value="4"/>
+    <double_size value="4"/>
+    <long_double_size value="4"/>
+    <size_alignment_map>
+      <entry size="1" alignment="1"/>
+      <entry size="2" alignment="2"/>
+      <entry size="4" alignment="2"/>
+      <entry size="8" alignment="2"/>
+    </size_alignment_map>
+  </data_organization>
+  <global>
+    <range space="ram" first="0x0" last="0xFFEDF"/>
+    <range space="ram" first="0xFFF00" last="0xFFFF7"/>
+  </global>
+  <nohighptr>
+    <range space="ram" first="0xFFEE0" last="0xFFEFF"/>
+    <range space="ram" first="0xFFFF8" last="0xFFFFF"/>
+  </nohighptr>
+  <stackpointer register="SP" space="ram"/>
+  <returnaddress>
+    <varnode space="stack" offset="0" size="3"/>
+  </returnaddress>
+  <default_proto>
+    <prototype name="__stdcall" extrapop="4" stackshift="4">
+      <input>
+        <pentry minsize="1" maxsize="500" align="2">
+          <addr offset="4" space="stack"/>
+        </pentry>
+      </input>
+      <output>
+        <pentry minsize="1" maxsize="1">
+          <register name="RB1_X"/>
+        </pentry>
+        <pentry minsize="2" maxsize="2">
+          <register name="RB1_AX"/>
+        </pentry>
+        <pentry minsize="3" maxsize="4">
+          <register name="RB1_BCAX"/>
+        </pentry>
+        <pentry minsize="5" maxsize="8">
+          <addr space="ram" offset="0xFFEF0"/>
+        </pentry>
+      </output>
+      <unaffected>
+        <register name="SP"/>
+        <register name="RB2_AX"/>
+        <register name="RB2_BC"/>
+        <register name="RB2_DE"/>
+      </unaffected>
+    </prototype>
+  </default_proto>
+</compiler_spec>

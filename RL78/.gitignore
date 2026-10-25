@@ -1,0 +1,10 @@
+.classpath
+.project
+.settings
+bin
+*.sla
+build/
+dist/
+.gradle/
+lib/
+__pycache__/

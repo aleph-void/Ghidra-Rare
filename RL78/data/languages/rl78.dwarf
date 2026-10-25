@@ -1,0 +1,44 @@
+<dwarf>
+  <!-- GCC RL78 DWARF numbering: 0-7 X A C B E D L H (bank 0), 8-31 the virtual registers
+       r8-r31 (banks 1-3 at FFEF0, FFEE8, FFEE0), 32 SP, 33 AP (eliminated), 34 PSW, 35 ES, 36 CS.
+       On entry the CFA is SP + 4 (above the return address). -->
+  <register_mappings>
+    <register_mapping dwarf="0" ghidra="X"/>
+    <register_mapping dwarf="1" ghidra="A"/>
+    <register_mapping dwarf="2" ghidra="C"/>
+    <register_mapping dwarf="3" ghidra="B"/>
+    <register_mapping dwarf="4" ghidra="E"/>
+    <register_mapping dwarf="5" ghidra="D"/>
+    <register_mapping dwarf="6" ghidra="L"/>
+    <register_mapping dwarf="7" ghidra="H"/>
+    <register_mapping dwarf="8" ghidra="RB1_X"/>
+    <register_mapping dwarf="9" ghidra="RB1_A"/>
+    <register_mapping dwarf="10" ghidra="RB1_C"/>
+    <register_mapping dwarf="11" ghidra="RB1_B"/>
+    <register_mapping dwarf="12" ghidra="RB1_E"/>
+    <register_mapping dwarf="13" ghidra="RB1_D"/>
+    <register_mapping dwarf="14" ghidra="RB1_L"/>
+    <register_mapping dwarf="15" ghidra="RB1_H"/>
+    <register_mapping dwarf="16" ghidra="RB2_X"/>
+    <register_mapping dwarf="17" ghidra="RB2_A"/>
+    <register_mapping dwarf="18" ghidra="RB2_C"/>
+    <register_mapping dwarf="19" ghidra="RB2_B"/>
+    <register_mapping dwarf="20" ghidra="RB2_E"/>
+    <register_mapping dwarf="21" ghidra="RB2_D"/>
+    <register_mapping dwarf="22" ghidra="RB2_L"/>
+    <register_mapping dwarf="23" ghidra="RB2_H"/>
+    <register_mapping dwarf="24" ghidra="RB3_X"/>
+    <register_mapping dwarf="25" ghidra="RB3_A"/>
+    <register_mapping dwarf="26" ghidra="RB3_C"/>
+    <register_mapping dwarf="27" ghidra="RB3_B"/>
+    <register_mapping dwarf="28" ghidra="RB3_E"/>
+    <register_mapping dwarf="29" ghidra="RB3_D"/>
+    <register_mapping dwarf="30" ghidra="RB3_L"/>
+    <register_mapping dwarf="31" ghidra="RB3_H"/>
+    <register_mapping dwarf="32" ghidra="SP" stackpointer="true"/>
+    <register_mapping dwarf="34" ghidra="PSW"/>
+    <register_mapping dwarf="35" ghidra="ES"/>
+    <register_mapping dwarf="36" ghidra="CS"/>
+  </register_mappings>
+  <call_frame_cfa value="4"/>
+</dwarf>

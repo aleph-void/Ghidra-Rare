@@ -83,6 +83,17 @@ Imported from other authors and verified to the same bar; see each module's `CRE
 | Doesn't work | glibc `vfprintf` computed-goto tables (49 `.rodata` words disassembled). Kernel exception vectors not auto-disassembled. SR flag bits are separate registers, so `mfspr`/`mtspr SR` doesn't see them. TLS/GOT relocations reported, not applied. `l.muldu` as GNU as encodes it (0xd) doesn't decode |
 | Unverified | LE/no-delay-slot language on real binaries (hx330x images have no public license); `R_OR1K_16`/`8` relocations vs ld |
 
+### RL78: done (community: @CUB3D; instruction set rebuilt here)
+
+| Area | State |
+|---|---|
+| Decode | 100% semantic on 60,000 random slots and 99.80% on the full opcode corpus vs GNU objdump (G13 and G14 ISAs); every difference is a confirmed objdump quirk. Every constructor reached (466/466, 452/452). Upstream was at 52.9% |
+| Semantics | Full p-code incl. flags, ES:, skips, register banks, S3 multiply/divide/MAC; emulator 56/56 |
+| Real binaries | 11 GCC-built ELFs from public source (msalau samples, FreeRTOS, newlib): 0 bad instructions, 357/357 functions decompile, disassembly identical to objdump |
+| Fixed here | Instruction set regenerated from the RL78 manual; S1/S2 language; ELF opinion (EM_RL78, core from `e_flags`); PC, segment op and volatile SFRs; GCC calling convention; DWARF map; vector/CALLT markup script |
+| Doesn't work | GCC's absolute `__rl78_abs__` symbol becomes a bogus function at the reset vector. Only the GCC calling convention. Flash mirror (MAA) not modelled. BRK is a returning userop. Register bank only follows SEL along the flow |
+| Unverified | CC-RL/IAR output, RL78-S1 (G10) images, third-party prebuilt firmware (none freely licensed found) |
+
 ## Lessons
 
 ### What worked
