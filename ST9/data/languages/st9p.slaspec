@@ -1,0 +1,4 @@
+# ST9+ (ST92xxx): 22-bit program memory in 64K segments (CSR), far calls, LINK/UNLINK.
+@define ST9PLUS ""
+@include "st9.sinc"
+@include "st9p_gen.sinc"

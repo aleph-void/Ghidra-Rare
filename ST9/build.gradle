@@ -1,0 +1,25 @@
+// Builds an installable Ghidra extension (targets Ghidra 12.1.4):
+//   GHIDRA_INSTALL_DIR=/path/to/ghidra_12.1.4_PUBLIC gradle buildExtension
+def ghidraInstallDir
+if (System.env.GHIDRA_INSTALL_DIR) {
+	ghidraInstallDir = System.env.GHIDRA_INSTALL_DIR
+}
+else if (project.hasProperty("GHIDRA_INSTALL_DIR")) {
+	ghidraInstallDir = project.getProperty("GHIDRA_INSTALL_DIR")
+}
+if (ghidraInstallDir) {
+	apply from: new File(ghidraInstallDir).getCanonicalPath() + "/support/buildExtension.gradle"
+}
+else {
+	throw new GradleException("GHIDRA_INSTALL_DIR is not defined!")
+}
+
+// The module has no third-party dependencies. buildExtension.gradle's copyDependencies would
+// otherwise copy every jar it finds under Ghidra/Processors into lib/, including other
+// modules' jars when those are symlinked in from outside the Ghidra install.
+copyDependencies.enabled = false
+
+// Release zips carry only what Ghidra loads; generators and test suites stay in the repository.
+buildExtension {
+	exclude 'test/**', 'tools/**'
+}

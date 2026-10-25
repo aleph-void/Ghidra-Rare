@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<processor_spec>
+  <programcounter register="PC"/>
+  <context_data>
+    <context_set space="code">
+      <!-- register pointers and page pointer unknown until SRP/SRP0/SRP1/SPP: working registers
+           and group F registers are then addressed through RP0R/RP1R/PPR at run time -->
+      <set name="rmode" val="0"/>
+      <set name="rpk0" val="0"/>
+      <set name="rpk1" val="0"/>
+      <set name="ppk" val="0"/>
+      <!-- operands in data memory (SDM); SPM/SDM change it along the flow -->
+      <set name="dp" val="1"/>
+      <!-- system and user stacks in data memory (MODER.7/6 = 0); LD MODER,#N changes it -->
+      <set name="sstk" val="0"/>
+      <set name="ustk" val="0"/>
+    </context_set>
+  </context_data>
+  <register_data>
+    <register name="contextreg" hidden="true"/>
+  </register_data>
+  <default_symbols>
+    <symbol name="RESET_VECTOR" address="code:0000" type="code_ptr"/>
+    <symbol name="DIVZERO_VECTOR" address="code:0002" type="code_ptr"/>
+  </default_symbols>
+</processor_spec>

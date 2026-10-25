@@ -1,0 +1,3 @@
+# ST9 (ST90xx): 64K program + 64K data memory.
+@include "st9.sinc"
+@include "st9_gen.sinc"

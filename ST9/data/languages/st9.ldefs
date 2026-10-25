@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language_definitions>
+  <language processor="ST9" endian="big" size="16" variant="default" version="1.0"
+            slafile="st9.sla" processorspec="st9.pspec" id="ST9:BE:16:default">
+    <description>STMicroelectronics ST9 (ST90xx): 64K program and 64K data memory, 256-byte register file with paged group F</description>
+    <compiler name="default" spec="st9.cspec" id="default"/>
+  </language>
+  <language processor="ST9" endian="big" size="24" variant="ST9+" version="1.0"
+            slafile="st9p.sla" processorspec="st9p.pspec" id="ST9:BE:24:ST9+">
+    <description>STMicroelectronics ST9+ (ST92xxx): 22-bit program memory in 64K segments (CSR), CALLS/JPS/RETS, LINK/UNLINK</description>
+    <compiler name="default" spec="st9.cspec" id="default"/>
+  </language>
+</language_definitions>

@@ -78,6 +78,16 @@ Terms used below:
 | Doesn't work | Peripheral behavior, interrupt timing, HALT/STOP and watchdog side effects are not modeled in p-code |
 | Unverified | Behavior on physical Z8 hardware; choose the external-stack language explicitly for devices configured that way |
 
+### ST9 / ST9+: initial support complete
+
+| Area | State |
+|---|---|
+| Decode | 158,752 records per variant vs MAME, 0 unexplained differences; every constructor reached (961/961 ST9, 983/983 ST9+) |
+| Semantics | Byte/word arithmetic, flags, working registers, calls, stacks and ST9+ segmented code have p-code; 17/17 emulator cases per variant |
+| Analysis | Fixed-vector analyzer; original smoke program: 11/11 instructions, 3/3 functions decompile on both variants, 0 error bookmarks |
+| Doesn't work | ST9+ DPR physical data-memory mapping, peripheral behavior, interrupt timing, HALT/WFI side effects |
+| Unverified | No freely licensed third-party ST9 firmware found; most p-code forms have not been checked against hardware |
+
 ## Planned: clean-room modules for CPUs IDA Pro supports and Ghidra doesn't
 
 From a comparison with IDA Pro 9.1's supported-processor list (2026-10-25). Written here from vendor
@@ -87,7 +97,7 @@ manuals, verified against a free reference disassembler run as a black box:
 |---|---|---|
 | Zilog Z8 | MAME `z8` | done (see above) |
 | Philips XA (51XA) | MAME `xa` | in progress |
-| ST9 / ST9+ | MAME `st9`, `st9p` | in progress |
+| ST9 / ST9+ | MAME `st9`, `st9p` | initial support complete (see above) |
 | TI TMS320C2x (C25) and TMS320C5x | MAME `tms320c2x`, `tms320c5x` | in progress |
 | Intel i860 | MAME `i860` | planned |
 | Analog Devices ADSP-218x | MAME `adsp21xx` | planned |

@@ -23,6 +23,7 @@ The project has two parts:
 | [C7x](C7x/README.md) | TI C7000 DSP (C7100, C7120, C7504, C7524) | `C7x:LE:64:C7100`, `C7120`, `C7504`, `C7524` | [c7x-ida](https://github.com/Mr-wolf-is-me/c7x-ida) |
 | [SASS](SASS/README.md) | NVIDIA GPU SASS, Kepler through Blackwell | `SASS:LE:64:SM35`, `SM52`, `SM60`, `SM70`, `SM75`, `SM80`, `SM86`, `SM89`, `SM90`, `SM100`, `SM120` | [sass-ida](https://github.com/Mr-wolf-is-me/sass-ida) |
 | [Z8](Z8/README.md) | Zilog Z8 and UB8830/UB8840, internal or external stack | `Z8:BE:16:default`, `Z8:BE:16:extstack` | Added for IDA built-in CPU parity |
+| [ST9](ST9/README.md) | STMicroelectronics ST9 and ST9+ | `ST9:BE:16:default`, `ST9:BE:24:ST9+` | Added for IDA built-in CPU parity |
 
 Each module's README lists its language variants, how closely it matches the reference
 disassembler, what the p-code models, known gaps and how to run its tests. [STATUS.md](STATUS.md)

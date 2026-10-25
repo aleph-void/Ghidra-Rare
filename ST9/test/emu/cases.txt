@@ -1,0 +1,134 @@
+# Results computed from the ST9 instruction definitions, independent of the SLEIGH p-code.
+case add_overflow
+code 452001
+set rf:20 0x7f
+expect rf:20 0x80
+expect VF 1
+expect SF 1
+expect CF 0
+expect HF 1
+expect ZF 0
+expect DF 0
+end
+case add_carry
+code 452001
+set rf:20 0xff
+expect rf:20 0x00
+expect CF 1
+expect ZF 1
+expect HF 1
+expect SF 0
+end
+case sub_borrow
+code 552020
+set rf:20 0x10
+expect rf:20 0xf0
+expect CF 1
+expect DF 1
+expect SF 1
+expect HF 0
+end
+case adc_carry_in
+code 352000
+set rf:20 0xff
+set CF 1
+expect rf:20 0x00
+expect CF 1
+expect ZF 1
+expect HF 1
+end
+case sbc_borrow_in
+code 252000
+set rf:20 0x00
+set CF 1
+expect rf:20 0xff
+expect CF 1
+expect HF 1
+expect SF 1
+end
+case and_zero
+code 15200f
+set rf:20 0xf0
+expect rf:20 0x00
+expect ZF 1
+expect VF 0
+end
+case xor_bits
+code 6520ff
+set rf:20 0xaa
+expect rf:20 0x55
+expect ZF 0
+expect SF 0
+end
+case compare_equal_keeps_operand
+code 952010
+set rf:20 0x10
+expect rf:20 0x10
+expect ZF 1
+expect CF 0
+end
+case load_immediate
+code f52042
+expect rf:20 0x42
+end
+case internal_register_stack
+code 66207621
+set rf:20 0x42
+set SSPLR 0x80
+context sstk 1
+expect rf:21 0x42
+expect rf:7f 0x42
+expect SSPLR 0x80
+end
+case external_data_stack
+code 66207621
+set rf:20 0x42
+set SSPR 0x1800
+expect rf:21 0x42
+expect data:17ff 0x42
+expect SSPR 0x1800
+end
+case load_word_big_endian
+code bf201234
+expect rf:20 0x12
+expect rf:21 0x34
+end
+case add_word_carry
+code 47210001
+set rf:20 0xff
+set rf:21 0xff
+expect rf:20 0x00
+expect rf:21 0x00
+expect CF 1
+expect ZF 1
+end
+case working_register_dynamic
+code 0c42
+set RP0R 0x20
+expect rf:20 0x42
+end
+case working_register_known
+code 0c42
+set RP0R 0x20
+context rmode 1
+context rpk0 1
+context rp0 4
+expect rf:20 0x42
+end
+case twin_pointer_high_dynamic
+code 8c42
+set RP0R 0x14
+set RP1R 0x48
+expect rf:48 0x42
+end
+case twin_pointer_high_known
+code 8c42
+set RP0R 0x14
+set RP1R 0x48
+context rmode 2
+context rpk0 1
+context rp0 2
+context rpk1 1
+context rp1 9
+expect rf:48 0x42
+end
