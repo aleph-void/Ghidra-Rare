@@ -111,10 +111,10 @@ Imported from other authors and verified to the same bar. Each lives in an `alep
 | Area | State |
 |---|---|
 | Decode | 100% semantic vs MAME's spc700 disassembler (Sony syntax) on 3 corpora of 16,384 records; bass re-assembles 100% of the 65816-style variant's output; every opcode decodes in both variants |
-| Semantics | SingleStepTests/spc700 253,994/256,000 on both variants (only SLEEP/STOP and 6 $FFFF wraps fail); emulator 39/39 |
-| Real binaries | SNESMOD driver (PVSnesLib, MIT), 1 build and 3 MAME dumps: all 6,238 instructions match MAME, 0 bad instructions in the dumps, 1 decompiler timeout each (the command dispatcher) |
-| Fixed here | Both variants generated from one opcode table: bit-address instructions, direct page via PSW.P, direct flows; p-code was broken almost everywhere (double-dereferenced dp, stack page, CALL, TCALL/BRK vectors, flags, MUL/DIV/DAA/DAS). Loader entry points at $8000+, timer names |
-| Doesn't work | POP PSW/RETI don't update the P context. SLEEP/STOP are pcodeops. DSP registers, timers and the IPL overlay not modelled. Bounded jump tables time out the decompiler |
+| Semantics | SingleStepTests/spc700 255,995/256,000 on both variants (the 5 failures are instructions whose bytes wrap past $FFFF, which Ghidra can't decode); emulator 47/47; PSW.P context 13/13; loader 4/4 |
+| Real binaries | SNESMOD driver (PVSnesLib, MIT), 1 build and 3 MAME dumps: all 6,169 instructions match MAME, 1 decompiler timeout each (the command dispatcher) |
+| Fixed here | Both variants generated from one opcode table; p-code rewritten (dp operands, stack page, CALL/TCALL/BRK, flags, MUL/DIV/DAA/DAS); PSW.P tracked through PUSH/POP PSW; SLEEP/STOP halt; 16-bit return addresses; loader entry points, DSP register block and option checks. Upstream issues #1 (`JMP [!a+X]`) and #2 (INC/DEC flags) proven fixed by emulator cases |
+| Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
 ### OpenRISC 1000: done (community: @smaeul, @Spritetm)
