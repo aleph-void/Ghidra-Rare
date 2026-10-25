@@ -1,0 +1,3 @@
+# Zilog Z8, external stack (16-bit SPH:SPL into external data memory; P01M bit 2 = 0)
+@define EXTSTACK "1"
+@include "z8.sinc"

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Zilog Z8: register file layout and vectors from UM0016 tables 2 and 4-8 and the reset
+     description (RP resets to 00h, execution starts at 000Ch). The interrupt vectors at
+     0000h-000Bh are code pointers; Ghidra follows them to the handlers. -->
+<processor_spec>
+  <programcounter register="PC"/>
+  <context_data>
+    <context_set space="code">
+      <set name="rpv" val="0" description="1 when the register pointer value below is known"/>
+      <set name="rpg" val="0" description="RP[7:4], working register group"/>
+      <set name="rpb" val="0" description="RP[3:0], expanded register file bank"/>
+    </context_set>
+    <context_set space="code" first="0x000c" last="0x000c">
+      <set name="rpv" val="1" description="RP resets to 00h"/>
+    </context_set>
+  </context_data>
+  <volatile outputop="write_volatile" inputop="read_volatile">
+    <range space="rf" first="0x00" last="0x03"/>
+    <range space="rf" first="0xf0" last="0xfb"/>
+    <range space="erf" first="0x10" last="0xff"/>
+  </volatile>
+  <default_symbols>
+    <symbol name="P0" address="rf:00"/>
+    <symbol name="P1" address="rf:01"/>
+    <symbol name="P2" address="rf:02"/>
+    <symbol name="P3" address="rf:03"/>
+    <symbol name="SIO" address="rf:F0"/>
+    <symbol name="TMR" address="rf:F1"/>
+    <symbol name="T1" address="rf:F2"/>
+    <symbol name="PRE1" address="rf:F3"/>
+    <symbol name="T0" address="rf:F4"/>
+    <symbol name="PRE0" address="rf:F5"/>
+    <symbol name="P2M" address="rf:F6"/>
+    <symbol name="P3M" address="rf:F7"/>
+    <symbol name="P01M" address="rf:F8"/>
+    <symbol name="IPR" address="rf:F9"/>
+    <symbol name="IRQ" address="rf:FA"/>
+    <symbol name="IMR" address="rf:FB"/>
+    <symbol name="RP" address="rf:FD"/>
+    <symbol name="SCOMP" address="erf:C0"/>
+    <symbol name="RXBUF" address="erf:C1"/>
+    <symbol name="SCON" address="erf:C2"/>
+    <symbol name="PCON" address="erf:F0"/>
+    <symbol name="SMR" address="erf:FB"/>
+    <symbol name="WDTMR" address="erf:FF"/>
+    <symbol name="IRQ0_VECTOR" address="code:0000"/>
+    <symbol name="IRQ1_VECTOR" address="code:0002"/>
+    <symbol name="IRQ2_VECTOR" address="code:0004"/>
+    <symbol name="IRQ3_VECTOR" address="code:0006"/>
+    <symbol name="IRQ4_VECTOR" address="code:0008"/>
+    <symbol name="IRQ5_VECTOR" address="code:000A"/>
+    <symbol name="RESET" address="code:000C" entry="true"/>
+  </default_symbols>
+  <default_memory_blocks>
+    <memory_block name="REGS" start_address="rf:00" length="0x100" initialized="false"/>
+    <memory_block name="ERF" start_address="erf:00" length="0x100" initialized="false"/>
+  </default_memory_blocks>
+</processor_spec>

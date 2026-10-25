@@ -68,6 +68,16 @@ Terms used below:
 | Doesn't work | 64-bit variants decode many random words `nvdisasm` rejects. Kepler was learned only from our kernels plus random probes, and prints `ATOM.CAS`'s implicit register pair as a number. Turing prints `RED [UR]` with an `RZ.64` base; one `ULEA.HI.X.SX32` encoding undecoded; float immediates print as hex. Raw 64-bit images need the `ctl` context set per bundle (the cubin loader does it) |
 | Unverified | Real third-party Kepler and Maxwell code: no held-out cubins for SM35 or SM52 were tested |
 
+### Z8: done
+
+| Area | State |
+|---|---|
+| Decode | 0 unexplained differences vs MAME on the opcode corpus and 50,000 random slots, across six RP contexts; 410/410 constructors reached. MAME's D7 operand order and four CMOS opcodes differ from the Zilog manual |
+| Semantics | Arithmetic, flags, control flow, register-pointer selection, separate code/data/register-file spaces and both stack modes; emulator 102/102 internal-stack and 96/96 external-stack |
+| Real code | Seven freely licensed assembler sources: 698/698 listed instruction forms decode without boundary conflicts; five analysed programs have 1,622 instructions identical to MAME, 38/38 functions decompile, 0 bad-instruction bookmarks |
+| Doesn't work | Peripheral behavior, interrupt timing, HALT/STOP and watchdog side effects are not modeled in p-code |
+| Unverified | Behavior on physical Z8 hardware; choose the external-stack language explicitly for devices configured that way |
+
 ## Planned: clean-room modules for CPUs IDA Pro supports and Ghidra doesn't
 
 From a comparison with IDA Pro 9.1's supported-processor list (2026-10-25). Written here from vendor
@@ -75,7 +85,7 @@ manuals, verified against a free reference disassembler run as a black box:
 
 | CPU | Reference disassembler | Status |
 |---|---|---|
-| Zilog Z8 | MAME `z8` | in progress |
+| Zilog Z8 | MAME `z8` | done (see above) |
 | Philips XA (51XA) | MAME `xa` | in progress |
 | ST9 / ST9+ | MAME `st9`, `st9p` | in progress |
 | TI TMS320C2x (C25) and TMS320C5x | MAME `tms320c2x`, `tms320c5x` | in progress |

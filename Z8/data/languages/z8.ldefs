@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<language_definitions>
+  <language processor="Z8"
+            endian="big"
+            size="16"
+            variant="default"
+            version="1.0"
+            slafile="z8.sla"
+            processorspec="z8.pspec"
+            id="Z8:BE:16:default">
+    <description>Zilog Z8 (Z8601/Z86xx/Z86Cxx, UB8830/UB8840), internal stack (SPL in the register file)</description>
+    <compiler name="default" spec="z8.cspec" id="default"/>
+  </language>
+  <language processor="Z8"
+            endian="big"
+            size="16"
+            variant="extstack"
+            version="1.0"
+            slafile="z8_extstack.sla"
+            processorspec="z8.pspec"
+            id="Z8:BE:16:extstack">
+    <description>Zilog Z8 (Z8601/Z86xx/Z86Cxx, UB8830/UB8840), external stack (SPH:SPL into external data memory)</description>
+    <compiler name="default" spec="z8_extstack.cspec" id="default"/>
+  </language>
+</language_definitions>

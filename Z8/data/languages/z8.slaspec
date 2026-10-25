@@ -1,0 +1,2 @@
+# Zilog Z8, internal stack (SPL in the register file; P01M bit 2 = 1, the reset default)
+@include "z8.sinc"
