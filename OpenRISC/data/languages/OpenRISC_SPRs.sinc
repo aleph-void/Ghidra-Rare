@@ -1,0 +1,3306 @@
+# SPR Group 0
+define register offset=0x0 size=4 [
+    VR          # Version register
+    UPR         # Unit Present register
+    CPUCFGR     # CPU Configuration register
+    DMMUCFGR    # Data MMU Configuration register
+    IMMUCFGR    # Instruction MMU Configuration register
+    DCCFGR      # Data Cache Configuration register
+    ICCFGR      # Instruction Cache Configuration register
+    DCFGR       # Debug Configuration register
+    PCCFGR      # Performance Counters Configuration register
+    VR2         # Version register 2
+    AVR         # Architecture version register
+    EVBAR       # Exception vector base address register
+    AECR        # Arithmetic Exception Control Register
+    AESR        # Arithmetic Exception Status Register
+    _           # Not defined
+    _           # Not defined
+    NPC         # PC mapped to SPR space (next PC)
+    SR          # Supervision register
+    PPC         # PC mapped to SPR space (previous PC)
+    _           # Not defined
+    FPCSR       # FP Control Status register
+    ISR0        # Implementation-specific registers
+    ISR1        # Implementation-specific registers
+    ISR2        # Implementation-specific registers
+    ISR3        # Implementation-specific registers
+    ISR4        # Implementation-specific registers
+    ISR5        # Implementation-specific registers
+    ISR6        # Implementation-specific registers
+    ISR7        # Implementation-specific registers
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    EPCR0       # Exception PC registers
+    EPCR1       # Exception PC registers
+    EPCR2       # Exception PC registers
+    EPCR3       # Exception PC registers
+    EPCR4       # Exception PC registers
+    EPCR5       # Exception PC registers
+    EPCR6       # Exception PC registers
+    EPCR7       # Exception PC registers
+    EPCR8       # Exception PC registers
+    EPCR9       # Exception PC registers
+    EPCR10      # Exception PC registers
+    EPCR11      # Exception PC registers
+    EPCR12      # Exception PC registers
+    EPCR13      # Exception PC registers
+    EPCR14      # Exception PC registers
+    EPCR15      # Exception PC registers
+    EEAR0       # Exception EA registers
+    EEAR1       # Exception EA registers
+    EEAR2       # Exception EA registers
+    EEAR3       # Exception EA registers
+    EEAR4       # Exception EA registers
+    EEAR5       # Exception EA registers
+    EEAR6       # Exception EA registers
+    EEAR7       # Exception EA registers
+    EEAR8       # Exception EA registers
+    EEAR9       # Exception EA registers
+    EEAR10      # Exception EA registers
+    EEAR11      # Exception EA registers
+    EEAR12      # Exception EA registers
+    EEAR13      # Exception EA registers
+    EEAR14      # Exception EA registers
+    EEAR15      # Exception EA registers
+    ESR0        # Exception SR registers
+    ESR1        # Exception SR registers
+    ESR2        # Exception SR registers
+    ESR3        # Exception SR registers
+    ESR4        # Exception SR registers
+    ESR5        # Exception SR registers
+    ESR6        # Exception SR registers
+    ESR7        # Exception SR registers
+    ESR8        # Exception SR registers
+    ESR9        # Exception SR registers
+    ESR10       # Exception SR registers
+    ESR11       # Exception SR registers
+    ESR12       # Exception SR registers
+    ESR13       # Exception SR registers
+    ESR14       # Exception SR registers
+    ESR15       # Exception SR registers
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    COREID      # Core Identifier Register
+    NUMCORES    # Number of Cores Register
+];
+
+# SPR Group 1
+define register offset=0x2000 size=4 [
+    DMMUCR      # Data MMU Control register
+    DMMUPR      # Data MMU Protection Register
+    DTLBEIR     # Data TLB Entry Invalidate register
+    _           # Not defined
+    DATBMR0     # Data ATB Match registers
+    DATBMR1     # Data ATB Match registers
+    DATBMR2     # Data ATB Match registers
+    DATBMR3     # Data ATB Match registers
+    DATBTR0     # Data ATB Translate registers
+    DATBTR1     # Data ATB Translate registers
+    DATBTR2     # Data ATB Translate registers
+    DATBTR3     # Data ATB Translate registers
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    DTLBW0MR0   # Data TLB Match registers Way 0
+    DTLBW0MR1   # Data TLB Match registers Way 0
+    DTLBW0MR2   # Data TLB Match registers Way 0
+    DTLBW0MR3   # Data TLB Match registers Way 0
+    DTLBW0MR4   # Data TLB Match registers Way 0
+    DTLBW0MR5   # Data TLB Match registers Way 0
+    DTLBW0MR6   # Data TLB Match registers Way 0
+    DTLBW0MR7   # Data TLB Match registers Way 0
+    DTLBW0MR8   # Data TLB Match registers Way 0
+    DTLBW0MR9   # Data TLB Match registers Way 0
+    DTLBW0MR10  # Data TLB Match registers Way 0
+    DTLBW0MR11  # Data TLB Match registers Way 0
+    DTLBW0MR12  # Data TLB Match registers Way 0
+    DTLBW0MR13  # Data TLB Match registers Way 0
+    DTLBW0MR14  # Data TLB Match registers Way 0
+    DTLBW0MR15  # Data TLB Match registers Way 0
+    DTLBW0MR16  # Data TLB Match registers Way 0
+    DTLBW0MR17  # Data TLB Match registers Way 0
+    DTLBW0MR18  # Data TLB Match registers Way 0
+    DTLBW0MR19  # Data TLB Match registers Way 0
+    DTLBW0MR20  # Data TLB Match registers Way 0
+    DTLBW0MR21  # Data TLB Match registers Way 0
+    DTLBW0MR22  # Data TLB Match registers Way 0
+    DTLBW0MR23  # Data TLB Match registers Way 0
+    DTLBW0MR24  # Data TLB Match registers Way 0
+    DTLBW0MR25  # Data TLB Match registers Way 0
+    DTLBW0MR26  # Data TLB Match registers Way 0
+    DTLBW0MR27  # Data TLB Match registers Way 0
+    DTLBW0MR28  # Data TLB Match registers Way 0
+    DTLBW0MR29  # Data TLB Match registers Way 0
+    DTLBW0MR30  # Data TLB Match registers Way 0
+    DTLBW0MR31  # Data TLB Match registers Way 0
+    DTLBW0MR32  # Data TLB Match registers Way 0
+    DTLBW0MR33  # Data TLB Match registers Way 0
+    DTLBW0MR34  # Data TLB Match registers Way 0
+    DTLBW0MR35  # Data TLB Match registers Way 0
+    DTLBW0MR36  # Data TLB Match registers Way 0
+    DTLBW0MR37  # Data TLB Match registers Way 0
+    DTLBW0MR38  # Data TLB Match registers Way 0
+    DTLBW0MR39  # Data TLB Match registers Way 0
+    DTLBW0MR40  # Data TLB Match registers Way 0
+    DTLBW0MR41  # Data TLB Match registers Way 0
+    DTLBW0MR42  # Data TLB Match registers Way 0
+    DTLBW0MR43  # Data TLB Match registers Way 0
+    DTLBW0MR44  # Data TLB Match registers Way 0
+    DTLBW0MR45  # Data TLB Match registers Way 0
+    DTLBW0MR46  # Data TLB Match registers Way 0
+    DTLBW0MR47  # Data TLB Match registers Way 0
+    DTLBW0MR48  # Data TLB Match registers Way 0
+    DTLBW0MR49  # Data TLB Match registers Way 0
+    DTLBW0MR50  # Data TLB Match registers Way 0
+    DTLBW0MR51  # Data TLB Match registers Way 0
+    DTLBW0MR52  # Data TLB Match registers Way 0
+    DTLBW0MR53  # Data TLB Match registers Way 0
+    DTLBW0MR54  # Data TLB Match registers Way 0
+    DTLBW0MR55  # Data TLB Match registers Way 0
+    DTLBW0MR56  # Data TLB Match registers Way 0
+    DTLBW0MR57  # Data TLB Match registers Way 0
+    DTLBW0MR58  # Data TLB Match registers Way 0
+    DTLBW0MR59  # Data TLB Match registers Way 0
+    DTLBW0MR60  # Data TLB Match registers Way 0
+    DTLBW0MR61  # Data TLB Match registers Way 0
+    DTLBW0MR62  # Data TLB Match registers Way 0
+    DTLBW0MR63  # Data TLB Match registers Way 0
+    DTLBW0MR64  # Data TLB Match registers Way 0
+    DTLBW0MR65  # Data TLB Match registers Way 0
+    DTLBW0MR66  # Data TLB Match registers Way 0
+    DTLBW0MR67  # Data TLB Match registers Way 0
+    DTLBW0MR68  # Data TLB Match registers Way 0
+    DTLBW0MR69  # Data TLB Match registers Way 0
+    DTLBW0MR70  # Data TLB Match registers Way 0
+    DTLBW0MR71  # Data TLB Match registers Way 0
+    DTLBW0MR72  # Data TLB Match registers Way 0
+    DTLBW0MR73  # Data TLB Match registers Way 0
+    DTLBW0MR74  # Data TLB Match registers Way 0
+    DTLBW0MR75  # Data TLB Match registers Way 0
+    DTLBW0MR76  # Data TLB Match registers Way 0
+    DTLBW0MR77  # Data TLB Match registers Way 0
+    DTLBW0MR78  # Data TLB Match registers Way 0
+    DTLBW0MR79  # Data TLB Match registers Way 0
+    DTLBW0MR80  # Data TLB Match registers Way 0
+    DTLBW0MR81  # Data TLB Match registers Way 0
+    DTLBW0MR82  # Data TLB Match registers Way 0
+    DTLBW0MR83  # Data TLB Match registers Way 0
+    DTLBW0MR84  # Data TLB Match registers Way 0
+    DTLBW0MR85  # Data TLB Match registers Way 0
+    DTLBW0MR86  # Data TLB Match registers Way 0
+    DTLBW0MR87  # Data TLB Match registers Way 0
+    DTLBW0MR88  # Data TLB Match registers Way 0
+    DTLBW0MR89  # Data TLB Match registers Way 0
+    DTLBW0MR90  # Data TLB Match registers Way 0
+    DTLBW0MR91  # Data TLB Match registers Way 0
+    DTLBW0MR92  # Data TLB Match registers Way 0
+    DTLBW0MR93  # Data TLB Match registers Way 0
+    DTLBW0MR94  # Data TLB Match registers Way 0
+    DTLBW0MR95  # Data TLB Match registers Way 0
+    DTLBW0MR96  # Data TLB Match registers Way 0
+    DTLBW0MR97  # Data TLB Match registers Way 0
+    DTLBW0MR98  # Data TLB Match registers Way 0
+    DTLBW0MR99  # Data TLB Match registers Way 0
+    DTLBW0MR100 # Data TLB Match registers Way 0
+    DTLBW0MR101 # Data TLB Match registers Way 0
+    DTLBW0MR102 # Data TLB Match registers Way 0
+    DTLBW0MR103 # Data TLB Match registers Way 0
+    DTLBW0MR104 # Data TLB Match registers Way 0
+    DTLBW0MR105 # Data TLB Match registers Way 0
+    DTLBW0MR106 # Data TLB Match registers Way 0
+    DTLBW0MR107 # Data TLB Match registers Way 0
+    DTLBW0MR108 # Data TLB Match registers Way 0
+    DTLBW0MR109 # Data TLB Match registers Way 0
+    DTLBW0MR110 # Data TLB Match registers Way 0
+    DTLBW0MR111 # Data TLB Match registers Way 0
+    DTLBW0MR112 # Data TLB Match registers Way 0
+    DTLBW0MR113 # Data TLB Match registers Way 0
+    DTLBW0MR114 # Data TLB Match registers Way 0
+    DTLBW0MR115 # Data TLB Match registers Way 0
+    DTLBW0MR116 # Data TLB Match registers Way 0
+    DTLBW0MR117 # Data TLB Match registers Way 0
+    DTLBW0MR118 # Data TLB Match registers Way 0
+    DTLBW0MR119 # Data TLB Match registers Way 0
+    DTLBW0MR120 # Data TLB Match registers Way 0
+    DTLBW0MR121 # Data TLB Match registers Way 0
+    DTLBW0MR122 # Data TLB Match registers Way 0
+    DTLBW0MR123 # Data TLB Match registers Way 0
+    DTLBW0MR124 # Data TLB Match registers Way 0
+    DTLBW0MR125 # Data TLB Match registers Way 0
+    DTLBW0MR126 # Data TLB Match registers Way 0
+    DTLBW0MR127 # Data TLB Match registers Way 0
+    DTLBW0TR0   # Data TLB Translate registers Way 0
+    DTLBW0TR1   # Data TLB Translate registers Way 0
+    DTLBW0TR2   # Data TLB Translate registers Way 0
+    DTLBW0TR3   # Data TLB Translate registers Way 0
+    DTLBW0TR4   # Data TLB Translate registers Way 0
+    DTLBW0TR5   # Data TLB Translate registers Way 0
+    DTLBW0TR6   # Data TLB Translate registers Way 0
+    DTLBW0TR7   # Data TLB Translate registers Way 0
+    DTLBW0TR8   # Data TLB Translate registers Way 0
+    DTLBW0TR9   # Data TLB Translate registers Way 0
+    DTLBW0TR10  # Data TLB Translate registers Way 0
+    DTLBW0TR11  # Data TLB Translate registers Way 0
+    DTLBW0TR12  # Data TLB Translate registers Way 0
+    DTLBW0TR13  # Data TLB Translate registers Way 0
+    DTLBW0TR14  # Data TLB Translate registers Way 0
+    DTLBW0TR15  # Data TLB Translate registers Way 0
+    DTLBW0TR16  # Data TLB Translate registers Way 0
+    DTLBW0TR17  # Data TLB Translate registers Way 0
+    DTLBW0TR18  # Data TLB Translate registers Way 0
+    DTLBW0TR19  # Data TLB Translate registers Way 0
+    DTLBW0TR20  # Data TLB Translate registers Way 0
+    DTLBW0TR21  # Data TLB Translate registers Way 0
+    DTLBW0TR22  # Data TLB Translate registers Way 0
+    DTLBW0TR23  # Data TLB Translate registers Way 0
+    DTLBW0TR24  # Data TLB Translate registers Way 0
+    DTLBW0TR25  # Data TLB Translate registers Way 0
+    DTLBW0TR26  # Data TLB Translate registers Way 0
+    DTLBW0TR27  # Data TLB Translate registers Way 0
+    DTLBW0TR28  # Data TLB Translate registers Way 0
+    DTLBW0TR29  # Data TLB Translate registers Way 0
+    DTLBW0TR30  # Data TLB Translate registers Way 0
+    DTLBW0TR31  # Data TLB Translate registers Way 0
+    DTLBW0TR32  # Data TLB Translate registers Way 0
+    DTLBW0TR33  # Data TLB Translate registers Way 0
+    DTLBW0TR34  # Data TLB Translate registers Way 0
+    DTLBW0TR35  # Data TLB Translate registers Way 0
+    DTLBW0TR36  # Data TLB Translate registers Way 0
+    DTLBW0TR37  # Data TLB Translate registers Way 0
+    DTLBW0TR38  # Data TLB Translate registers Way 0
+    DTLBW0TR39  # Data TLB Translate registers Way 0
+    DTLBW0TR40  # Data TLB Translate registers Way 0
+    DTLBW0TR41  # Data TLB Translate registers Way 0
+    DTLBW0TR42  # Data TLB Translate registers Way 0
+    DTLBW0TR43  # Data TLB Translate registers Way 0
+    DTLBW0TR44  # Data TLB Translate registers Way 0
+    DTLBW0TR45  # Data TLB Translate registers Way 0
+    DTLBW0TR46  # Data TLB Translate registers Way 0
+    DTLBW0TR47  # Data TLB Translate registers Way 0
+    DTLBW0TR48  # Data TLB Translate registers Way 0
+    DTLBW0TR49  # Data TLB Translate registers Way 0
+    DTLBW0TR50  # Data TLB Translate registers Way 0
+    DTLBW0TR51  # Data TLB Translate registers Way 0
+    DTLBW0TR52  # Data TLB Translate registers Way 0
+    DTLBW0TR53  # Data TLB Translate registers Way 0
+    DTLBW0TR54  # Data TLB Translate registers Way 0
+    DTLBW0TR55  # Data TLB Translate registers Way 0
+    DTLBW0TR56  # Data TLB Translate registers Way 0
+    DTLBW0TR57  # Data TLB Translate registers Way 0
+    DTLBW0TR58  # Data TLB Translate registers Way 0
+    DTLBW0TR59  # Data TLB Translate registers Way 0
+    DTLBW0TR60  # Data TLB Translate registers Way 0
+    DTLBW0TR61  # Data TLB Translate registers Way 0
+    DTLBW0TR62  # Data TLB Translate registers Way 0
+    DTLBW0TR63  # Data TLB Translate registers Way 0
+    DTLBW0TR64  # Data TLB Translate registers Way 0
+    DTLBW0TR65  # Data TLB Translate registers Way 0
+    DTLBW0TR66  # Data TLB Translate registers Way 0
+    DTLBW0TR67  # Data TLB Translate registers Way 0
+    DTLBW0TR68  # Data TLB Translate registers Way 0
+    DTLBW0TR69  # Data TLB Translate registers Way 0
+    DTLBW0TR70  # Data TLB Translate registers Way 0
+    DTLBW0TR71  # Data TLB Translate registers Way 0
+    DTLBW0TR72  # Data TLB Translate registers Way 0
+    DTLBW0TR73  # Data TLB Translate registers Way 0
+    DTLBW0TR74  # Data TLB Translate registers Way 0
+    DTLBW0TR75  # Data TLB Translate registers Way 0
+    DTLBW0TR76  # Data TLB Translate registers Way 0
+    DTLBW0TR77  # Data TLB Translate registers Way 0
+    DTLBW0TR78  # Data TLB Translate registers Way 0
+    DTLBW0TR79  # Data TLB Translate registers Way 0
+    DTLBW0TR80  # Data TLB Translate registers Way 0
+    DTLBW0TR81  # Data TLB Translate registers Way 0
+    DTLBW0TR82  # Data TLB Translate registers Way 0
+    DTLBW0TR83  # Data TLB Translate registers Way 0
+    DTLBW0TR84  # Data TLB Translate registers Way 0
+    DTLBW0TR85  # Data TLB Translate registers Way 0
+    DTLBW0TR86  # Data TLB Translate registers Way 0
+    DTLBW0TR87  # Data TLB Translate registers Way 0
+    DTLBW0TR88  # Data TLB Translate registers Way 0
+    DTLBW0TR89  # Data TLB Translate registers Way 0
+    DTLBW0TR90  # Data TLB Translate registers Way 0
+    DTLBW0TR91  # Data TLB Translate registers Way 0
+    DTLBW0TR92  # Data TLB Translate registers Way 0
+    DTLBW0TR93  # Data TLB Translate registers Way 0
+    DTLBW0TR94  # Data TLB Translate registers Way 0
+    DTLBW0TR95  # Data TLB Translate registers Way 0
+    DTLBW0TR96  # Data TLB Translate registers Way 0
+    DTLBW0TR97  # Data TLB Translate registers Way 0
+    DTLBW0TR98  # Data TLB Translate registers Way 0
+    DTLBW0TR99  # Data TLB Translate registers Way 0
+    DTLBW0TR100 # Data TLB Translate registers Way 0
+    DTLBW0TR101 # Data TLB Translate registers Way 0
+    DTLBW0TR102 # Data TLB Translate registers Way 0
+    DTLBW0TR103 # Data TLB Translate registers Way 0
+    DTLBW0TR104 # Data TLB Translate registers Way 0
+    DTLBW0TR105 # Data TLB Translate registers Way 0
+    DTLBW0TR106 # Data TLB Translate registers Way 0
+    DTLBW0TR107 # Data TLB Translate registers Way 0
+    DTLBW0TR108 # Data TLB Translate registers Way 0
+    DTLBW0TR109 # Data TLB Translate registers Way 0
+    DTLBW0TR110 # Data TLB Translate registers Way 0
+    DTLBW0TR111 # Data TLB Translate registers Way 0
+    DTLBW0TR112 # Data TLB Translate registers Way 0
+    DTLBW0TR113 # Data TLB Translate registers Way 0
+    DTLBW0TR114 # Data TLB Translate registers Way 0
+    DTLBW0TR115 # Data TLB Translate registers Way 0
+    DTLBW0TR116 # Data TLB Translate registers Way 0
+    DTLBW0TR117 # Data TLB Translate registers Way 0
+    DTLBW0TR118 # Data TLB Translate registers Way 0
+    DTLBW0TR119 # Data TLB Translate registers Way 0
+    DTLBW0TR120 # Data TLB Translate registers Way 0
+    DTLBW0TR121 # Data TLB Translate registers Way 0
+    DTLBW0TR122 # Data TLB Translate registers Way 0
+    DTLBW0TR123 # Data TLB Translate registers Way 0
+    DTLBW0TR124 # Data TLB Translate registers Way 0
+    DTLBW0TR125 # Data TLB Translate registers Way 0
+    DTLBW0TR126 # Data TLB Translate registers Way 0
+    DTLBW0TR127 # Data TLB Translate registers Way 0
+    DTLBW1MR0   # Data TLB Match registers Way 1
+    DTLBW1MR1   # Data TLB Match registers Way 1
+    DTLBW1MR2   # Data TLB Match registers Way 1
+    DTLBW1MR3   # Data TLB Match registers Way 1
+    DTLBW1MR4   # Data TLB Match registers Way 1
+    DTLBW1MR5   # Data TLB Match registers Way 1
+    DTLBW1MR6   # Data TLB Match registers Way 1
+    DTLBW1MR7   # Data TLB Match registers Way 1
+    DTLBW1MR8   # Data TLB Match registers Way 1
+    DTLBW1MR9   # Data TLB Match registers Way 1
+    DTLBW1MR10  # Data TLB Match registers Way 1
+    DTLBW1MR11  # Data TLB Match registers Way 1
+    DTLBW1MR12  # Data TLB Match registers Way 1
+    DTLBW1MR13  # Data TLB Match registers Way 1
+    DTLBW1MR14  # Data TLB Match registers Way 1
+    DTLBW1MR15  # Data TLB Match registers Way 1
+    DTLBW1MR16  # Data TLB Match registers Way 1
+    DTLBW1MR17  # Data TLB Match registers Way 1
+    DTLBW1MR18  # Data TLB Match registers Way 1
+    DTLBW1MR19  # Data TLB Match registers Way 1
+    DTLBW1MR20  # Data TLB Match registers Way 1
+    DTLBW1MR21  # Data TLB Match registers Way 1
+    DTLBW1MR22  # Data TLB Match registers Way 1
+    DTLBW1MR23  # Data TLB Match registers Way 1
+    DTLBW1MR24  # Data TLB Match registers Way 1
+    DTLBW1MR25  # Data TLB Match registers Way 1
+    DTLBW1MR26  # Data TLB Match registers Way 1
+    DTLBW1MR27  # Data TLB Match registers Way 1
+    DTLBW1MR28  # Data TLB Match registers Way 1
+    DTLBW1MR29  # Data TLB Match registers Way 1
+    DTLBW1MR30  # Data TLB Match registers Way 1
+    DTLBW1MR31  # Data TLB Match registers Way 1
+    DTLBW1MR32  # Data TLB Match registers Way 1
+    DTLBW1MR33  # Data TLB Match registers Way 1
+    DTLBW1MR34  # Data TLB Match registers Way 1
+    DTLBW1MR35  # Data TLB Match registers Way 1
+    DTLBW1MR36  # Data TLB Match registers Way 1
+    DTLBW1MR37  # Data TLB Match registers Way 1
+    DTLBW1MR38  # Data TLB Match registers Way 1
+    DTLBW1MR39  # Data TLB Match registers Way 1
+    DTLBW1MR40  # Data TLB Match registers Way 1
+    DTLBW1MR41  # Data TLB Match registers Way 1
+    DTLBW1MR42  # Data TLB Match registers Way 1
+    DTLBW1MR43  # Data TLB Match registers Way 1
+    DTLBW1MR44  # Data TLB Match registers Way 1
+    DTLBW1MR45  # Data TLB Match registers Way 1
+    DTLBW1MR46  # Data TLB Match registers Way 1
+    DTLBW1MR47  # Data TLB Match registers Way 1
+    DTLBW1MR48  # Data TLB Match registers Way 1
+    DTLBW1MR49  # Data TLB Match registers Way 1
+    DTLBW1MR50  # Data TLB Match registers Way 1
+    DTLBW1MR51  # Data TLB Match registers Way 1
+    DTLBW1MR52  # Data TLB Match registers Way 1
+    DTLBW1MR53  # Data TLB Match registers Way 1
+    DTLBW1MR54  # Data TLB Match registers Way 1
+    DTLBW1MR55  # Data TLB Match registers Way 1
+    DTLBW1MR56  # Data TLB Match registers Way 1
+    DTLBW1MR57  # Data TLB Match registers Way 1
+    DTLBW1MR58  # Data TLB Match registers Way 1
+    DTLBW1MR59  # Data TLB Match registers Way 1
+    DTLBW1MR60  # Data TLB Match registers Way 1
+    DTLBW1MR61  # Data TLB Match registers Way 1
+    DTLBW1MR62  # Data TLB Match registers Way 1
+    DTLBW1MR63  # Data TLB Match registers Way 1
+    DTLBW1MR64  # Data TLB Match registers Way 1
+    DTLBW1MR65  # Data TLB Match registers Way 1
+    DTLBW1MR66  # Data TLB Match registers Way 1
+    DTLBW1MR67  # Data TLB Match registers Way 1
+    DTLBW1MR68  # Data TLB Match registers Way 1
+    DTLBW1MR69  # Data TLB Match registers Way 1
+    DTLBW1MR70  # Data TLB Match registers Way 1
+    DTLBW1MR71  # Data TLB Match registers Way 1
+    DTLBW1MR72  # Data TLB Match registers Way 1
+    DTLBW1MR73  # Data TLB Match registers Way 1
+    DTLBW1MR74  # Data TLB Match registers Way 1
+    DTLBW1MR75  # Data TLB Match registers Way 1
+    DTLBW1MR76  # Data TLB Match registers Way 1
+    DTLBW1MR77  # Data TLB Match registers Way 1
+    DTLBW1MR78  # Data TLB Match registers Way 1
+    DTLBW1MR79  # Data TLB Match registers Way 1
+    DTLBW1MR80  # Data TLB Match registers Way 1
+    DTLBW1MR81  # Data TLB Match registers Way 1
+    DTLBW1MR82  # Data TLB Match registers Way 1
+    DTLBW1MR83  # Data TLB Match registers Way 1
+    DTLBW1MR84  # Data TLB Match registers Way 1
+    DTLBW1MR85  # Data TLB Match registers Way 1
+    DTLBW1MR86  # Data TLB Match registers Way 1
+    DTLBW1MR87  # Data TLB Match registers Way 1
+    DTLBW1MR88  # Data TLB Match registers Way 1
+    DTLBW1MR89  # Data TLB Match registers Way 1
+    DTLBW1MR90  # Data TLB Match registers Way 1
+    DTLBW1MR91  # Data TLB Match registers Way 1
+    DTLBW1MR92  # Data TLB Match registers Way 1
+    DTLBW1MR93  # Data TLB Match registers Way 1
+    DTLBW1MR94  # Data TLB Match registers Way 1
+    DTLBW1MR95  # Data TLB Match registers Way 1
+    DTLBW1MR96  # Data TLB Match registers Way 1
+    DTLBW1MR97  # Data TLB Match registers Way 1
+    DTLBW1MR98  # Data TLB Match registers Way 1
+    DTLBW1MR99  # Data TLB Match registers Way 1
+    DTLBW1MR100 # Data TLB Match registers Way 1
+    DTLBW1MR101 # Data TLB Match registers Way 1
+    DTLBW1MR102 # Data TLB Match registers Way 1
+    DTLBW1MR103 # Data TLB Match registers Way 1
+    DTLBW1MR104 # Data TLB Match registers Way 1
+    DTLBW1MR105 # Data TLB Match registers Way 1
+    DTLBW1MR106 # Data TLB Match registers Way 1
+    DTLBW1MR107 # Data TLB Match registers Way 1
+    DTLBW1MR108 # Data TLB Match registers Way 1
+    DTLBW1MR109 # Data TLB Match registers Way 1
+    DTLBW1MR110 # Data TLB Match registers Way 1
+    DTLBW1MR111 # Data TLB Match registers Way 1
+    DTLBW1MR112 # Data TLB Match registers Way 1
+    DTLBW1MR113 # Data TLB Match registers Way 1
+    DTLBW1MR114 # Data TLB Match registers Way 1
+    DTLBW1MR115 # Data TLB Match registers Way 1
+    DTLBW1MR116 # Data TLB Match registers Way 1
+    DTLBW1MR117 # Data TLB Match registers Way 1
+    DTLBW1MR118 # Data TLB Match registers Way 1
+    DTLBW1MR119 # Data TLB Match registers Way 1
+    DTLBW1MR120 # Data TLB Match registers Way 1
+    DTLBW1MR121 # Data TLB Match registers Way 1
+    DTLBW1MR122 # Data TLB Match registers Way 1
+    DTLBW1MR123 # Data TLB Match registers Way 1
+    DTLBW1MR124 # Data TLB Match registers Way 1
+    DTLBW1MR125 # Data TLB Match registers Way 1
+    DTLBW1MR126 # Data TLB Match registers Way 1
+    DTLBW1MR127 # Data TLB Match registers Way 1
+    DTLBW1TR0   # Data TLB Translate registers Way 1
+    DTLBW1TR1   # Data TLB Translate registers Way 1
+    DTLBW1TR2   # Data TLB Translate registers Way 1
+    DTLBW1TR3   # Data TLB Translate registers Way 1
+    DTLBW1TR4   # Data TLB Translate registers Way 1
+    DTLBW1TR5   # Data TLB Translate registers Way 1
+    DTLBW1TR6   # Data TLB Translate registers Way 1
+    DTLBW1TR7   # Data TLB Translate registers Way 1
+    DTLBW1TR8   # Data TLB Translate registers Way 1
+    DTLBW1TR9   # Data TLB Translate registers Way 1
+    DTLBW1TR10  # Data TLB Translate registers Way 1
+    DTLBW1TR11  # Data TLB Translate registers Way 1
+    DTLBW1TR12  # Data TLB Translate registers Way 1
+    DTLBW1TR13  # Data TLB Translate registers Way 1
+    DTLBW1TR14  # Data TLB Translate registers Way 1
+    DTLBW1TR15  # Data TLB Translate registers Way 1
+    DTLBW1TR16  # Data TLB Translate registers Way 1
+    DTLBW1TR17  # Data TLB Translate registers Way 1
+    DTLBW1TR18  # Data TLB Translate registers Way 1
+    DTLBW1TR19  # Data TLB Translate registers Way 1
+    DTLBW1TR20  # Data TLB Translate registers Way 1
+    DTLBW1TR21  # Data TLB Translate registers Way 1
+    DTLBW1TR22  # Data TLB Translate registers Way 1
+    DTLBW1TR23  # Data TLB Translate registers Way 1
+    DTLBW1TR24  # Data TLB Translate registers Way 1
+    DTLBW1TR25  # Data TLB Translate registers Way 1
+    DTLBW1TR26  # Data TLB Translate registers Way 1
+    DTLBW1TR27  # Data TLB Translate registers Way 1
+    DTLBW1TR28  # Data TLB Translate registers Way 1
+    DTLBW1TR29  # Data TLB Translate registers Way 1
+    DTLBW1TR30  # Data TLB Translate registers Way 1
+    DTLBW1TR31  # Data TLB Translate registers Way 1
+    DTLBW1TR32  # Data TLB Translate registers Way 1
+    DTLBW1TR33  # Data TLB Translate registers Way 1
+    DTLBW1TR34  # Data TLB Translate registers Way 1
+    DTLBW1TR35  # Data TLB Translate registers Way 1
+    DTLBW1TR36  # Data TLB Translate registers Way 1
+    DTLBW1TR37  # Data TLB Translate registers Way 1
+    DTLBW1TR38  # Data TLB Translate registers Way 1
+    DTLBW1TR39  # Data TLB Translate registers Way 1
+    DTLBW1TR40  # Data TLB Translate registers Way 1
+    DTLBW1TR41  # Data TLB Translate registers Way 1
+    DTLBW1TR42  # Data TLB Translate registers Way 1
+    DTLBW1TR43  # Data TLB Translate registers Way 1
+    DTLBW1TR44  # Data TLB Translate registers Way 1
+    DTLBW1TR45  # Data TLB Translate registers Way 1
+    DTLBW1TR46  # Data TLB Translate registers Way 1
+    DTLBW1TR47  # Data TLB Translate registers Way 1
+    DTLBW1TR48  # Data TLB Translate registers Way 1
+    DTLBW1TR49  # Data TLB Translate registers Way 1
+    DTLBW1TR50  # Data TLB Translate registers Way 1
+    DTLBW1TR51  # Data TLB Translate registers Way 1
+    DTLBW1TR52  # Data TLB Translate registers Way 1
+    DTLBW1TR53  # Data TLB Translate registers Way 1
+    DTLBW1TR54  # Data TLB Translate registers Way 1
+    DTLBW1TR55  # Data TLB Translate registers Way 1
+    DTLBW1TR56  # Data TLB Translate registers Way 1
+    DTLBW1TR57  # Data TLB Translate registers Way 1
+    DTLBW1TR58  # Data TLB Translate registers Way 1
+    DTLBW1TR59  # Data TLB Translate registers Way 1
+    DTLBW1TR60  # Data TLB Translate registers Way 1
+    DTLBW1TR61  # Data TLB Translate registers Way 1
+    DTLBW1TR62  # Data TLB Translate registers Way 1
+    DTLBW1TR63  # Data TLB Translate registers Way 1
+    DTLBW1TR64  # Data TLB Translate registers Way 1
+    DTLBW1TR65  # Data TLB Translate registers Way 1
+    DTLBW1TR66  # Data TLB Translate registers Way 1
+    DTLBW1TR67  # Data TLB Translate registers Way 1
+    DTLBW1TR68  # Data TLB Translate registers Way 1
+    DTLBW1TR69  # Data TLB Translate registers Way 1
+    DTLBW1TR70  # Data TLB Translate registers Way 1
+    DTLBW1TR71  # Data TLB Translate registers Way 1
+    DTLBW1TR72  # Data TLB Translate registers Way 1
+    DTLBW1TR73  # Data TLB Translate registers Way 1
+    DTLBW1TR74  # Data TLB Translate registers Way 1
+    DTLBW1TR75  # Data TLB Translate registers Way 1
+    DTLBW1TR76  # Data TLB Translate registers Way 1
+    DTLBW1TR77  # Data TLB Translate registers Way 1
+    DTLBW1TR78  # Data TLB Translate registers Way 1
+    DTLBW1TR79  # Data TLB Translate registers Way 1
+    DTLBW1TR80  # Data TLB Translate registers Way 1
+    DTLBW1TR81  # Data TLB Translate registers Way 1
+    DTLBW1TR82  # Data TLB Translate registers Way 1
+    DTLBW1TR83  # Data TLB Translate registers Way 1
+    DTLBW1TR84  # Data TLB Translate registers Way 1
+    DTLBW1TR85  # Data TLB Translate registers Way 1
+    DTLBW1TR86  # Data TLB Translate registers Way 1
+    DTLBW1TR87  # Data TLB Translate registers Way 1
+    DTLBW1TR88  # Data TLB Translate registers Way 1
+    DTLBW1TR89  # Data TLB Translate registers Way 1
+    DTLBW1TR90  # Data TLB Translate registers Way 1
+    DTLBW1TR91  # Data TLB Translate registers Way 1
+    DTLBW1TR92  # Data TLB Translate registers Way 1
+    DTLBW1TR93  # Data TLB Translate registers Way 1
+    DTLBW1TR94  # Data TLB Translate registers Way 1
+    DTLBW1TR95  # Data TLB Translate registers Way 1
+    DTLBW1TR96  # Data TLB Translate registers Way 1
+    DTLBW1TR97  # Data TLB Translate registers Way 1
+    DTLBW1TR98  # Data TLB Translate registers Way 1
+    DTLBW1TR99  # Data TLB Translate registers Way 1
+    DTLBW1TR100 # Data TLB Translate registers Way 1
+    DTLBW1TR101 # Data TLB Translate registers Way 1
+    DTLBW1TR102 # Data TLB Translate registers Way 1
+    DTLBW1TR103 # Data TLB Translate registers Way 1
+    DTLBW1TR104 # Data TLB Translate registers Way 1
+    DTLBW1TR105 # Data TLB Translate registers Way 1
+    DTLBW1TR106 # Data TLB Translate registers Way 1
+    DTLBW1TR107 # Data TLB Translate registers Way 1
+    DTLBW1TR108 # Data TLB Translate registers Way 1
+    DTLBW1TR109 # Data TLB Translate registers Way 1
+    DTLBW1TR110 # Data TLB Translate registers Way 1
+    DTLBW1TR111 # Data TLB Translate registers Way 1
+    DTLBW1TR112 # Data TLB Translate registers Way 1
+    DTLBW1TR113 # Data TLB Translate registers Way 1
+    DTLBW1TR114 # Data TLB Translate registers Way 1
+    DTLBW1TR115 # Data TLB Translate registers Way 1
+    DTLBW1TR116 # Data TLB Translate registers Way 1
+    DTLBW1TR117 # Data TLB Translate registers Way 1
+    DTLBW1TR118 # Data TLB Translate registers Way 1
+    DTLBW1TR119 # Data TLB Translate registers Way 1
+    DTLBW1TR120 # Data TLB Translate registers Way 1
+    DTLBW1TR121 # Data TLB Translate registers Way 1
+    DTLBW1TR122 # Data TLB Translate registers Way 1
+    DTLBW1TR123 # Data TLB Translate registers Way 1
+    DTLBW1TR124 # Data TLB Translate registers Way 1
+    DTLBW1TR125 # Data TLB Translate registers Way 1
+    DTLBW1TR126 # Data TLB Translate registers Way 1
+    DTLBW1TR127 # Data TLB Translate registers Way 1
+    DTLBW2MR0   # Data TLB Match registers Way 2
+    DTLBW2MR1   # Data TLB Match registers Way 2
+    DTLBW2MR2   # Data TLB Match registers Way 2
+    DTLBW2MR3   # Data TLB Match registers Way 2
+    DTLBW2MR4   # Data TLB Match registers Way 2
+    DTLBW2MR5   # Data TLB Match registers Way 2
+    DTLBW2MR6   # Data TLB Match registers Way 2
+    DTLBW2MR7   # Data TLB Match registers Way 2
+    DTLBW2MR8   # Data TLB Match registers Way 2
+    DTLBW2MR9   # Data TLB Match registers Way 2
+    DTLBW2MR10  # Data TLB Match registers Way 2
+    DTLBW2MR11  # Data TLB Match registers Way 2
+    DTLBW2MR12  # Data TLB Match registers Way 2
+    DTLBW2MR13  # Data TLB Match registers Way 2
+    DTLBW2MR14  # Data TLB Match registers Way 2
+    DTLBW2MR15  # Data TLB Match registers Way 2
+    DTLBW2MR16  # Data TLB Match registers Way 2
+    DTLBW2MR17  # Data TLB Match registers Way 2
+    DTLBW2MR18  # Data TLB Match registers Way 2
+    DTLBW2MR19  # Data TLB Match registers Way 2
+    DTLBW2MR20  # Data TLB Match registers Way 2
+    DTLBW2MR21  # Data TLB Match registers Way 2
+    DTLBW2MR22  # Data TLB Match registers Way 2
+    DTLBW2MR23  # Data TLB Match registers Way 2
+    DTLBW2MR24  # Data TLB Match registers Way 2
+    DTLBW2MR25  # Data TLB Match registers Way 2
+    DTLBW2MR26  # Data TLB Match registers Way 2
+    DTLBW2MR27  # Data TLB Match registers Way 2
+    DTLBW2MR28  # Data TLB Match registers Way 2
+    DTLBW2MR29  # Data TLB Match registers Way 2
+    DTLBW2MR30  # Data TLB Match registers Way 2
+    DTLBW2MR31  # Data TLB Match registers Way 2
+    DTLBW2MR32  # Data TLB Match registers Way 2
+    DTLBW2MR33  # Data TLB Match registers Way 2
+    DTLBW2MR34  # Data TLB Match registers Way 2
+    DTLBW2MR35  # Data TLB Match registers Way 2
+    DTLBW2MR36  # Data TLB Match registers Way 2
+    DTLBW2MR37  # Data TLB Match registers Way 2
+    DTLBW2MR38  # Data TLB Match registers Way 2
+    DTLBW2MR39  # Data TLB Match registers Way 2
+    DTLBW2MR40  # Data TLB Match registers Way 2
+    DTLBW2MR41  # Data TLB Match registers Way 2
+    DTLBW2MR42  # Data TLB Match registers Way 2
+    DTLBW2MR43  # Data TLB Match registers Way 2
+    DTLBW2MR44  # Data TLB Match registers Way 2
+    DTLBW2MR45  # Data TLB Match registers Way 2
+    DTLBW2MR46  # Data TLB Match registers Way 2
+    DTLBW2MR47  # Data TLB Match registers Way 2
+    DTLBW2MR48  # Data TLB Match registers Way 2
+    DTLBW2MR49  # Data TLB Match registers Way 2
+    DTLBW2MR50  # Data TLB Match registers Way 2
+    DTLBW2MR51  # Data TLB Match registers Way 2
+    DTLBW2MR52  # Data TLB Match registers Way 2
+    DTLBW2MR53  # Data TLB Match registers Way 2
+    DTLBW2MR54  # Data TLB Match registers Way 2
+    DTLBW2MR55  # Data TLB Match registers Way 2
+    DTLBW2MR56  # Data TLB Match registers Way 2
+    DTLBW2MR57  # Data TLB Match registers Way 2
+    DTLBW2MR58  # Data TLB Match registers Way 2
+    DTLBW2MR59  # Data TLB Match registers Way 2
+    DTLBW2MR60  # Data TLB Match registers Way 2
+    DTLBW2MR61  # Data TLB Match registers Way 2
+    DTLBW2MR62  # Data TLB Match registers Way 2
+    DTLBW2MR63  # Data TLB Match registers Way 2
+    DTLBW2MR64  # Data TLB Match registers Way 2
+    DTLBW2MR65  # Data TLB Match registers Way 2
+    DTLBW2MR66  # Data TLB Match registers Way 2
+    DTLBW2MR67  # Data TLB Match registers Way 2
+    DTLBW2MR68  # Data TLB Match registers Way 2
+    DTLBW2MR69  # Data TLB Match registers Way 2
+    DTLBW2MR70  # Data TLB Match registers Way 2
+    DTLBW2MR71  # Data TLB Match registers Way 2
+    DTLBW2MR72  # Data TLB Match registers Way 2
+    DTLBW2MR73  # Data TLB Match registers Way 2
+    DTLBW2MR74  # Data TLB Match registers Way 2
+    DTLBW2MR75  # Data TLB Match registers Way 2
+    DTLBW2MR76  # Data TLB Match registers Way 2
+    DTLBW2MR77  # Data TLB Match registers Way 2
+    DTLBW2MR78  # Data TLB Match registers Way 2
+    DTLBW2MR79  # Data TLB Match registers Way 2
+    DTLBW2MR80  # Data TLB Match registers Way 2
+    DTLBW2MR81  # Data TLB Match registers Way 2
+    DTLBW2MR82  # Data TLB Match registers Way 2
+    DTLBW2MR83  # Data TLB Match registers Way 2
+    DTLBW2MR84  # Data TLB Match registers Way 2
+    DTLBW2MR85  # Data TLB Match registers Way 2
+    DTLBW2MR86  # Data TLB Match registers Way 2
+    DTLBW2MR87  # Data TLB Match registers Way 2
+    DTLBW2MR88  # Data TLB Match registers Way 2
+    DTLBW2MR89  # Data TLB Match registers Way 2
+    DTLBW2MR90  # Data TLB Match registers Way 2
+    DTLBW2MR91  # Data TLB Match registers Way 2
+    DTLBW2MR92  # Data TLB Match registers Way 2
+    DTLBW2MR93  # Data TLB Match registers Way 2
+    DTLBW2MR94  # Data TLB Match registers Way 2
+    DTLBW2MR95  # Data TLB Match registers Way 2
+    DTLBW2MR96  # Data TLB Match registers Way 2
+    DTLBW2MR97  # Data TLB Match registers Way 2
+    DTLBW2MR98  # Data TLB Match registers Way 2
+    DTLBW2MR99  # Data TLB Match registers Way 2
+    DTLBW2MR100 # Data TLB Match registers Way 2
+    DTLBW2MR101 # Data TLB Match registers Way 2
+    DTLBW2MR102 # Data TLB Match registers Way 2
+    DTLBW2MR103 # Data TLB Match registers Way 2
+    DTLBW2MR104 # Data TLB Match registers Way 2
+    DTLBW2MR105 # Data TLB Match registers Way 2
+    DTLBW2MR106 # Data TLB Match registers Way 2
+    DTLBW2MR107 # Data TLB Match registers Way 2
+    DTLBW2MR108 # Data TLB Match registers Way 2
+    DTLBW2MR109 # Data TLB Match registers Way 2
+    DTLBW2MR110 # Data TLB Match registers Way 2
+    DTLBW2MR111 # Data TLB Match registers Way 2
+    DTLBW2MR112 # Data TLB Match registers Way 2
+    DTLBW2MR113 # Data TLB Match registers Way 2
+    DTLBW2MR114 # Data TLB Match registers Way 2
+    DTLBW2MR115 # Data TLB Match registers Way 2
+    DTLBW2MR116 # Data TLB Match registers Way 2
+    DTLBW2MR117 # Data TLB Match registers Way 2
+    DTLBW2MR118 # Data TLB Match registers Way 2
+    DTLBW2MR119 # Data TLB Match registers Way 2
+    DTLBW2MR120 # Data TLB Match registers Way 2
+    DTLBW2MR121 # Data TLB Match registers Way 2
+    DTLBW2MR122 # Data TLB Match registers Way 2
+    DTLBW2MR123 # Data TLB Match registers Way 2
+    DTLBW2MR124 # Data TLB Match registers Way 2
+    DTLBW2MR125 # Data TLB Match registers Way 2
+    DTLBW2MR126 # Data TLB Match registers Way 2
+    DTLBW2MR127 # Data TLB Match registers Way 2
+    DTLBW2TR0   # Data TLB Translate registers Way 2
+    DTLBW2TR1   # Data TLB Translate registers Way 2
+    DTLBW2TR2   # Data TLB Translate registers Way 2
+    DTLBW2TR3   # Data TLB Translate registers Way 2
+    DTLBW2TR4   # Data TLB Translate registers Way 2
+    DTLBW2TR5   # Data TLB Translate registers Way 2
+    DTLBW2TR6   # Data TLB Translate registers Way 2
+    DTLBW2TR7   # Data TLB Translate registers Way 2
+    DTLBW2TR8   # Data TLB Translate registers Way 2
+    DTLBW2TR9   # Data TLB Translate registers Way 2
+    DTLBW2TR10  # Data TLB Translate registers Way 2
+    DTLBW2TR11  # Data TLB Translate registers Way 2
+    DTLBW2TR12  # Data TLB Translate registers Way 2
+    DTLBW2TR13  # Data TLB Translate registers Way 2
+    DTLBW2TR14  # Data TLB Translate registers Way 2
+    DTLBW2TR15  # Data TLB Translate registers Way 2
+    DTLBW2TR16  # Data TLB Translate registers Way 2
+    DTLBW2TR17  # Data TLB Translate registers Way 2
+    DTLBW2TR18  # Data TLB Translate registers Way 2
+    DTLBW2TR19  # Data TLB Translate registers Way 2
+    DTLBW2TR20  # Data TLB Translate registers Way 2
+    DTLBW2TR21  # Data TLB Translate registers Way 2
+    DTLBW2TR22  # Data TLB Translate registers Way 2
+    DTLBW2TR23  # Data TLB Translate registers Way 2
+    DTLBW2TR24  # Data TLB Translate registers Way 2
+    DTLBW2TR25  # Data TLB Translate registers Way 2
+    DTLBW2TR26  # Data TLB Translate registers Way 2
+    DTLBW2TR27  # Data TLB Translate registers Way 2
+    DTLBW2TR28  # Data TLB Translate registers Way 2
+    DTLBW2TR29  # Data TLB Translate registers Way 2
+    DTLBW2TR30  # Data TLB Translate registers Way 2
+    DTLBW2TR31  # Data TLB Translate registers Way 2
+    DTLBW2TR32  # Data TLB Translate registers Way 2
+    DTLBW2TR33  # Data TLB Translate registers Way 2
+    DTLBW2TR34  # Data TLB Translate registers Way 2
+    DTLBW2TR35  # Data TLB Translate registers Way 2
+    DTLBW2TR36  # Data TLB Translate registers Way 2
+    DTLBW2TR37  # Data TLB Translate registers Way 2
+    DTLBW2TR38  # Data TLB Translate registers Way 2
+    DTLBW2TR39  # Data TLB Translate registers Way 2
+    DTLBW2TR40  # Data TLB Translate registers Way 2
+    DTLBW2TR41  # Data TLB Translate registers Way 2
+    DTLBW2TR42  # Data TLB Translate registers Way 2
+    DTLBW2TR43  # Data TLB Translate registers Way 2
+    DTLBW2TR44  # Data TLB Translate registers Way 2
+    DTLBW2TR45  # Data TLB Translate registers Way 2
+    DTLBW2TR46  # Data TLB Translate registers Way 2
+    DTLBW2TR47  # Data TLB Translate registers Way 2
+    DTLBW2TR48  # Data TLB Translate registers Way 2
+    DTLBW2TR49  # Data TLB Translate registers Way 2
+    DTLBW2TR50  # Data TLB Translate registers Way 2
+    DTLBW2TR51  # Data TLB Translate registers Way 2
+    DTLBW2TR52  # Data TLB Translate registers Way 2
+    DTLBW2TR53  # Data TLB Translate registers Way 2
+    DTLBW2TR54  # Data TLB Translate registers Way 2
+    DTLBW2TR55  # Data TLB Translate registers Way 2
+    DTLBW2TR56  # Data TLB Translate registers Way 2
+    DTLBW2TR57  # Data TLB Translate registers Way 2
+    DTLBW2TR58  # Data TLB Translate registers Way 2
+    DTLBW2TR59  # Data TLB Translate registers Way 2
+    DTLBW2TR60  # Data TLB Translate registers Way 2
+    DTLBW2TR61  # Data TLB Translate registers Way 2
+    DTLBW2TR62  # Data TLB Translate registers Way 2
+    DTLBW2TR63  # Data TLB Translate registers Way 2
+    DTLBW2TR64  # Data TLB Translate registers Way 2
+    DTLBW2TR65  # Data TLB Translate registers Way 2
+    DTLBW2TR66  # Data TLB Translate registers Way 2
+    DTLBW2TR67  # Data TLB Translate registers Way 2
+    DTLBW2TR68  # Data TLB Translate registers Way 2
+    DTLBW2TR69  # Data TLB Translate registers Way 2
+    DTLBW2TR70  # Data TLB Translate registers Way 2
+    DTLBW2TR71  # Data TLB Translate registers Way 2
+    DTLBW2TR72  # Data TLB Translate registers Way 2
+    DTLBW2TR73  # Data TLB Translate registers Way 2
+    DTLBW2TR74  # Data TLB Translate registers Way 2
+    DTLBW2TR75  # Data TLB Translate registers Way 2
+    DTLBW2TR76  # Data TLB Translate registers Way 2
+    DTLBW2TR77  # Data TLB Translate registers Way 2
+    DTLBW2TR78  # Data TLB Translate registers Way 2
+    DTLBW2TR79  # Data TLB Translate registers Way 2
+    DTLBW2TR80  # Data TLB Translate registers Way 2
+    DTLBW2TR81  # Data TLB Translate registers Way 2
+    DTLBW2TR82  # Data TLB Translate registers Way 2
+    DTLBW2TR83  # Data TLB Translate registers Way 2
+    DTLBW2TR84  # Data TLB Translate registers Way 2
+    DTLBW2TR85  # Data TLB Translate registers Way 2
+    DTLBW2TR86  # Data TLB Translate registers Way 2
+    DTLBW2TR87  # Data TLB Translate registers Way 2
+    DTLBW2TR88  # Data TLB Translate registers Way 2
+    DTLBW2TR89  # Data TLB Translate registers Way 2
+    DTLBW2TR90  # Data TLB Translate registers Way 2
+    DTLBW2TR91  # Data TLB Translate registers Way 2
+    DTLBW2TR92  # Data TLB Translate registers Way 2
+    DTLBW2TR93  # Data TLB Translate registers Way 2
+    DTLBW2TR94  # Data TLB Translate registers Way 2
+    DTLBW2TR95  # Data TLB Translate registers Way 2
+    DTLBW2TR96  # Data TLB Translate registers Way 2
+    DTLBW2TR97  # Data TLB Translate registers Way 2
+    DTLBW2TR98  # Data TLB Translate registers Way 2
+    DTLBW2TR99  # Data TLB Translate registers Way 2
+    DTLBW2TR100 # Data TLB Translate registers Way 2
+    DTLBW2TR101 # Data TLB Translate registers Way 2
+    DTLBW2TR102 # Data TLB Translate registers Way 2
+    DTLBW2TR103 # Data TLB Translate registers Way 2
+    DTLBW2TR104 # Data TLB Translate registers Way 2
+    DTLBW2TR105 # Data TLB Translate registers Way 2
+    DTLBW2TR106 # Data TLB Translate registers Way 2
+    DTLBW2TR107 # Data TLB Translate registers Way 2
+    DTLBW2TR108 # Data TLB Translate registers Way 2
+    DTLBW2TR109 # Data TLB Translate registers Way 2
+    DTLBW2TR110 # Data TLB Translate registers Way 2
+    DTLBW2TR111 # Data TLB Translate registers Way 2
+    DTLBW2TR112 # Data TLB Translate registers Way 2
+    DTLBW2TR113 # Data TLB Translate registers Way 2
+    DTLBW2TR114 # Data TLB Translate registers Way 2
+    DTLBW2TR115 # Data TLB Translate registers Way 2
+    DTLBW2TR116 # Data TLB Translate registers Way 2
+    DTLBW2TR117 # Data TLB Translate registers Way 2
+    DTLBW2TR118 # Data TLB Translate registers Way 2
+    DTLBW2TR119 # Data TLB Translate registers Way 2
+    DTLBW2TR120 # Data TLB Translate registers Way 2
+    DTLBW2TR121 # Data TLB Translate registers Way 2
+    DTLBW2TR122 # Data TLB Translate registers Way 2
+    DTLBW2TR123 # Data TLB Translate registers Way 2
+    DTLBW2TR124 # Data TLB Translate registers Way 2
+    DTLBW2TR125 # Data TLB Translate registers Way 2
+    DTLBW2TR126 # Data TLB Translate registers Way 2
+    DTLBW2TR127 # Data TLB Translate registers Way 2
+    DTLBW3MR0   # Data TLB Match registers Way 3
+    DTLBW3MR1   # Data TLB Match registers Way 3
+    DTLBW3MR2   # Data TLB Match registers Way 3
+    DTLBW3MR3   # Data TLB Match registers Way 3
+    DTLBW3MR4   # Data TLB Match registers Way 3
+    DTLBW3MR5   # Data TLB Match registers Way 3
+    DTLBW3MR6   # Data TLB Match registers Way 3
+    DTLBW3MR7   # Data TLB Match registers Way 3
+    DTLBW3MR8   # Data TLB Match registers Way 3
+    DTLBW3MR9   # Data TLB Match registers Way 3
+    DTLBW3MR10  # Data TLB Match registers Way 3
+    DTLBW3MR11  # Data TLB Match registers Way 3
+    DTLBW3MR12  # Data TLB Match registers Way 3
+    DTLBW3MR13  # Data TLB Match registers Way 3
+    DTLBW3MR14  # Data TLB Match registers Way 3
+    DTLBW3MR15  # Data TLB Match registers Way 3
+    DTLBW3MR16  # Data TLB Match registers Way 3
+    DTLBW3MR17  # Data TLB Match registers Way 3
+    DTLBW3MR18  # Data TLB Match registers Way 3
+    DTLBW3MR19  # Data TLB Match registers Way 3
+    DTLBW3MR20  # Data TLB Match registers Way 3
+    DTLBW3MR21  # Data TLB Match registers Way 3
+    DTLBW3MR22  # Data TLB Match registers Way 3
+    DTLBW3MR23  # Data TLB Match registers Way 3
+    DTLBW3MR24  # Data TLB Match registers Way 3
+    DTLBW3MR25  # Data TLB Match registers Way 3
+    DTLBW3MR26  # Data TLB Match registers Way 3
+    DTLBW3MR27  # Data TLB Match registers Way 3
+    DTLBW3MR28  # Data TLB Match registers Way 3
+    DTLBW3MR29  # Data TLB Match registers Way 3
+    DTLBW3MR30  # Data TLB Match registers Way 3
+    DTLBW3MR31  # Data TLB Match registers Way 3
+    DTLBW3MR32  # Data TLB Match registers Way 3
+    DTLBW3MR33  # Data TLB Match registers Way 3
+    DTLBW3MR34  # Data TLB Match registers Way 3
+    DTLBW3MR35  # Data TLB Match registers Way 3
+    DTLBW3MR36  # Data TLB Match registers Way 3
+    DTLBW3MR37  # Data TLB Match registers Way 3
+    DTLBW3MR38  # Data TLB Match registers Way 3
+    DTLBW3MR39  # Data TLB Match registers Way 3
+    DTLBW3MR40  # Data TLB Match registers Way 3
+    DTLBW3MR41  # Data TLB Match registers Way 3
+    DTLBW3MR42  # Data TLB Match registers Way 3
+    DTLBW3MR43  # Data TLB Match registers Way 3
+    DTLBW3MR44  # Data TLB Match registers Way 3
+    DTLBW3MR45  # Data TLB Match registers Way 3
+    DTLBW3MR46  # Data TLB Match registers Way 3
+    DTLBW3MR47  # Data TLB Match registers Way 3
+    DTLBW3MR48  # Data TLB Match registers Way 3
+    DTLBW3MR49  # Data TLB Match registers Way 3
+    DTLBW3MR50  # Data TLB Match registers Way 3
+    DTLBW3MR51  # Data TLB Match registers Way 3
+    DTLBW3MR52  # Data TLB Match registers Way 3
+    DTLBW3MR53  # Data TLB Match registers Way 3
+    DTLBW3MR54  # Data TLB Match registers Way 3
+    DTLBW3MR55  # Data TLB Match registers Way 3
+    DTLBW3MR56  # Data TLB Match registers Way 3
+    DTLBW3MR57  # Data TLB Match registers Way 3
+    DTLBW3MR58  # Data TLB Match registers Way 3
+    DTLBW3MR59  # Data TLB Match registers Way 3
+    DTLBW3MR60  # Data TLB Match registers Way 3
+    DTLBW3MR61  # Data TLB Match registers Way 3
+    DTLBW3MR62  # Data TLB Match registers Way 3
+    DTLBW3MR63  # Data TLB Match registers Way 3
+    DTLBW3MR64  # Data TLB Match registers Way 3
+    DTLBW3MR65  # Data TLB Match registers Way 3
+    DTLBW3MR66  # Data TLB Match registers Way 3
+    DTLBW3MR67  # Data TLB Match registers Way 3
+    DTLBW3MR68  # Data TLB Match registers Way 3
+    DTLBW3MR69  # Data TLB Match registers Way 3
+    DTLBW3MR70  # Data TLB Match registers Way 3
+    DTLBW3MR71  # Data TLB Match registers Way 3
+    DTLBW3MR72  # Data TLB Match registers Way 3
+    DTLBW3MR73  # Data TLB Match registers Way 3
+    DTLBW3MR74  # Data TLB Match registers Way 3
+    DTLBW3MR75  # Data TLB Match registers Way 3
+    DTLBW3MR76  # Data TLB Match registers Way 3
+    DTLBW3MR77  # Data TLB Match registers Way 3
+    DTLBW3MR78  # Data TLB Match registers Way 3
+    DTLBW3MR79  # Data TLB Match registers Way 3
+    DTLBW3MR80  # Data TLB Match registers Way 3
+    DTLBW3MR81  # Data TLB Match registers Way 3
+    DTLBW3MR82  # Data TLB Match registers Way 3
+    DTLBW3MR83  # Data TLB Match registers Way 3
+    DTLBW3MR84  # Data TLB Match registers Way 3
+    DTLBW3MR85  # Data TLB Match registers Way 3
+    DTLBW3MR86  # Data TLB Match registers Way 3
+    DTLBW3MR87  # Data TLB Match registers Way 3
+    DTLBW3MR88  # Data TLB Match registers Way 3
+    DTLBW3MR89  # Data TLB Match registers Way 3
+    DTLBW3MR90  # Data TLB Match registers Way 3
+    DTLBW3MR91  # Data TLB Match registers Way 3
+    DTLBW3MR92  # Data TLB Match registers Way 3
+    DTLBW3MR93  # Data TLB Match registers Way 3
+    DTLBW3MR94  # Data TLB Match registers Way 3
+    DTLBW3MR95  # Data TLB Match registers Way 3
+    DTLBW3MR96  # Data TLB Match registers Way 3
+    DTLBW3MR97  # Data TLB Match registers Way 3
+    DTLBW3MR98  # Data TLB Match registers Way 3
+    DTLBW3MR99  # Data TLB Match registers Way 3
+    DTLBW3MR100 # Data TLB Match registers Way 3
+    DTLBW3MR101 # Data TLB Match registers Way 3
+    DTLBW3MR102 # Data TLB Match registers Way 3
+    DTLBW3MR103 # Data TLB Match registers Way 3
+    DTLBW3MR104 # Data TLB Match registers Way 3
+    DTLBW3MR105 # Data TLB Match registers Way 3
+    DTLBW3MR106 # Data TLB Match registers Way 3
+    DTLBW3MR107 # Data TLB Match registers Way 3
+    DTLBW3MR108 # Data TLB Match registers Way 3
+    DTLBW3MR109 # Data TLB Match registers Way 3
+    DTLBW3MR110 # Data TLB Match registers Way 3
+    DTLBW3MR111 # Data TLB Match registers Way 3
+    DTLBW3MR112 # Data TLB Match registers Way 3
+    DTLBW3MR113 # Data TLB Match registers Way 3
+    DTLBW3MR114 # Data TLB Match registers Way 3
+    DTLBW3MR115 # Data TLB Match registers Way 3
+    DTLBW3MR116 # Data TLB Match registers Way 3
+    DTLBW3MR117 # Data TLB Match registers Way 3
+    DTLBW3MR118 # Data TLB Match registers Way 3
+    DTLBW3MR119 # Data TLB Match registers Way 3
+    DTLBW3MR120 # Data TLB Match registers Way 3
+    DTLBW3MR121 # Data TLB Match registers Way 3
+    DTLBW3MR122 # Data TLB Match registers Way 3
+    DTLBW3MR123 # Data TLB Match registers Way 3
+    DTLBW3MR124 # Data TLB Match registers Way 3
+    DTLBW3MR125 # Data TLB Match registers Way 3
+    DTLBW3MR126 # Data TLB Match registers Way 3
+    DTLBW3MR127 # Data TLB Match registers Way 3
+    DTLBW3TR0   # Data TLB Translate registers Way 3
+    DTLBW3TR1   # Data TLB Translate registers Way 3
+    DTLBW3TR2   # Data TLB Translate registers Way 3
+    DTLBW3TR3   # Data TLB Translate registers Way 3
+    DTLBW3TR4   # Data TLB Translate registers Way 3
+    DTLBW3TR5   # Data TLB Translate registers Way 3
+    DTLBW3TR6   # Data TLB Translate registers Way 3
+    DTLBW3TR7   # Data TLB Translate registers Way 3
+    DTLBW3TR8   # Data TLB Translate registers Way 3
+    DTLBW3TR9   # Data TLB Translate registers Way 3
+    DTLBW3TR10  # Data TLB Translate registers Way 3
+    DTLBW3TR11  # Data TLB Translate registers Way 3
+    DTLBW3TR12  # Data TLB Translate registers Way 3
+    DTLBW3TR13  # Data TLB Translate registers Way 3
+    DTLBW3TR14  # Data TLB Translate registers Way 3
+    DTLBW3TR15  # Data TLB Translate registers Way 3
+    DTLBW3TR16  # Data TLB Translate registers Way 3
+    DTLBW3TR17  # Data TLB Translate registers Way 3
+    DTLBW3TR18  # Data TLB Translate registers Way 3
+    DTLBW3TR19  # Data TLB Translate registers Way 3
+    DTLBW3TR20  # Data TLB Translate registers Way 3
+    DTLBW3TR21  # Data TLB Translate registers Way 3
+    DTLBW3TR22  # Data TLB Translate registers Way 3
+    DTLBW3TR23  # Data TLB Translate registers Way 3
+    DTLBW3TR24  # Data TLB Translate registers Way 3
+    DTLBW3TR25  # Data TLB Translate registers Way 3
+    DTLBW3TR26  # Data TLB Translate registers Way 3
+    DTLBW3TR27  # Data TLB Translate registers Way 3
+    DTLBW3TR28  # Data TLB Translate registers Way 3
+    DTLBW3TR29  # Data TLB Translate registers Way 3
+    DTLBW3TR30  # Data TLB Translate registers Way 3
+    DTLBW3TR31  # Data TLB Translate registers Way 3
+    DTLBW3TR32  # Data TLB Translate registers Way 3
+    DTLBW3TR33  # Data TLB Translate registers Way 3
+    DTLBW3TR34  # Data TLB Translate registers Way 3
+    DTLBW3TR35  # Data TLB Translate registers Way 3
+    DTLBW3TR36  # Data TLB Translate registers Way 3
+    DTLBW3TR37  # Data TLB Translate registers Way 3
+    DTLBW3TR38  # Data TLB Translate registers Way 3
+    DTLBW3TR39  # Data TLB Translate registers Way 3
+    DTLBW3TR40  # Data TLB Translate registers Way 3
+    DTLBW3TR41  # Data TLB Translate registers Way 3
+    DTLBW3TR42  # Data TLB Translate registers Way 3
+    DTLBW3TR43  # Data TLB Translate registers Way 3
+    DTLBW3TR44  # Data TLB Translate registers Way 3
+    DTLBW3TR45  # Data TLB Translate registers Way 3
+    DTLBW3TR46  # Data TLB Translate registers Way 3
+    DTLBW3TR47  # Data TLB Translate registers Way 3
+    DTLBW3TR48  # Data TLB Translate registers Way 3
+    DTLBW3TR49  # Data TLB Translate registers Way 3
+    DTLBW3TR50  # Data TLB Translate registers Way 3
+    DTLBW3TR51  # Data TLB Translate registers Way 3
+    DTLBW3TR52  # Data TLB Translate registers Way 3
+    DTLBW3TR53  # Data TLB Translate registers Way 3
+    DTLBW3TR54  # Data TLB Translate registers Way 3
+    DTLBW3TR55  # Data TLB Translate registers Way 3
+    DTLBW3TR56  # Data TLB Translate registers Way 3
+    DTLBW3TR57  # Data TLB Translate registers Way 3
+    DTLBW3TR58  # Data TLB Translate registers Way 3
+    DTLBW3TR59  # Data TLB Translate registers Way 3
+    DTLBW3TR60  # Data TLB Translate registers Way 3
+    DTLBW3TR61  # Data TLB Translate registers Way 3
+    DTLBW3TR62  # Data TLB Translate registers Way 3
+    DTLBW3TR63  # Data TLB Translate registers Way 3
+    DTLBW3TR64  # Data TLB Translate registers Way 3
+    DTLBW3TR65  # Data TLB Translate registers Way 3
+    DTLBW3TR66  # Data TLB Translate registers Way 3
+    DTLBW3TR67  # Data TLB Translate registers Way 3
+    DTLBW3TR68  # Data TLB Translate registers Way 3
+    DTLBW3TR69  # Data TLB Translate registers Way 3
+    DTLBW3TR70  # Data TLB Translate registers Way 3
+    DTLBW3TR71  # Data TLB Translate registers Way 3
+    DTLBW3TR72  # Data TLB Translate registers Way 3
+    DTLBW3TR73  # Data TLB Translate registers Way 3
+    DTLBW3TR74  # Data TLB Translate registers Way 3
+    DTLBW3TR75  # Data TLB Translate registers Way 3
+    DTLBW3TR76  # Data TLB Translate registers Way 3
+    DTLBW3TR77  # Data TLB Translate registers Way 3
+    DTLBW3TR78  # Data TLB Translate registers Way 3
+    DTLBW3TR79  # Data TLB Translate registers Way 3
+    DTLBW3TR80  # Data TLB Translate registers Way 3
+    DTLBW3TR81  # Data TLB Translate registers Way 3
+    DTLBW3TR82  # Data TLB Translate registers Way 3
+    DTLBW3TR83  # Data TLB Translate registers Way 3
+    DTLBW3TR84  # Data TLB Translate registers Way 3
+    DTLBW3TR85  # Data TLB Translate registers Way 3
+    DTLBW3TR86  # Data TLB Translate registers Way 3
+    DTLBW3TR87  # Data TLB Translate registers Way 3
+    DTLBW3TR88  # Data TLB Translate registers Way 3
+    DTLBW3TR89  # Data TLB Translate registers Way 3
+    DTLBW3TR90  # Data TLB Translate registers Way 3
+    DTLBW3TR91  # Data TLB Translate registers Way 3
+    DTLBW3TR92  # Data TLB Translate registers Way 3
+    DTLBW3TR93  # Data TLB Translate registers Way 3
+    DTLBW3TR94  # Data TLB Translate registers Way 3
+    DTLBW3TR95  # Data TLB Translate registers Way 3
+    DTLBW3TR96  # Data TLB Translate registers Way 3
+    DTLBW3TR97  # Data TLB Translate registers Way 3
+    DTLBW3TR98  # Data TLB Translate registers Way 3
+    DTLBW3TR99  # Data TLB Translate registers Way 3
+    DTLBW3TR100 # Data TLB Translate registers Way 3
+    DTLBW3TR101 # Data TLB Translate registers Way 3
+    DTLBW3TR102 # Data TLB Translate registers Way 3
+    DTLBW3TR103 # Data TLB Translate registers Way 3
+    DTLBW3TR104 # Data TLB Translate registers Way 3
+    DTLBW3TR105 # Data TLB Translate registers Way 3
+    DTLBW3TR106 # Data TLB Translate registers Way 3
+    DTLBW3TR107 # Data TLB Translate registers Way 3
+    DTLBW3TR108 # Data TLB Translate registers Way 3
+    DTLBW3TR109 # Data TLB Translate registers Way 3
+    DTLBW3TR110 # Data TLB Translate registers Way 3
+    DTLBW3TR111 # Data TLB Translate registers Way 3
+    DTLBW3TR112 # Data TLB Translate registers Way 3
+    DTLBW3TR113 # Data TLB Translate registers Way 3
+    DTLBW3TR114 # Data TLB Translate registers Way 3
+    DTLBW3TR115 # Data TLB Translate registers Way 3
+    DTLBW3TR116 # Data TLB Translate registers Way 3
+    DTLBW3TR117 # Data TLB Translate registers Way 3
+    DTLBW3TR118 # Data TLB Translate registers Way 3
+    DTLBW3TR119 # Data TLB Translate registers Way 3
+    DTLBW3TR120 # Data TLB Translate registers Way 3
+    DTLBW3TR121 # Data TLB Translate registers Way 3
+    DTLBW3TR122 # Data TLB Translate registers Way 3
+    DTLBW3TR123 # Data TLB Translate registers Way 3
+    DTLBW3TR124 # Data TLB Translate registers Way 3
+    DTLBW3TR125 # Data TLB Translate registers Way 3
+    DTLBW3TR126 # Data TLB Translate registers Way 3
+    DTLBW3TR127 # Data TLB Translate registers Way 3
+];
+
+# SPR Group 2
+define register offset=0x4000 size=4 [
+    IMMUCR      # Instruction MMU Control register
+    IMMUPR      # Instruction MMU Protection Register
+    ITLBEIR     # Instruction TLB Entry Invalidate register
+    _           # Not defined
+    IATBMR0     # Instruction ATB Match registers
+    IATBMR1     # Instruction ATB Match registers
+    IATBMR2     # Instruction ATB Match registers
+    IATBMR3     # Instruction ATB Match registers
+    IATBTR0     # Instruction ATB Translate registers
+    IATBTR1     # Instruction ATB Translate registers
+    IATBTR2     # Instruction ATB Translate registers
+    IATBTR3     # Instruction ATB Translate registers
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    _           # Not defined
+    ITLBW0MR0   # Instruction TLB Match registers Way 0
+    ITLBW0MR1   # Instruction TLB Match registers Way 0
+    ITLBW0MR2   # Instruction TLB Match registers Way 0
+    ITLBW0MR3   # Instruction TLB Match registers Way 0
+    ITLBW0MR4   # Instruction TLB Match registers Way 0
+    ITLBW0MR5   # Instruction TLB Match registers Way 0
+    ITLBW0MR6   # Instruction TLB Match registers Way 0
+    ITLBW0MR7   # Instruction TLB Match registers Way 0
+    ITLBW0MR8   # Instruction TLB Match registers Way 0
+    ITLBW0MR9   # Instruction TLB Match registers Way 0
+    ITLBW0MR10  # Instruction TLB Match registers Way 0
+    ITLBW0MR11  # Instruction TLB Match registers Way 0
+    ITLBW0MR12  # Instruction TLB Match registers Way 0
+    ITLBW0MR13  # Instruction TLB Match registers Way 0
+    ITLBW0MR14  # Instruction TLB Match registers Way 0
+    ITLBW0MR15  # Instruction TLB Match registers Way 0
+    ITLBW0MR16  # Instruction TLB Match registers Way 0
+    ITLBW0MR17  # Instruction TLB Match registers Way 0
+    ITLBW0MR18  # Instruction TLB Match registers Way 0
+    ITLBW0MR19  # Instruction TLB Match registers Way 0
+    ITLBW0MR20  # Instruction TLB Match registers Way 0
+    ITLBW0MR21  # Instruction TLB Match registers Way 0
+    ITLBW0MR22  # Instruction TLB Match registers Way 0
+    ITLBW0MR23  # Instruction TLB Match registers Way 0
+    ITLBW0MR24  # Instruction TLB Match registers Way 0
+    ITLBW0MR25  # Instruction TLB Match registers Way 0
+    ITLBW0MR26  # Instruction TLB Match registers Way 0
+    ITLBW0MR27  # Instruction TLB Match registers Way 0
+    ITLBW0MR28  # Instruction TLB Match registers Way 0
+    ITLBW0MR29  # Instruction TLB Match registers Way 0
+    ITLBW0MR30  # Instruction TLB Match registers Way 0
+    ITLBW0MR31  # Instruction TLB Match registers Way 0
+    ITLBW0MR32  # Instruction TLB Match registers Way 0
+    ITLBW0MR33  # Instruction TLB Match registers Way 0
+    ITLBW0MR34  # Instruction TLB Match registers Way 0
+    ITLBW0MR35  # Instruction TLB Match registers Way 0
+    ITLBW0MR36  # Instruction TLB Match registers Way 0
+    ITLBW0MR37  # Instruction TLB Match registers Way 0
+    ITLBW0MR38  # Instruction TLB Match registers Way 0
+    ITLBW0MR39  # Instruction TLB Match registers Way 0
+    ITLBW0MR40  # Instruction TLB Match registers Way 0
+    ITLBW0MR41  # Instruction TLB Match registers Way 0
+    ITLBW0MR42  # Instruction TLB Match registers Way 0
+    ITLBW0MR43  # Instruction TLB Match registers Way 0
+    ITLBW0MR44  # Instruction TLB Match registers Way 0
+    ITLBW0MR45  # Instruction TLB Match registers Way 0
+    ITLBW0MR46  # Instruction TLB Match registers Way 0
+    ITLBW0MR47  # Instruction TLB Match registers Way 0
+    ITLBW0MR48  # Instruction TLB Match registers Way 0
+    ITLBW0MR49  # Instruction TLB Match registers Way 0
+    ITLBW0MR50  # Instruction TLB Match registers Way 0
+    ITLBW0MR51  # Instruction TLB Match registers Way 0
+    ITLBW0MR52  # Instruction TLB Match registers Way 0
+    ITLBW0MR53  # Instruction TLB Match registers Way 0
+    ITLBW0MR54  # Instruction TLB Match registers Way 0
+    ITLBW0MR55  # Instruction TLB Match registers Way 0
+    ITLBW0MR56  # Instruction TLB Match registers Way 0
+    ITLBW0MR57  # Instruction TLB Match registers Way 0
+    ITLBW0MR58  # Instruction TLB Match registers Way 0
+    ITLBW0MR59  # Instruction TLB Match registers Way 0
+    ITLBW0MR60  # Instruction TLB Match registers Way 0
+    ITLBW0MR61  # Instruction TLB Match registers Way 0
+    ITLBW0MR62  # Instruction TLB Match registers Way 0
+    ITLBW0MR63  # Instruction TLB Match registers Way 0
+    ITLBW0MR64  # Instruction TLB Match registers Way 0
+    ITLBW0MR65  # Instruction TLB Match registers Way 0
+    ITLBW0MR66  # Instruction TLB Match registers Way 0
+    ITLBW0MR67  # Instruction TLB Match registers Way 0
+    ITLBW0MR68  # Instruction TLB Match registers Way 0
+    ITLBW0MR69  # Instruction TLB Match registers Way 0
+    ITLBW0MR70  # Instruction TLB Match registers Way 0
+    ITLBW0MR71  # Instruction TLB Match registers Way 0
+    ITLBW0MR72  # Instruction TLB Match registers Way 0
+    ITLBW0MR73  # Instruction TLB Match registers Way 0
+    ITLBW0MR74  # Instruction TLB Match registers Way 0
+    ITLBW0MR75  # Instruction TLB Match registers Way 0
+    ITLBW0MR76  # Instruction TLB Match registers Way 0
+    ITLBW0MR77  # Instruction TLB Match registers Way 0
+    ITLBW0MR78  # Instruction TLB Match registers Way 0
+    ITLBW0MR79  # Instruction TLB Match registers Way 0
+    ITLBW0MR80  # Instruction TLB Match registers Way 0
+    ITLBW0MR81  # Instruction TLB Match registers Way 0
+    ITLBW0MR82  # Instruction TLB Match registers Way 0
+    ITLBW0MR83  # Instruction TLB Match registers Way 0
+    ITLBW0MR84  # Instruction TLB Match registers Way 0
+    ITLBW0MR85  # Instruction TLB Match registers Way 0
+    ITLBW0MR86  # Instruction TLB Match registers Way 0
+    ITLBW0MR87  # Instruction TLB Match registers Way 0
+    ITLBW0MR88  # Instruction TLB Match registers Way 0
+    ITLBW0MR89  # Instruction TLB Match registers Way 0
+    ITLBW0MR90  # Instruction TLB Match registers Way 0
+    ITLBW0MR91  # Instruction TLB Match registers Way 0
+    ITLBW0MR92  # Instruction TLB Match registers Way 0
+    ITLBW0MR93  # Instruction TLB Match registers Way 0
+    ITLBW0MR94  # Instruction TLB Match registers Way 0
+    ITLBW0MR95  # Instruction TLB Match registers Way 0
+    ITLBW0MR96  # Instruction TLB Match registers Way 0
+    ITLBW0MR97  # Instruction TLB Match registers Way 0
+    ITLBW0MR98  # Instruction TLB Match registers Way 0
+    ITLBW0MR99  # Instruction TLB Match registers Way 0
+    ITLBW0MR100 # Instruction TLB Match registers Way 0
+    ITLBW0MR101 # Instruction TLB Match registers Way 0
+    ITLBW0MR102 # Instruction TLB Match registers Way 0
+    ITLBW0MR103 # Instruction TLB Match registers Way 0
+    ITLBW0MR104 # Instruction TLB Match registers Way 0
+    ITLBW0MR105 # Instruction TLB Match registers Way 0
+    ITLBW0MR106 # Instruction TLB Match registers Way 0
+    ITLBW0MR107 # Instruction TLB Match registers Way 0
+    ITLBW0MR108 # Instruction TLB Match registers Way 0
+    ITLBW0MR109 # Instruction TLB Match registers Way 0
+    ITLBW0MR110 # Instruction TLB Match registers Way 0
+    ITLBW0MR111 # Instruction TLB Match registers Way 0
+    ITLBW0MR112 # Instruction TLB Match registers Way 0
+    ITLBW0MR113 # Instruction TLB Match registers Way 0
+    ITLBW0MR114 # Instruction TLB Match registers Way 0
+    ITLBW0MR115 # Instruction TLB Match registers Way 0
+    ITLBW0MR116 # Instruction TLB Match registers Way 0
+    ITLBW0MR117 # Instruction TLB Match registers Way 0
+    ITLBW0MR118 # Instruction TLB Match registers Way 0
+    ITLBW0MR119 # Instruction TLB Match registers Way 0
+    ITLBW0MR120 # Instruction TLB Match registers Way 0
+    ITLBW0MR121 # Instruction TLB Match registers Way 0
+    ITLBW0MR122 # Instruction TLB Match registers Way 0
+    ITLBW0MR123 # Instruction TLB Match registers Way 0
+    ITLBW0MR124 # Instruction TLB Match registers Way 0
+    ITLBW0MR125 # Instruction TLB Match registers Way 0
+    ITLBW0MR126 # Instruction TLB Match registers Way 0
+    ITLBW0MR127 # Instruction TLB Match registers Way 0
+    ITLBW0TR0   # Instruction TLB Translate registers Way 0
+    ITLBW0TR1   # Instruction TLB Translate registers Way 0
+    ITLBW0TR2   # Instruction TLB Translate registers Way 0
+    ITLBW0TR3   # Instruction TLB Translate registers Way 0
+    ITLBW0TR4   # Instruction TLB Translate registers Way 0
+    ITLBW0TR5   # Instruction TLB Translate registers Way 0
+    ITLBW0TR6   # Instruction TLB Translate registers Way 0
+    ITLBW0TR7   # Instruction TLB Translate registers Way 0
+    ITLBW0TR8   # Instruction TLB Translate registers Way 0
+    ITLBW0TR9   # Instruction TLB Translate registers Way 0
+    ITLBW0TR10  # Instruction TLB Translate registers Way 0
+    ITLBW0TR11  # Instruction TLB Translate registers Way 0
+    ITLBW0TR12  # Instruction TLB Translate registers Way 0
+    ITLBW0TR13  # Instruction TLB Translate registers Way 0
+    ITLBW0TR14  # Instruction TLB Translate registers Way 0
+    ITLBW0TR15  # Instruction TLB Translate registers Way 0
+    ITLBW0TR16  # Instruction TLB Translate registers Way 0
+    ITLBW0TR17  # Instruction TLB Translate registers Way 0
+    ITLBW0TR18  # Instruction TLB Translate registers Way 0
+    ITLBW0TR19  # Instruction TLB Translate registers Way 0
+    ITLBW0TR20  # Instruction TLB Translate registers Way 0
+    ITLBW0TR21  # Instruction TLB Translate registers Way 0
+    ITLBW0TR22  # Instruction TLB Translate registers Way 0
+    ITLBW0TR23  # Instruction TLB Translate registers Way 0
+    ITLBW0TR24  # Instruction TLB Translate registers Way 0
+    ITLBW0TR25  # Instruction TLB Translate registers Way 0
+    ITLBW0TR26  # Instruction TLB Translate registers Way 0
+    ITLBW0TR27  # Instruction TLB Translate registers Way 0
+    ITLBW0TR28  # Instruction TLB Translate registers Way 0
+    ITLBW0TR29  # Instruction TLB Translate registers Way 0
+    ITLBW0TR30  # Instruction TLB Translate registers Way 0
+    ITLBW0TR31  # Instruction TLB Translate registers Way 0
+    ITLBW0TR32  # Instruction TLB Translate registers Way 0
+    ITLBW0TR33  # Instruction TLB Translate registers Way 0
+    ITLBW0TR34  # Instruction TLB Translate registers Way 0
+    ITLBW0TR35  # Instruction TLB Translate registers Way 0
+    ITLBW0TR36  # Instruction TLB Translate registers Way 0
+    ITLBW0TR37  # Instruction TLB Translate registers Way 0
+    ITLBW0TR38  # Instruction TLB Translate registers Way 0
+    ITLBW0TR39  # Instruction TLB Translate registers Way 0
+    ITLBW0TR40  # Instruction TLB Translate registers Way 0
+    ITLBW0TR41  # Instruction TLB Translate registers Way 0
+    ITLBW0TR42  # Instruction TLB Translate registers Way 0
+    ITLBW0TR43  # Instruction TLB Translate registers Way 0
+    ITLBW0TR44  # Instruction TLB Translate registers Way 0
+    ITLBW0TR45  # Instruction TLB Translate registers Way 0
+    ITLBW0TR46  # Instruction TLB Translate registers Way 0
+    ITLBW0TR47  # Instruction TLB Translate registers Way 0
+    ITLBW0TR48  # Instruction TLB Translate registers Way 0
+    ITLBW0TR49  # Instruction TLB Translate registers Way 0
+    ITLBW0TR50  # Instruction TLB Translate registers Way 0
+    ITLBW0TR51  # Instruction TLB Translate registers Way 0
+    ITLBW0TR52  # Instruction TLB Translate registers Way 0
+    ITLBW0TR53  # Instruction TLB Translate registers Way 0
+    ITLBW0TR54  # Instruction TLB Translate registers Way 0
+    ITLBW0TR55  # Instruction TLB Translate registers Way 0
+    ITLBW0TR56  # Instruction TLB Translate registers Way 0
+    ITLBW0TR57  # Instruction TLB Translate registers Way 0
+    ITLBW0TR58  # Instruction TLB Translate registers Way 0
+    ITLBW0TR59  # Instruction TLB Translate registers Way 0
+    ITLBW0TR60  # Instruction TLB Translate registers Way 0
+    ITLBW0TR61  # Instruction TLB Translate registers Way 0
+    ITLBW0TR62  # Instruction TLB Translate registers Way 0
+    ITLBW0TR63  # Instruction TLB Translate registers Way 0
+    ITLBW0TR64  # Instruction TLB Translate registers Way 0
+    ITLBW0TR65  # Instruction TLB Translate registers Way 0
+    ITLBW0TR66  # Instruction TLB Translate registers Way 0
+    ITLBW0TR67  # Instruction TLB Translate registers Way 0
+    ITLBW0TR68  # Instruction TLB Translate registers Way 0
+    ITLBW0TR69  # Instruction TLB Translate registers Way 0
+    ITLBW0TR70  # Instruction TLB Translate registers Way 0
+    ITLBW0TR71  # Instruction TLB Translate registers Way 0
+    ITLBW0TR72  # Instruction TLB Translate registers Way 0
+    ITLBW0TR73  # Instruction TLB Translate registers Way 0
+    ITLBW0TR74  # Instruction TLB Translate registers Way 0
+    ITLBW0TR75  # Instruction TLB Translate registers Way 0
+    ITLBW0TR76  # Instruction TLB Translate registers Way 0
+    ITLBW0TR77  # Instruction TLB Translate registers Way 0
+    ITLBW0TR78  # Instruction TLB Translate registers Way 0
+    ITLBW0TR79  # Instruction TLB Translate registers Way 0
+    ITLBW0TR80  # Instruction TLB Translate registers Way 0
+    ITLBW0TR81  # Instruction TLB Translate registers Way 0
+    ITLBW0TR82  # Instruction TLB Translate registers Way 0
+    ITLBW0TR83  # Instruction TLB Translate registers Way 0
+    ITLBW0TR84  # Instruction TLB Translate registers Way 0
+    ITLBW0TR85  # Instruction TLB Translate registers Way 0
+    ITLBW0TR86  # Instruction TLB Translate registers Way 0
+    ITLBW0TR87  # Instruction TLB Translate registers Way 0
+    ITLBW0TR88  # Instruction TLB Translate registers Way 0
+    ITLBW0TR89  # Instruction TLB Translate registers Way 0
+    ITLBW0TR90  # Instruction TLB Translate registers Way 0
+    ITLBW0TR91  # Instruction TLB Translate registers Way 0
+    ITLBW0TR92  # Instruction TLB Translate registers Way 0
+    ITLBW0TR93  # Instruction TLB Translate registers Way 0
+    ITLBW0TR94  # Instruction TLB Translate registers Way 0
+    ITLBW0TR95  # Instruction TLB Translate registers Way 0
+    ITLBW0TR96  # Instruction TLB Translate registers Way 0
+    ITLBW0TR97  # Instruction TLB Translate registers Way 0
+    ITLBW0TR98  # Instruction TLB Translate registers Way 0
+    ITLBW0TR99  # Instruction TLB Translate registers Way 0
+    ITLBW0TR100 # Instruction TLB Translate registers Way 0
+    ITLBW0TR101 # Instruction TLB Translate registers Way 0
+    ITLBW0TR102 # Instruction TLB Translate registers Way 0
+    ITLBW0TR103 # Instruction TLB Translate registers Way 0
+    ITLBW0TR104 # Instruction TLB Translate registers Way 0
+    ITLBW0TR105 # Instruction TLB Translate registers Way 0
+    ITLBW0TR106 # Instruction TLB Translate registers Way 0
+    ITLBW0TR107 # Instruction TLB Translate registers Way 0
+    ITLBW0TR108 # Instruction TLB Translate registers Way 0
+    ITLBW0TR109 # Instruction TLB Translate registers Way 0
+    ITLBW0TR110 # Instruction TLB Translate registers Way 0
+    ITLBW0TR111 # Instruction TLB Translate registers Way 0
+    ITLBW0TR112 # Instruction TLB Translate registers Way 0
+    ITLBW0TR113 # Instruction TLB Translate registers Way 0
+    ITLBW0TR114 # Instruction TLB Translate registers Way 0
+    ITLBW0TR115 # Instruction TLB Translate registers Way 0
+    ITLBW0TR116 # Instruction TLB Translate registers Way 0
+    ITLBW0TR117 # Instruction TLB Translate registers Way 0
+    ITLBW0TR118 # Instruction TLB Translate registers Way 0
+    ITLBW0TR119 # Instruction TLB Translate registers Way 0
+    ITLBW0TR120 # Instruction TLB Translate registers Way 0
+    ITLBW0TR121 # Instruction TLB Translate registers Way 0
+    ITLBW0TR122 # Instruction TLB Translate registers Way 0
+    ITLBW0TR123 # Instruction TLB Translate registers Way 0
+    ITLBW0TR124 # Instruction TLB Translate registers Way 0
+    ITLBW0TR125 # Instruction TLB Translate registers Way 0
+    ITLBW0TR126 # Instruction TLB Translate registers Way 0
+    ITLBW0TR127 # Instruction TLB Translate registers Way 0
+    ITLBW1MR0   # Instruction TLB Match registers Way 1
+    ITLBW1MR1   # Instruction TLB Match registers Way 1
+    ITLBW1MR2   # Instruction TLB Match registers Way 1
+    ITLBW1MR3   # Instruction TLB Match registers Way 1
+    ITLBW1MR4   # Instruction TLB Match registers Way 1
+    ITLBW1MR5   # Instruction TLB Match registers Way 1
+    ITLBW1MR6   # Instruction TLB Match registers Way 1
+    ITLBW1MR7   # Instruction TLB Match registers Way 1
+    ITLBW1MR8   # Instruction TLB Match registers Way 1
+    ITLBW1MR9   # Instruction TLB Match registers Way 1
+    ITLBW1MR10  # Instruction TLB Match registers Way 1
+    ITLBW1MR11  # Instruction TLB Match registers Way 1
+    ITLBW1MR12  # Instruction TLB Match registers Way 1
+    ITLBW1MR13  # Instruction TLB Match registers Way 1
+    ITLBW1MR14  # Instruction TLB Match registers Way 1
+    ITLBW1MR15  # Instruction TLB Match registers Way 1
+    ITLBW1MR16  # Instruction TLB Match registers Way 1
+    ITLBW1MR17  # Instruction TLB Match registers Way 1
+    ITLBW1MR18  # Instruction TLB Match registers Way 1
+    ITLBW1MR19  # Instruction TLB Match registers Way 1
+    ITLBW1MR20  # Instruction TLB Match registers Way 1
+    ITLBW1MR21  # Instruction TLB Match registers Way 1
+    ITLBW1MR22  # Instruction TLB Match registers Way 1
+    ITLBW1MR23  # Instruction TLB Match registers Way 1
+    ITLBW1MR24  # Instruction TLB Match registers Way 1
+    ITLBW1MR25  # Instruction TLB Match registers Way 1
+    ITLBW1MR26  # Instruction TLB Match registers Way 1
+    ITLBW1MR27  # Instruction TLB Match registers Way 1
+    ITLBW1MR28  # Instruction TLB Match registers Way 1
+    ITLBW1MR29  # Instruction TLB Match registers Way 1
+    ITLBW1MR30  # Instruction TLB Match registers Way 1
+    ITLBW1MR31  # Instruction TLB Match registers Way 1
+    ITLBW1MR32  # Instruction TLB Match registers Way 1
+    ITLBW1MR33  # Instruction TLB Match registers Way 1
+    ITLBW1MR34  # Instruction TLB Match registers Way 1
+    ITLBW1MR35  # Instruction TLB Match registers Way 1
+    ITLBW1MR36  # Instruction TLB Match registers Way 1
+    ITLBW1MR37  # Instruction TLB Match registers Way 1
+    ITLBW1MR38  # Instruction TLB Match registers Way 1
+    ITLBW1MR39  # Instruction TLB Match registers Way 1
+    ITLBW1MR40  # Instruction TLB Match registers Way 1
+    ITLBW1MR41  # Instruction TLB Match registers Way 1
+    ITLBW1MR42  # Instruction TLB Match registers Way 1
+    ITLBW1MR43  # Instruction TLB Match registers Way 1
+    ITLBW1MR44  # Instruction TLB Match registers Way 1
+    ITLBW1MR45  # Instruction TLB Match registers Way 1
+    ITLBW1MR46  # Instruction TLB Match registers Way 1
+    ITLBW1MR47  # Instruction TLB Match registers Way 1
+    ITLBW1MR48  # Instruction TLB Match registers Way 1
+    ITLBW1MR49  # Instruction TLB Match registers Way 1
+    ITLBW1MR50  # Instruction TLB Match registers Way 1
+    ITLBW1MR51  # Instruction TLB Match registers Way 1
+    ITLBW1MR52  # Instruction TLB Match registers Way 1
+    ITLBW1MR53  # Instruction TLB Match registers Way 1
+    ITLBW1MR54  # Instruction TLB Match registers Way 1
+    ITLBW1MR55  # Instruction TLB Match registers Way 1
+    ITLBW1MR56  # Instruction TLB Match registers Way 1
+    ITLBW1MR57  # Instruction TLB Match registers Way 1
+    ITLBW1MR58  # Instruction TLB Match registers Way 1
+    ITLBW1MR59  # Instruction TLB Match registers Way 1
+    ITLBW1MR60  # Instruction TLB Match registers Way 1
+    ITLBW1MR61  # Instruction TLB Match registers Way 1
+    ITLBW1MR62  # Instruction TLB Match registers Way 1
+    ITLBW1MR63  # Instruction TLB Match registers Way 1
+    ITLBW1MR64  # Instruction TLB Match registers Way 1
+    ITLBW1MR65  # Instruction TLB Match registers Way 1
+    ITLBW1MR66  # Instruction TLB Match registers Way 1
+    ITLBW1MR67  # Instruction TLB Match registers Way 1
+    ITLBW1MR68  # Instruction TLB Match registers Way 1
+    ITLBW1MR69  # Instruction TLB Match registers Way 1
+    ITLBW1MR70  # Instruction TLB Match registers Way 1
+    ITLBW1MR71  # Instruction TLB Match registers Way 1
+    ITLBW1MR72  # Instruction TLB Match registers Way 1
+    ITLBW1MR73  # Instruction TLB Match registers Way 1
+    ITLBW1MR74  # Instruction TLB Match registers Way 1
+    ITLBW1MR75  # Instruction TLB Match registers Way 1
+    ITLBW1MR76  # Instruction TLB Match registers Way 1
+    ITLBW1MR77  # Instruction TLB Match registers Way 1
+    ITLBW1MR78  # Instruction TLB Match registers Way 1
+    ITLBW1MR79  # Instruction TLB Match registers Way 1
+    ITLBW1MR80  # Instruction TLB Match registers Way 1
+    ITLBW1MR81  # Instruction TLB Match registers Way 1
+    ITLBW1MR82  # Instruction TLB Match registers Way 1
+    ITLBW1MR83  # Instruction TLB Match registers Way 1
+    ITLBW1MR84  # Instruction TLB Match registers Way 1
+    ITLBW1MR85  # Instruction TLB Match registers Way 1
+    ITLBW1MR86  # Instruction TLB Match registers Way 1
+    ITLBW1MR87  # Instruction TLB Match registers Way 1
+    ITLBW1MR88  # Instruction TLB Match registers Way 1
+    ITLBW1MR89  # Instruction TLB Match registers Way 1
+    ITLBW1MR90  # Instruction TLB Match registers Way 1
+    ITLBW1MR91  # Instruction TLB Match registers Way 1
+    ITLBW1MR92  # Instruction TLB Match registers Way 1
+    ITLBW1MR93  # Instruction TLB Match registers Way 1
+    ITLBW1MR94  # Instruction TLB Match registers Way 1
+    ITLBW1MR95  # Instruction TLB Match registers Way 1
+    ITLBW1MR96  # Instruction TLB Match registers Way 1
+    ITLBW1MR97  # Instruction TLB Match registers Way 1
+    ITLBW1MR98  # Instruction TLB Match registers Way 1
+    ITLBW1MR99  # Instruction TLB Match registers Way 1
+    ITLBW1MR100 # Instruction TLB Match registers Way 1
+    ITLBW1MR101 # Instruction TLB Match registers Way 1
+    ITLBW1MR102 # Instruction TLB Match registers Way 1
+    ITLBW1MR103 # Instruction TLB Match registers Way 1
+    ITLBW1MR104 # Instruction TLB Match registers Way 1
+    ITLBW1MR105 # Instruction TLB Match registers Way 1
+    ITLBW1MR106 # Instruction TLB Match registers Way 1
+    ITLBW1MR107 # Instruction TLB Match registers Way 1
+    ITLBW1MR108 # Instruction TLB Match registers Way 1
+    ITLBW1MR109 # Instruction TLB Match registers Way 1
+    ITLBW1MR110 # Instruction TLB Match registers Way 1
+    ITLBW1MR111 # Instruction TLB Match registers Way 1
+    ITLBW1MR112 # Instruction TLB Match registers Way 1
+    ITLBW1MR113 # Instruction TLB Match registers Way 1
+    ITLBW1MR114 # Instruction TLB Match registers Way 1
+    ITLBW1MR115 # Instruction TLB Match registers Way 1
+    ITLBW1MR116 # Instruction TLB Match registers Way 1
+    ITLBW1MR117 # Instruction TLB Match registers Way 1
+    ITLBW1MR118 # Instruction TLB Match registers Way 1
+    ITLBW1MR119 # Instruction TLB Match registers Way 1
+    ITLBW1MR120 # Instruction TLB Match registers Way 1
+    ITLBW1MR121 # Instruction TLB Match registers Way 1
+    ITLBW1MR122 # Instruction TLB Match registers Way 1
+    ITLBW1MR123 # Instruction TLB Match registers Way 1
+    ITLBW1MR124 # Instruction TLB Match registers Way 1
+    ITLBW1MR125 # Instruction TLB Match registers Way 1
+    ITLBW1MR126 # Instruction TLB Match registers Way 1
+    ITLBW1MR127 # Instruction TLB Match registers Way 1
+    ITLBW1TR0   # Instruction TLB Translate registers Way 1
+    ITLBW1TR1   # Instruction TLB Translate registers Way 1
+    ITLBW1TR2   # Instruction TLB Translate registers Way 1
+    ITLBW1TR3   # Instruction TLB Translate registers Way 1
+    ITLBW1TR4   # Instruction TLB Translate registers Way 1
+    ITLBW1TR5   # Instruction TLB Translate registers Way 1
+    ITLBW1TR6   # Instruction TLB Translate registers Way 1
+    ITLBW1TR7   # Instruction TLB Translate registers Way 1
+    ITLBW1TR8   # Instruction TLB Translate registers Way 1
+    ITLBW1TR9   # Instruction TLB Translate registers Way 1
+    ITLBW1TR10  # Instruction TLB Translate registers Way 1
+    ITLBW1TR11  # Instruction TLB Translate registers Way 1
+    ITLBW1TR12  # Instruction TLB Translate registers Way 1
+    ITLBW1TR13  # Instruction TLB Translate registers Way 1
+    ITLBW1TR14  # Instruction TLB Translate registers Way 1
+    ITLBW1TR15  # Instruction TLB Translate registers Way 1
+    ITLBW1TR16  # Instruction TLB Translate registers Way 1
+    ITLBW1TR17  # Instruction TLB Translate registers Way 1
+    ITLBW1TR18  # Instruction TLB Translate registers Way 1
+    ITLBW1TR19  # Instruction TLB Translate registers Way 1
+    ITLBW1TR20  # Instruction TLB Translate registers Way 1
+    ITLBW1TR21  # Instruction TLB Translate registers Way 1
+    ITLBW1TR22  # Instruction TLB Translate registers Way 1
+    ITLBW1TR23  # Instruction TLB Translate registers Way 1
+    ITLBW1TR24  # Instruction TLB Translate registers Way 1
+    ITLBW1TR25  # Instruction TLB Translate registers Way 1
+    ITLBW1TR26  # Instruction TLB Translate registers Way 1
+    ITLBW1TR27  # Instruction TLB Translate registers Way 1
+    ITLBW1TR28  # Instruction TLB Translate registers Way 1
+    ITLBW1TR29  # Instruction TLB Translate registers Way 1
+    ITLBW1TR30  # Instruction TLB Translate registers Way 1
+    ITLBW1TR31  # Instruction TLB Translate registers Way 1
+    ITLBW1TR32  # Instruction TLB Translate registers Way 1
+    ITLBW1TR33  # Instruction TLB Translate registers Way 1
+    ITLBW1TR34  # Instruction TLB Translate registers Way 1
+    ITLBW1TR35  # Instruction TLB Translate registers Way 1
+    ITLBW1TR36  # Instruction TLB Translate registers Way 1
+    ITLBW1TR37  # Instruction TLB Translate registers Way 1
+    ITLBW1TR38  # Instruction TLB Translate registers Way 1
+    ITLBW1TR39  # Instruction TLB Translate registers Way 1
+    ITLBW1TR40  # Instruction TLB Translate registers Way 1
+    ITLBW1TR41  # Instruction TLB Translate registers Way 1
+    ITLBW1TR42  # Instruction TLB Translate registers Way 1
+    ITLBW1TR43  # Instruction TLB Translate registers Way 1
+    ITLBW1TR44  # Instruction TLB Translate registers Way 1
+    ITLBW1TR45  # Instruction TLB Translate registers Way 1
+    ITLBW1TR46  # Instruction TLB Translate registers Way 1
+    ITLBW1TR47  # Instruction TLB Translate registers Way 1
+    ITLBW1TR48  # Instruction TLB Translate registers Way 1
+    ITLBW1TR49  # Instruction TLB Translate registers Way 1
+    ITLBW1TR50  # Instruction TLB Translate registers Way 1
+    ITLBW1TR51  # Instruction TLB Translate registers Way 1
+    ITLBW1TR52  # Instruction TLB Translate registers Way 1
+    ITLBW1TR53  # Instruction TLB Translate registers Way 1
+    ITLBW1TR54  # Instruction TLB Translate registers Way 1
+    ITLBW1TR55  # Instruction TLB Translate registers Way 1
+    ITLBW1TR56  # Instruction TLB Translate registers Way 1
+    ITLBW1TR57  # Instruction TLB Translate registers Way 1
+    ITLBW1TR58  # Instruction TLB Translate registers Way 1
+    ITLBW1TR59  # Instruction TLB Translate registers Way 1
+    ITLBW1TR60  # Instruction TLB Translate registers Way 1
+    ITLBW1TR61  # Instruction TLB Translate registers Way 1
+    ITLBW1TR62  # Instruction TLB Translate registers Way 1
+    ITLBW1TR63  # Instruction TLB Translate registers Way 1
+    ITLBW1TR64  # Instruction TLB Translate registers Way 1
+    ITLBW1TR65  # Instruction TLB Translate registers Way 1
+    ITLBW1TR66  # Instruction TLB Translate registers Way 1
+    ITLBW1TR67  # Instruction TLB Translate registers Way 1
+    ITLBW1TR68  # Instruction TLB Translate registers Way 1
+    ITLBW1TR69  # Instruction TLB Translate registers Way 1
+    ITLBW1TR70  # Instruction TLB Translate registers Way 1
+    ITLBW1TR71  # Instruction TLB Translate registers Way 1
+    ITLBW1TR72  # Instruction TLB Translate registers Way 1
+    ITLBW1TR73  # Instruction TLB Translate registers Way 1
+    ITLBW1TR74  # Instruction TLB Translate registers Way 1
+    ITLBW1TR75  # Instruction TLB Translate registers Way 1
+    ITLBW1TR76  # Instruction TLB Translate registers Way 1
+    ITLBW1TR77  # Instruction TLB Translate registers Way 1
+    ITLBW1TR78  # Instruction TLB Translate registers Way 1
+    ITLBW1TR79  # Instruction TLB Translate registers Way 1
+    ITLBW1TR80  # Instruction TLB Translate registers Way 1
+    ITLBW1TR81  # Instruction TLB Translate registers Way 1
+    ITLBW1TR82  # Instruction TLB Translate registers Way 1
+    ITLBW1TR83  # Instruction TLB Translate registers Way 1
+    ITLBW1TR84  # Instruction TLB Translate registers Way 1
+    ITLBW1TR85  # Instruction TLB Translate registers Way 1
+    ITLBW1TR86  # Instruction TLB Translate registers Way 1
+    ITLBW1TR87  # Instruction TLB Translate registers Way 1
+    ITLBW1TR88  # Instruction TLB Translate registers Way 1
+    ITLBW1TR89  # Instruction TLB Translate registers Way 1
+    ITLBW1TR90  # Instruction TLB Translate registers Way 1
+    ITLBW1TR91  # Instruction TLB Translate registers Way 1
+    ITLBW1TR92  # Instruction TLB Translate registers Way 1
+    ITLBW1TR93  # Instruction TLB Translate registers Way 1
+    ITLBW1TR94  # Instruction TLB Translate registers Way 1
+    ITLBW1TR95  # Instruction TLB Translate registers Way 1
+    ITLBW1TR96  # Instruction TLB Translate registers Way 1
+    ITLBW1TR97  # Instruction TLB Translate registers Way 1
+    ITLBW1TR98  # Instruction TLB Translate registers Way 1
+    ITLBW1TR99  # Instruction TLB Translate registers Way 1
+    ITLBW1TR100 # Instruction TLB Translate registers Way 1
+    ITLBW1TR101 # Instruction TLB Translate registers Way 1
+    ITLBW1TR102 # Instruction TLB Translate registers Way 1
+    ITLBW1TR103 # Instruction TLB Translate registers Way 1
+    ITLBW1TR104 # Instruction TLB Translate registers Way 1
+    ITLBW1TR105 # Instruction TLB Translate registers Way 1
+    ITLBW1TR106 # Instruction TLB Translate registers Way 1
+    ITLBW1TR107 # Instruction TLB Translate registers Way 1
+    ITLBW1TR108 # Instruction TLB Translate registers Way 1
+    ITLBW1TR109 # Instruction TLB Translate registers Way 1
+    ITLBW1TR110 # Instruction TLB Translate registers Way 1
+    ITLBW1TR111 # Instruction TLB Translate registers Way 1
+    ITLBW1TR112 # Instruction TLB Translate registers Way 1
+    ITLBW1TR113 # Instruction TLB Translate registers Way 1
+    ITLBW1TR114 # Instruction TLB Translate registers Way 1
+    ITLBW1TR115 # Instruction TLB Translate registers Way 1
+    ITLBW1TR116 # Instruction TLB Translate registers Way 1
+    ITLBW1TR117 # Instruction TLB Translate registers Way 1
+    ITLBW1TR118 # Instruction TLB Translate registers Way 1
+    ITLBW1TR119 # Instruction TLB Translate registers Way 1
+    ITLBW1TR120 # Instruction TLB Translate registers Way 1
+    ITLBW1TR121 # Instruction TLB Translate registers Way 1
+    ITLBW1TR122 # Instruction TLB Translate registers Way 1
+    ITLBW1TR123 # Instruction TLB Translate registers Way 1
+    ITLBW1TR124 # Instruction TLB Translate registers Way 1
+    ITLBW1TR125 # Instruction TLB Translate registers Way 1
+    ITLBW1TR126 # Instruction TLB Translate registers Way 1
+    ITLBW1TR127 # Instruction TLB Translate registers Way 1
+    ITLBW2MR0   # Instruction TLB Match registers Way 2
+    ITLBW2MR1   # Instruction TLB Match registers Way 2
+    ITLBW2MR2   # Instruction TLB Match registers Way 2
+    ITLBW2MR3   # Instruction TLB Match registers Way 2
+    ITLBW2MR4   # Instruction TLB Match registers Way 2
+    ITLBW2MR5   # Instruction TLB Match registers Way 2
+    ITLBW2MR6   # Instruction TLB Match registers Way 2
+    ITLBW2MR7   # Instruction TLB Match registers Way 2
+    ITLBW2MR8   # Instruction TLB Match registers Way 2
+    ITLBW2MR9   # Instruction TLB Match registers Way 2
+    ITLBW2MR10  # Instruction TLB Match registers Way 2
+    ITLBW2MR11  # Instruction TLB Match registers Way 2
+    ITLBW2MR12  # Instruction TLB Match registers Way 2
+    ITLBW2MR13  # Instruction TLB Match registers Way 2
+    ITLBW2MR14  # Instruction TLB Match registers Way 2
+    ITLBW2MR15  # Instruction TLB Match registers Way 2
+    ITLBW2MR16  # Instruction TLB Match registers Way 2
+    ITLBW2MR17  # Instruction TLB Match registers Way 2
+    ITLBW2MR18  # Instruction TLB Match registers Way 2
+    ITLBW2MR19  # Instruction TLB Match registers Way 2
+    ITLBW2MR20  # Instruction TLB Match registers Way 2
+    ITLBW2MR21  # Instruction TLB Match registers Way 2
+    ITLBW2MR22  # Instruction TLB Match registers Way 2
+    ITLBW2MR23  # Instruction TLB Match registers Way 2
+    ITLBW2MR24  # Instruction TLB Match registers Way 2
+    ITLBW2MR25  # Instruction TLB Match registers Way 2
+    ITLBW2MR26  # Instruction TLB Match registers Way 2
+    ITLBW2MR27  # Instruction TLB Match registers Way 2
+    ITLBW2MR28  # Instruction TLB Match registers Way 2
+    ITLBW2MR29  # Instruction TLB Match registers Way 2
+    ITLBW2MR30  # Instruction TLB Match registers Way 2
+    ITLBW2MR31  # Instruction TLB Match registers Way 2
+    ITLBW2MR32  # Instruction TLB Match registers Way 2
+    ITLBW2MR33  # Instruction TLB Match registers Way 2
+    ITLBW2MR34  # Instruction TLB Match registers Way 2
+    ITLBW2MR35  # Instruction TLB Match registers Way 2
+    ITLBW2MR36  # Instruction TLB Match registers Way 2
+    ITLBW2MR37  # Instruction TLB Match registers Way 2
+    ITLBW2MR38  # Instruction TLB Match registers Way 2
+    ITLBW2MR39  # Instruction TLB Match registers Way 2
+    ITLBW2MR40  # Instruction TLB Match registers Way 2
+    ITLBW2MR41  # Instruction TLB Match registers Way 2
+    ITLBW2MR42  # Instruction TLB Match registers Way 2
+    ITLBW2MR43  # Instruction TLB Match registers Way 2
+    ITLBW2MR44  # Instruction TLB Match registers Way 2
+    ITLBW2MR45  # Instruction TLB Match registers Way 2
+    ITLBW2MR46  # Instruction TLB Match registers Way 2
+    ITLBW2MR47  # Instruction TLB Match registers Way 2
+    ITLBW2MR48  # Instruction TLB Match registers Way 2
+    ITLBW2MR49  # Instruction TLB Match registers Way 2
+    ITLBW2MR50  # Instruction TLB Match registers Way 2
+    ITLBW2MR51  # Instruction TLB Match registers Way 2
+    ITLBW2MR52  # Instruction TLB Match registers Way 2
+    ITLBW2MR53  # Instruction TLB Match registers Way 2
+    ITLBW2MR54  # Instruction TLB Match registers Way 2
+    ITLBW2MR55  # Instruction TLB Match registers Way 2
+    ITLBW2MR56  # Instruction TLB Match registers Way 2
+    ITLBW2MR57  # Instruction TLB Match registers Way 2
+    ITLBW2MR58  # Instruction TLB Match registers Way 2
+    ITLBW2MR59  # Instruction TLB Match registers Way 2
+    ITLBW2MR60  # Instruction TLB Match registers Way 2
+    ITLBW2MR61  # Instruction TLB Match registers Way 2
+    ITLBW2MR62  # Instruction TLB Match registers Way 2
+    ITLBW2MR63  # Instruction TLB Match registers Way 2
+    ITLBW2MR64  # Instruction TLB Match registers Way 2
+    ITLBW2MR65  # Instruction TLB Match registers Way 2
+    ITLBW2MR66  # Instruction TLB Match registers Way 2
+    ITLBW2MR67  # Instruction TLB Match registers Way 2
+    ITLBW2MR68  # Instruction TLB Match registers Way 2
+    ITLBW2MR69  # Instruction TLB Match registers Way 2
+    ITLBW2MR70  # Instruction TLB Match registers Way 2
+    ITLBW2MR71  # Instruction TLB Match registers Way 2
+    ITLBW2MR72  # Instruction TLB Match registers Way 2
+    ITLBW2MR73  # Instruction TLB Match registers Way 2
+    ITLBW2MR74  # Instruction TLB Match registers Way 2
+    ITLBW2MR75  # Instruction TLB Match registers Way 2
+    ITLBW2MR76  # Instruction TLB Match registers Way 2
+    ITLBW2MR77  # Instruction TLB Match registers Way 2
+    ITLBW2MR78  # Instruction TLB Match registers Way 2
+    ITLBW2MR79  # Instruction TLB Match registers Way 2
+    ITLBW2MR80  # Instruction TLB Match registers Way 2
+    ITLBW2MR81  # Instruction TLB Match registers Way 2
+    ITLBW2MR82  # Instruction TLB Match registers Way 2
+    ITLBW2MR83  # Instruction TLB Match registers Way 2
+    ITLBW2MR84  # Instruction TLB Match registers Way 2
+    ITLBW2MR85  # Instruction TLB Match registers Way 2
+    ITLBW2MR86  # Instruction TLB Match registers Way 2
+    ITLBW2MR87  # Instruction TLB Match registers Way 2
+    ITLBW2MR88  # Instruction TLB Match registers Way 2
+    ITLBW2MR89  # Instruction TLB Match registers Way 2
+    ITLBW2MR90  # Instruction TLB Match registers Way 2
+    ITLBW2MR91  # Instruction TLB Match registers Way 2
+    ITLBW2MR92  # Instruction TLB Match registers Way 2
+    ITLBW2MR93  # Instruction TLB Match registers Way 2
+    ITLBW2MR94  # Instruction TLB Match registers Way 2
+    ITLBW2MR95  # Instruction TLB Match registers Way 2
+    ITLBW2MR96  # Instruction TLB Match registers Way 2
+    ITLBW2MR97  # Instruction TLB Match registers Way 2
+    ITLBW2MR98  # Instruction TLB Match registers Way 2
+    ITLBW2MR99  # Instruction TLB Match registers Way 2
+    ITLBW2MR100 # Instruction TLB Match registers Way 2
+    ITLBW2MR101 # Instruction TLB Match registers Way 2
+    ITLBW2MR102 # Instruction TLB Match registers Way 2
+    ITLBW2MR103 # Instruction TLB Match registers Way 2
+    ITLBW2MR104 # Instruction TLB Match registers Way 2
+    ITLBW2MR105 # Instruction TLB Match registers Way 2
+    ITLBW2MR106 # Instruction TLB Match registers Way 2
+    ITLBW2MR107 # Instruction TLB Match registers Way 2
+    ITLBW2MR108 # Instruction TLB Match registers Way 2
+    ITLBW2MR109 # Instruction TLB Match registers Way 2
+    ITLBW2MR110 # Instruction TLB Match registers Way 2
+    ITLBW2MR111 # Instruction TLB Match registers Way 2
+    ITLBW2MR112 # Instruction TLB Match registers Way 2
+    ITLBW2MR113 # Instruction TLB Match registers Way 2
+    ITLBW2MR114 # Instruction TLB Match registers Way 2
+    ITLBW2MR115 # Instruction TLB Match registers Way 2
+    ITLBW2MR116 # Instruction TLB Match registers Way 2
+    ITLBW2MR117 # Instruction TLB Match registers Way 2
+    ITLBW2MR118 # Instruction TLB Match registers Way 2
+    ITLBW2MR119 # Instruction TLB Match registers Way 2
+    ITLBW2MR120 # Instruction TLB Match registers Way 2
+    ITLBW2MR121 # Instruction TLB Match registers Way 2
+    ITLBW2MR122 # Instruction TLB Match registers Way 2
+    ITLBW2MR123 # Instruction TLB Match registers Way 2
+    ITLBW2MR124 # Instruction TLB Match registers Way 2
+    ITLBW2MR125 # Instruction TLB Match registers Way 2
+    ITLBW2MR126 # Instruction TLB Match registers Way 2
+    ITLBW2MR127 # Instruction TLB Match registers Way 2
+    ITLBW2TR0   # Instruction TLB Translate registers Way 2
+    ITLBW2TR1   # Instruction TLB Translate registers Way 2
+    ITLBW2TR2   # Instruction TLB Translate registers Way 2
+    ITLBW2TR3   # Instruction TLB Translate registers Way 2
+    ITLBW2TR4   # Instruction TLB Translate registers Way 2
+    ITLBW2TR5   # Instruction TLB Translate registers Way 2
+    ITLBW2TR6   # Instruction TLB Translate registers Way 2
+    ITLBW2TR7   # Instruction TLB Translate registers Way 2
+    ITLBW2TR8   # Instruction TLB Translate registers Way 2
+    ITLBW2TR9   # Instruction TLB Translate registers Way 2
+    ITLBW2TR10  # Instruction TLB Translate registers Way 2
+    ITLBW2TR11  # Instruction TLB Translate registers Way 2
+    ITLBW2TR12  # Instruction TLB Translate registers Way 2
+    ITLBW2TR13  # Instruction TLB Translate registers Way 2
+    ITLBW2TR14  # Instruction TLB Translate registers Way 2
+    ITLBW2TR15  # Instruction TLB Translate registers Way 2
+    ITLBW2TR16  # Instruction TLB Translate registers Way 2
+    ITLBW2TR17  # Instruction TLB Translate registers Way 2
+    ITLBW2TR18  # Instruction TLB Translate registers Way 2
+    ITLBW2TR19  # Instruction TLB Translate registers Way 2
+    ITLBW2TR20  # Instruction TLB Translate registers Way 2
+    ITLBW2TR21  # Instruction TLB Translate registers Way 2
+    ITLBW2TR22  # Instruction TLB Translate registers Way 2
+    ITLBW2TR23  # Instruction TLB Translate registers Way 2
+    ITLBW2TR24  # Instruction TLB Translate registers Way 2
+    ITLBW2TR25  # Instruction TLB Translate registers Way 2
+    ITLBW2TR26  # Instruction TLB Translate registers Way 2
+    ITLBW2TR27  # Instruction TLB Translate registers Way 2
+    ITLBW2TR28  # Instruction TLB Translate registers Way 2
+    ITLBW2TR29  # Instruction TLB Translate registers Way 2
+    ITLBW2TR30  # Instruction TLB Translate registers Way 2
+    ITLBW2TR31  # Instruction TLB Translate registers Way 2
+    ITLBW2TR32  # Instruction TLB Translate registers Way 2
+    ITLBW2TR33  # Instruction TLB Translate registers Way 2
+    ITLBW2TR34  # Instruction TLB Translate registers Way 2
+    ITLBW2TR35  # Instruction TLB Translate registers Way 2
+    ITLBW2TR36  # Instruction TLB Translate registers Way 2
+    ITLBW2TR37  # Instruction TLB Translate registers Way 2
+    ITLBW2TR38  # Instruction TLB Translate registers Way 2
+    ITLBW2TR39  # Instruction TLB Translate registers Way 2
+    ITLBW2TR40  # Instruction TLB Translate registers Way 2
+    ITLBW2TR41  # Instruction TLB Translate registers Way 2
+    ITLBW2TR42  # Instruction TLB Translate registers Way 2
+    ITLBW2TR43  # Instruction TLB Translate registers Way 2
+    ITLBW2TR44  # Instruction TLB Translate registers Way 2
+    ITLBW2TR45  # Instruction TLB Translate registers Way 2
+    ITLBW2TR46  # Instruction TLB Translate registers Way 2
+    ITLBW2TR47  # Instruction TLB Translate registers Way 2
+    ITLBW2TR48  # Instruction TLB Translate registers Way 2
+    ITLBW2TR49  # Instruction TLB Translate registers Way 2
+    ITLBW2TR50  # Instruction TLB Translate registers Way 2
+    ITLBW2TR51  # Instruction TLB Translate registers Way 2
+    ITLBW2TR52  # Instruction TLB Translate registers Way 2
+    ITLBW2TR53  # Instruction TLB Translate registers Way 2
+    ITLBW2TR54  # Instruction TLB Translate registers Way 2
+    ITLBW2TR55  # Instruction TLB Translate registers Way 2
+    ITLBW2TR56  # Instruction TLB Translate registers Way 2
+    ITLBW2TR57  # Instruction TLB Translate registers Way 2
+    ITLBW2TR58  # Instruction TLB Translate registers Way 2
+    ITLBW2TR59  # Instruction TLB Translate registers Way 2
+    ITLBW2TR60  # Instruction TLB Translate registers Way 2
+    ITLBW2TR61  # Instruction TLB Translate registers Way 2
+    ITLBW2TR62  # Instruction TLB Translate registers Way 2
+    ITLBW2TR63  # Instruction TLB Translate registers Way 2
+    ITLBW2TR64  # Instruction TLB Translate registers Way 2
+    ITLBW2TR65  # Instruction TLB Translate registers Way 2
+    ITLBW2TR66  # Instruction TLB Translate registers Way 2
+    ITLBW2TR67  # Instruction TLB Translate registers Way 2
+    ITLBW2TR68  # Instruction TLB Translate registers Way 2
+    ITLBW2TR69  # Instruction TLB Translate registers Way 2
+    ITLBW2TR70  # Instruction TLB Translate registers Way 2
+    ITLBW2TR71  # Instruction TLB Translate registers Way 2
+    ITLBW2TR72  # Instruction TLB Translate registers Way 2
+    ITLBW2TR73  # Instruction TLB Translate registers Way 2
+    ITLBW2TR74  # Instruction TLB Translate registers Way 2
+    ITLBW2TR75  # Instruction TLB Translate registers Way 2
+    ITLBW2TR76  # Instruction TLB Translate registers Way 2
+    ITLBW2TR77  # Instruction TLB Translate registers Way 2
+    ITLBW2TR78  # Instruction TLB Translate registers Way 2
+    ITLBW2TR79  # Instruction TLB Translate registers Way 2
+    ITLBW2TR80  # Instruction TLB Translate registers Way 2
+    ITLBW2TR81  # Instruction TLB Translate registers Way 2
+    ITLBW2TR82  # Instruction TLB Translate registers Way 2
+    ITLBW2TR83  # Instruction TLB Translate registers Way 2
+    ITLBW2TR84  # Instruction TLB Translate registers Way 2
+    ITLBW2TR85  # Instruction TLB Translate registers Way 2
+    ITLBW2TR86  # Instruction TLB Translate registers Way 2
+    ITLBW2TR87  # Instruction TLB Translate registers Way 2
+    ITLBW2TR88  # Instruction TLB Translate registers Way 2
+    ITLBW2TR89  # Instruction TLB Translate registers Way 2
+    ITLBW2TR90  # Instruction TLB Translate registers Way 2
+    ITLBW2TR91  # Instruction TLB Translate registers Way 2
+    ITLBW2TR92  # Instruction TLB Translate registers Way 2
+    ITLBW2TR93  # Instruction TLB Translate registers Way 2
+    ITLBW2TR94  # Instruction TLB Translate registers Way 2
+    ITLBW2TR95  # Instruction TLB Translate registers Way 2
+    ITLBW2TR96  # Instruction TLB Translate registers Way 2
+    ITLBW2TR97  # Instruction TLB Translate registers Way 2
+    ITLBW2TR98  # Instruction TLB Translate registers Way 2
+    ITLBW2TR99  # Instruction TLB Translate registers Way 2
+    ITLBW2TR100 # Instruction TLB Translate registers Way 2
+    ITLBW2TR101 # Instruction TLB Translate registers Way 2
+    ITLBW2TR102 # Instruction TLB Translate registers Way 2
+    ITLBW2TR103 # Instruction TLB Translate registers Way 2
+    ITLBW2TR104 # Instruction TLB Translate registers Way 2
+    ITLBW2TR105 # Instruction TLB Translate registers Way 2
+    ITLBW2TR106 # Instruction TLB Translate registers Way 2
+    ITLBW2TR107 # Instruction TLB Translate registers Way 2
+    ITLBW2TR108 # Instruction TLB Translate registers Way 2
+    ITLBW2TR109 # Instruction TLB Translate registers Way 2
+    ITLBW2TR110 # Instruction TLB Translate registers Way 2
+    ITLBW2TR111 # Instruction TLB Translate registers Way 2
+    ITLBW2TR112 # Instruction TLB Translate registers Way 2
+    ITLBW2TR113 # Instruction TLB Translate registers Way 2
+    ITLBW2TR114 # Instruction TLB Translate registers Way 2
+    ITLBW2TR115 # Instruction TLB Translate registers Way 2
+    ITLBW2TR116 # Instruction TLB Translate registers Way 2
+    ITLBW2TR117 # Instruction TLB Translate registers Way 2
+    ITLBW2TR118 # Instruction TLB Translate registers Way 2
+    ITLBW2TR119 # Instruction TLB Translate registers Way 2
+    ITLBW2TR120 # Instruction TLB Translate registers Way 2
+    ITLBW2TR121 # Instruction TLB Translate registers Way 2
+    ITLBW2TR122 # Instruction TLB Translate registers Way 2
+    ITLBW2TR123 # Instruction TLB Translate registers Way 2
+    ITLBW2TR124 # Instruction TLB Translate registers Way 2
+    ITLBW2TR125 # Instruction TLB Translate registers Way 2
+    ITLBW2TR126 # Instruction TLB Translate registers Way 2
+    ITLBW2TR127 # Instruction TLB Translate registers Way 2
+    ITLBW3MR0   # Instruction TLB Match registers Way 3
+    ITLBW3MR1   # Instruction TLB Match registers Way 3
+    ITLBW3MR2   # Instruction TLB Match registers Way 3
+    ITLBW3MR3   # Instruction TLB Match registers Way 3
+    ITLBW3MR4   # Instruction TLB Match registers Way 3
+    ITLBW3MR5   # Instruction TLB Match registers Way 3
+    ITLBW3MR6   # Instruction TLB Match registers Way 3
+    ITLBW3MR7   # Instruction TLB Match registers Way 3
+    ITLBW3MR8   # Instruction TLB Match registers Way 3
+    ITLBW3MR9   # Instruction TLB Match registers Way 3
+    ITLBW3MR10  # Instruction TLB Match registers Way 3
+    ITLBW3MR11  # Instruction TLB Match registers Way 3
+    ITLBW3MR12  # Instruction TLB Match registers Way 3
+    ITLBW3MR13  # Instruction TLB Match registers Way 3
+    ITLBW3MR14  # Instruction TLB Match registers Way 3
+    ITLBW3MR15  # Instruction TLB Match registers Way 3
+    ITLBW3MR16  # Instruction TLB Match registers Way 3
+    ITLBW3MR17  # Instruction TLB Match registers Way 3
+    ITLBW3MR18  # Instruction TLB Match registers Way 3
+    ITLBW3MR19  # Instruction TLB Match registers Way 3
+    ITLBW3MR20  # Instruction TLB Match registers Way 3
+    ITLBW3MR21  # Instruction TLB Match registers Way 3
+    ITLBW3MR22  # Instruction TLB Match registers Way 3
+    ITLBW3MR23  # Instruction TLB Match registers Way 3
+    ITLBW3MR24  # Instruction TLB Match registers Way 3
+    ITLBW3MR25  # Instruction TLB Match registers Way 3
+    ITLBW3MR26  # Instruction TLB Match registers Way 3
+    ITLBW3MR27  # Instruction TLB Match registers Way 3
+    ITLBW3MR28  # Instruction TLB Match registers Way 3
+    ITLBW3MR29  # Instruction TLB Match registers Way 3
+    ITLBW3MR30  # Instruction TLB Match registers Way 3
+    ITLBW3MR31  # Instruction TLB Match registers Way 3
+    ITLBW3MR32  # Instruction TLB Match registers Way 3
+    ITLBW3MR33  # Instruction TLB Match registers Way 3
+    ITLBW3MR34  # Instruction TLB Match registers Way 3
+    ITLBW3MR35  # Instruction TLB Match registers Way 3
+    ITLBW3MR36  # Instruction TLB Match registers Way 3
+    ITLBW3MR37  # Instruction TLB Match registers Way 3
+    ITLBW3MR38  # Instruction TLB Match registers Way 3
+    ITLBW3MR39  # Instruction TLB Match registers Way 3
+    ITLBW3MR40  # Instruction TLB Match registers Way 3
+    ITLBW3MR41  # Instruction TLB Match registers Way 3
+    ITLBW3MR42  # Instruction TLB Match registers Way 3
+    ITLBW3MR43  # Instruction TLB Match registers Way 3
+    ITLBW3MR44  # Instruction TLB Match registers Way 3
+    ITLBW3MR45  # Instruction TLB Match registers Way 3
+    ITLBW3MR46  # Instruction TLB Match registers Way 3
+    ITLBW3MR47  # Instruction TLB Match registers Way 3
+    ITLBW3MR48  # Instruction TLB Match registers Way 3
+    ITLBW3MR49  # Instruction TLB Match registers Way 3
+    ITLBW3MR50  # Instruction TLB Match registers Way 3
+    ITLBW3MR51  # Instruction TLB Match registers Way 3
+    ITLBW3MR52  # Instruction TLB Match registers Way 3
+    ITLBW3MR53  # Instruction TLB Match registers Way 3
+    ITLBW3MR54  # Instruction TLB Match registers Way 3
+    ITLBW3MR55  # Instruction TLB Match registers Way 3
+    ITLBW3MR56  # Instruction TLB Match registers Way 3
+    ITLBW3MR57  # Instruction TLB Match registers Way 3
+    ITLBW3MR58  # Instruction TLB Match registers Way 3
+    ITLBW3MR59  # Instruction TLB Match registers Way 3
+    ITLBW3MR60  # Instruction TLB Match registers Way 3
+    ITLBW3MR61  # Instruction TLB Match registers Way 3
+    ITLBW3MR62  # Instruction TLB Match registers Way 3
+    ITLBW3MR63  # Instruction TLB Match registers Way 3
+    ITLBW3MR64  # Instruction TLB Match registers Way 3
+    ITLBW3MR65  # Instruction TLB Match registers Way 3
+    ITLBW3MR66  # Instruction TLB Match registers Way 3
+    ITLBW3MR67  # Instruction TLB Match registers Way 3
+    ITLBW3MR68  # Instruction TLB Match registers Way 3
+    ITLBW3MR69  # Instruction TLB Match registers Way 3
+    ITLBW3MR70  # Instruction TLB Match registers Way 3
+    ITLBW3MR71  # Instruction TLB Match registers Way 3
+    ITLBW3MR72  # Instruction TLB Match registers Way 3
+    ITLBW3MR73  # Instruction TLB Match registers Way 3
+    ITLBW3MR74  # Instruction TLB Match registers Way 3
+    ITLBW3MR75  # Instruction TLB Match registers Way 3
+    ITLBW3MR76  # Instruction TLB Match registers Way 3
+    ITLBW3MR77  # Instruction TLB Match registers Way 3
+    ITLBW3MR78  # Instruction TLB Match registers Way 3
+    ITLBW3MR79  # Instruction TLB Match registers Way 3
+    ITLBW3MR80  # Instruction TLB Match registers Way 3
+    ITLBW3MR81  # Instruction TLB Match registers Way 3
+    ITLBW3MR82  # Instruction TLB Match registers Way 3
+    ITLBW3MR83  # Instruction TLB Match registers Way 3
+    ITLBW3MR84  # Instruction TLB Match registers Way 3
+    ITLBW3MR85  # Instruction TLB Match registers Way 3
+    ITLBW3MR86  # Instruction TLB Match registers Way 3
+    ITLBW3MR87  # Instruction TLB Match registers Way 3
+    ITLBW3MR88  # Instruction TLB Match registers Way 3
+    ITLBW3MR89  # Instruction TLB Match registers Way 3
+    ITLBW3MR90  # Instruction TLB Match registers Way 3
+    ITLBW3MR91  # Instruction TLB Match registers Way 3
+    ITLBW3MR92  # Instruction TLB Match registers Way 3
+    ITLBW3MR93  # Instruction TLB Match registers Way 3
+    ITLBW3MR94  # Instruction TLB Match registers Way 3
+    ITLBW3MR95  # Instruction TLB Match registers Way 3
+    ITLBW3MR96  # Instruction TLB Match registers Way 3
+    ITLBW3MR97  # Instruction TLB Match registers Way 3
+    ITLBW3MR98  # Instruction TLB Match registers Way 3
+    ITLBW3MR99  # Instruction TLB Match registers Way 3
+    ITLBW3MR100 # Instruction TLB Match registers Way 3
+    ITLBW3MR101 # Instruction TLB Match registers Way 3
+    ITLBW3MR102 # Instruction TLB Match registers Way 3
+    ITLBW3MR103 # Instruction TLB Match registers Way 3
+    ITLBW3MR104 # Instruction TLB Match registers Way 3
+    ITLBW3MR105 # Instruction TLB Match registers Way 3
+    ITLBW3MR106 # Instruction TLB Match registers Way 3
+    ITLBW3MR107 # Instruction TLB Match registers Way 3
+    ITLBW3MR108 # Instruction TLB Match registers Way 3
+    ITLBW3MR109 # Instruction TLB Match registers Way 3
+    ITLBW3MR110 # Instruction TLB Match registers Way 3
+    ITLBW3MR111 # Instruction TLB Match registers Way 3
+    ITLBW3MR112 # Instruction TLB Match registers Way 3
+    ITLBW3MR113 # Instruction TLB Match registers Way 3
+    ITLBW3MR114 # Instruction TLB Match registers Way 3
+    ITLBW3MR115 # Instruction TLB Match registers Way 3
+    ITLBW3MR116 # Instruction TLB Match registers Way 3
+    ITLBW3MR117 # Instruction TLB Match registers Way 3
+    ITLBW3MR118 # Instruction TLB Match registers Way 3
+    ITLBW3MR119 # Instruction TLB Match registers Way 3
+    ITLBW3MR120 # Instruction TLB Match registers Way 3
+    ITLBW3MR121 # Instruction TLB Match registers Way 3
+    ITLBW3MR122 # Instruction TLB Match registers Way 3
+    ITLBW3MR123 # Instruction TLB Match registers Way 3
+    ITLBW3MR124 # Instruction TLB Match registers Way 3
+    ITLBW3MR125 # Instruction TLB Match registers Way 3
+    ITLBW3MR126 # Instruction TLB Match registers Way 3
+    ITLBW3MR127 # Instruction TLB Match registers Way 3
+    ITLBW3TR0   # Instruction TLB Translate registers Way 3
+    ITLBW3TR1   # Instruction TLB Translate registers Way 3
+    ITLBW3TR2   # Instruction TLB Translate registers Way 3
+    ITLBW3TR3   # Instruction TLB Translate registers Way 3
+    ITLBW3TR4   # Instruction TLB Translate registers Way 3
+    ITLBW3TR5   # Instruction TLB Translate registers Way 3
+    ITLBW3TR6   # Instruction TLB Translate registers Way 3
+    ITLBW3TR7   # Instruction TLB Translate registers Way 3
+    ITLBW3TR8   # Instruction TLB Translate registers Way 3
+    ITLBW3TR9   # Instruction TLB Translate registers Way 3
+    ITLBW3TR10  # Instruction TLB Translate registers Way 3
+    ITLBW3TR11  # Instruction TLB Translate registers Way 3
+    ITLBW3TR12  # Instruction TLB Translate registers Way 3
+    ITLBW3TR13  # Instruction TLB Translate registers Way 3
+    ITLBW3TR14  # Instruction TLB Translate registers Way 3
+    ITLBW3TR15  # Instruction TLB Translate registers Way 3
+    ITLBW3TR16  # Instruction TLB Translate registers Way 3
+    ITLBW3TR17  # Instruction TLB Translate registers Way 3
+    ITLBW3TR18  # Instruction TLB Translate registers Way 3
+    ITLBW3TR19  # Instruction TLB Translate registers Way 3
+    ITLBW3TR20  # Instruction TLB Translate registers Way 3
+    ITLBW3TR21  # Instruction TLB Translate registers Way 3
+    ITLBW3TR22  # Instruction TLB Translate registers Way 3
+    ITLBW3TR23  # Instruction TLB Translate registers Way 3
+    ITLBW3TR24  # Instruction TLB Translate registers Way 3
+    ITLBW3TR25  # Instruction TLB Translate registers Way 3
+    ITLBW3TR26  # Instruction TLB Translate registers Way 3
+    ITLBW3TR27  # Instruction TLB Translate registers Way 3
+    ITLBW3TR28  # Instruction TLB Translate registers Way 3
+    ITLBW3TR29  # Instruction TLB Translate registers Way 3
+    ITLBW3TR30  # Instruction TLB Translate registers Way 3
+    ITLBW3TR31  # Instruction TLB Translate registers Way 3
+    ITLBW3TR32  # Instruction TLB Translate registers Way 3
+    ITLBW3TR33  # Instruction TLB Translate registers Way 3
+    ITLBW3TR34  # Instruction TLB Translate registers Way 3
+    ITLBW3TR35  # Instruction TLB Translate registers Way 3
+    ITLBW3TR36  # Instruction TLB Translate registers Way 3
+    ITLBW3TR37  # Instruction TLB Translate registers Way 3
+    ITLBW3TR38  # Instruction TLB Translate registers Way 3
+    ITLBW3TR39  # Instruction TLB Translate registers Way 3
+    ITLBW3TR40  # Instruction TLB Translate registers Way 3
+    ITLBW3TR41  # Instruction TLB Translate registers Way 3
+    ITLBW3TR42  # Instruction TLB Translate registers Way 3
+    ITLBW3TR43  # Instruction TLB Translate registers Way 3
+    ITLBW3TR44  # Instruction TLB Translate registers Way 3
+    ITLBW3TR45  # Instruction TLB Translate registers Way 3
+    ITLBW3TR46  # Instruction TLB Translate registers Way 3
+    ITLBW3TR47  # Instruction TLB Translate registers Way 3
+    ITLBW3TR48  # Instruction TLB Translate registers Way 3
+    ITLBW3TR49  # Instruction TLB Translate registers Way 3
+    ITLBW3TR50  # Instruction TLB Translate registers Way 3
+    ITLBW3TR51  # Instruction TLB Translate registers Way 3
+    ITLBW3TR52  # Instruction TLB Translate registers Way 3
+    ITLBW3TR53  # Instruction TLB Translate registers Way 3
+    ITLBW3TR54  # Instruction TLB Translate registers Way 3
+    ITLBW3TR55  # Instruction TLB Translate registers Way 3
+    ITLBW3TR56  # Instruction TLB Translate registers Way 3
+    ITLBW3TR57  # Instruction TLB Translate registers Way 3
+    ITLBW3TR58  # Instruction TLB Translate registers Way 3
+    ITLBW3TR59  # Instruction TLB Translate registers Way 3
+    ITLBW3TR60  # Instruction TLB Translate registers Way 3
+    ITLBW3TR61  # Instruction TLB Translate registers Way 3
+    ITLBW3TR62  # Instruction TLB Translate registers Way 3
+    ITLBW3TR63  # Instruction TLB Translate registers Way 3
+    ITLBW3TR64  # Instruction TLB Translate registers Way 3
+    ITLBW3TR65  # Instruction TLB Translate registers Way 3
+    ITLBW3TR66  # Instruction TLB Translate registers Way 3
+    ITLBW3TR67  # Instruction TLB Translate registers Way 3
+    ITLBW3TR68  # Instruction TLB Translate registers Way 3
+    ITLBW3TR69  # Instruction TLB Translate registers Way 3
+    ITLBW3TR70  # Instruction TLB Translate registers Way 3
+    ITLBW3TR71  # Instruction TLB Translate registers Way 3
+    ITLBW3TR72  # Instruction TLB Translate registers Way 3
+    ITLBW3TR73  # Instruction TLB Translate registers Way 3
+    ITLBW3TR74  # Instruction TLB Translate registers Way 3
+    ITLBW3TR75  # Instruction TLB Translate registers Way 3
+    ITLBW3TR76  # Instruction TLB Translate registers Way 3
+    ITLBW3TR77  # Instruction TLB Translate registers Way 3
+    ITLBW3TR78  # Instruction TLB Translate registers Way 3
+    ITLBW3TR79  # Instruction TLB Translate registers Way 3
+    ITLBW3TR80  # Instruction TLB Translate registers Way 3
+    ITLBW3TR81  # Instruction TLB Translate registers Way 3
+    ITLBW3TR82  # Instruction TLB Translate registers Way 3
+    ITLBW3TR83  # Instruction TLB Translate registers Way 3
+    ITLBW3TR84  # Instruction TLB Translate registers Way 3
+    ITLBW3TR85  # Instruction TLB Translate registers Way 3
+    ITLBW3TR86  # Instruction TLB Translate registers Way 3
+    ITLBW3TR87  # Instruction TLB Translate registers Way 3
+    ITLBW3TR88  # Instruction TLB Translate registers Way 3
+    ITLBW3TR89  # Instruction TLB Translate registers Way 3
+    ITLBW3TR90  # Instruction TLB Translate registers Way 3
+    ITLBW3TR91  # Instruction TLB Translate registers Way 3
+    ITLBW3TR92  # Instruction TLB Translate registers Way 3
+    ITLBW3TR93  # Instruction TLB Translate registers Way 3
+    ITLBW3TR94  # Instruction TLB Translate registers Way 3
+    ITLBW3TR95  # Instruction TLB Translate registers Way 3
+    ITLBW3TR96  # Instruction TLB Translate registers Way 3
+    ITLBW3TR97  # Instruction TLB Translate registers Way 3
+    ITLBW3TR98  # Instruction TLB Translate registers Way 3
+    ITLBW3TR99  # Instruction TLB Translate registers Way 3
+    ITLBW3TR100 # Instruction TLB Translate registers Way 3
+    ITLBW3TR101 # Instruction TLB Translate registers Way 3
+    ITLBW3TR102 # Instruction TLB Translate registers Way 3
+    ITLBW3TR103 # Instruction TLB Translate registers Way 3
+    ITLBW3TR104 # Instruction TLB Translate registers Way 3
+    ITLBW3TR105 # Instruction TLB Translate registers Way 3
+    ITLBW3TR106 # Instruction TLB Translate registers Way 3
+    ITLBW3TR107 # Instruction TLB Translate registers Way 3
+    ITLBW3TR108 # Instruction TLB Translate registers Way 3
+    ITLBW3TR109 # Instruction TLB Translate registers Way 3
+    ITLBW3TR110 # Instruction TLB Translate registers Way 3
+    ITLBW3TR111 # Instruction TLB Translate registers Way 3
+    ITLBW3TR112 # Instruction TLB Translate registers Way 3
+    ITLBW3TR113 # Instruction TLB Translate registers Way 3
+    ITLBW3TR114 # Instruction TLB Translate registers Way 3
+    ITLBW3TR115 # Instruction TLB Translate registers Way 3
+    ITLBW3TR116 # Instruction TLB Translate registers Way 3
+    ITLBW3TR117 # Instruction TLB Translate registers Way 3
+    ITLBW3TR118 # Instruction TLB Translate registers Way 3
+    ITLBW3TR119 # Instruction TLB Translate registers Way 3
+    ITLBW3TR120 # Instruction TLB Translate registers Way 3
+    ITLBW3TR121 # Instruction TLB Translate registers Way 3
+    ITLBW3TR122 # Instruction TLB Translate registers Way 3
+    ITLBW3TR123 # Instruction TLB Translate registers Way 3
+    ITLBW3TR124 # Instruction TLB Translate registers Way 3
+    ITLBW3TR125 # Instruction TLB Translate registers Way 3
+    ITLBW3TR126 # Instruction TLB Translate registers Way 3
+    ITLBW3TR127 # Instruction TLB Translate registers Way 3
+];
+
+# SPR Group 3
+define register offset=0x6000 size=4 [
+    DCCR        # DC Control register
+    DCBPR       # DC Block Prefetch register
+    DCBFR       # DC Block Flush register
+    DCBIR       # DC Block Invalidate register
+    DCBWR       # DC Block Write-back register
+    DCBLR       # DC Block Lock register
+];
+
+# SPR Group 4
+define register offset=0x8000 size=4 [
+    ICCR        # IC Control register
+    ICBPR       # IC Block Prefetch register
+    ICBIR       # IC Block Invalidate register
+    ICBLR       # IC Block Lock register
+];
+
+# SPR Group 5
+define register offset=0xa000 size=4 [
+    _           # Not defined
+    MACLO       # MAC Low
+    MACHI       # MAC High
+    FPMADDLO    # Floating Point MAC Low
+    FPMADDHI    # Floating Point MAC High
+    VMACLO      # Vector MAC Low
+    VMACHI      # Vector MAC High
+];
+
+# SPR Group 6
+define register offset=0xc000 size=4 [
+    DVR0        # Debug Value registers
+    DVR1        # Debug Value registers
+    DVR2        # Debug Value registers
+    DVR3        # Debug Value registers
+    DVR4        # Debug Value registers
+    DVR5        # Debug Value registers
+    DVR6        # Debug Value registers
+    DVR7        # Debug Value registers
+    DCR0        # Debug Control registers
+    DCR1        # Debug Control registers
+    DCR2        # Debug Control registers
+    DCR3        # Debug Control registers
+    DCR4        # Debug Control registers
+    DCR5        # Debug Control registers
+    DCR6        # Debug Control registers
+    DCR7        # Debug Control registers
+    DMR1        # Debug Mode register 1
+    DMR2        # Debug Mode register 2
+    DCWR0       # Debug Watchpoint Counter registers
+    DCWR1       # Debug Watchpoint Counter registers
+    DSR         # Debug Stop register
+    DRR         # Debug Reason register
+];
+
+# SPR Group 7
+define register offset=0xe000 size=4 [
+    PCCR0       # Performance Counters Count registers
+    PCCR1       # Performance Counters Count registers
+    PCCR2       # Performance Counters Count registers
+    PCCR3       # Performance Counters Count registers
+    PCCR4       # Performance Counters Count registers
+    PCCR5       # Performance Counters Count registers
+    PCCR6       # Performance Counters Count registers
+    PCCR7       # Performance Counters Count registers
+    PCMR0       # Performance Counters Mode registers
+    PCMR1       # Performance Counters Mode registers
+    PCMR2       # Performance Counters Mode registers
+    PCMR3       # Performance Counters Mode registers
+    PCMR4       # Performance Counters Mode registers
+    PCMR5       # Performance Counters Mode registers
+    PCMR6       # Performance Counters Mode registers
+    PCMR7       # Performance Counters Mode registers
+];
+
+# SPR Group 8
+define register offset=0x10000 size=4 [
+    PMR         # Power Management register
+];
+
+# SPR Group 9
+define register offset=0x12000 size=4 [
+    PICMR       # PIC Mask register
+    _           # Not defined
+    PICSR       # PIC Status register
+];
+
+# SPR Group 10
+define register offset=0x14000 size=4 [
+    TTMR        # Tick Timer Mode register
+    TTCR        # Tick Timer Count register
+];

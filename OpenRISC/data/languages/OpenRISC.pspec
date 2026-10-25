@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<processor_spec>
+  <programcounter register="pc" />
+  <context_data>
+    <tracked_set space="ram">
+      <set name="r0" val="0" />
+    </tracked_set>
+  </context_data>
+
+  <default_symbols>
+    <symbol address="0x100" entry="true" name="or1k_reset" />
+    <symbol address="0x200" entry="true" name="or1k_bus_error" />
+    <symbol address="0x300" entry="true" name="or1k_data_page_fault" />
+    <symbol address="0x400" entry="true" name="or1k_inst_page_fault" />
+    <symbol address="0x500" entry="true" name="or1k_timer_tick" />
+    <symbol address="0x600" entry="true" name="or1k_alignment_fault" />
+    <symbol address="0x700" entry="true" name="or1k_illegal_instruction" />
+    <symbol address="0x800" entry="true" name="or1k_external_interrupt" />
+    <symbol address="0x900" entry="true" name="or1k_dtlb_miss" />
+    <symbol address="0xa00" entry="true" name="or1k_itlb_miss" />
+    <symbol address="0xb00" entry="true" name="or1k_range_exception" />
+    <symbol address="0xc00" entry="true" name="or1k_system_call" />
+    <symbol address="0xd00" entry="true" name="or1k_fp_exception" />
+    <symbol address="0xe00" entry="true" name="or1k_trap" />
+  </default_symbols>
+</processor_spec>

@@ -1,0 +1,75 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+package ghidra.app.util.bin.format.elf.relocation;
+
+/**
+ * OpenRISC 1000 ELF relocation types (binutils include/elf/or1k.h).
+ */
+public enum OpenRISC_ElfRelocationType implements ElfRelocationType {
+
+	R_OR1K_NONE(0),
+	R_OR1K_32(1),
+	R_OR1K_16(2),
+	R_OR1K_8(3),
+	R_OR1K_LO_16_IN_INSN(4),
+	R_OR1K_HI_16_IN_INSN(5),
+	R_OR1K_INSN_REL_26(6),
+	R_OR1K_GNU_VTENTRY(7),
+	R_OR1K_GNU_VTINHERIT(8),
+	R_OR1K_32_PCREL(9),
+	R_OR1K_16_PCREL(10),
+	R_OR1K_8_PCREL(11),
+	R_OR1K_GOTPC_HI16(12),
+	R_OR1K_GOTPC_LO16(13),
+	R_OR1K_GOT16(14),
+	R_OR1K_PLT26(15),
+	R_OR1K_GOTOFF_HI16(16),
+	R_OR1K_GOTOFF_LO16(17),
+	R_OR1K_COPY(18),
+	R_OR1K_GLOB_DAT(19),
+	R_OR1K_JMP_SLOT(20),
+	R_OR1K_RELATIVE(21),
+	R_OR1K_TLS_GD_HI16(22),
+	R_OR1K_TLS_GD_LO16(23),
+	R_OR1K_TLS_LDM_HI16(24),
+	R_OR1K_TLS_LDM_LO16(25),
+	R_OR1K_TLS_LDO_HI16(26),
+	R_OR1K_TLS_LDO_LO16(27),
+	R_OR1K_TLS_IE_HI16(28),
+	R_OR1K_TLS_IE_LO16(29),
+	R_OR1K_TLS_LE_HI16(30),
+	R_OR1K_TLS_LE_LO16(31),
+	R_OR1K_TLS_TPOFF(32),
+	R_OR1K_TLS_DTPOFF(33),
+	R_OR1K_TLS_DTPMOD(34),
+	R_OR1K_AHI16(35),
+	R_OR1K_GOTOFF_AHI16(36),
+	R_OR1K_TLS_IE_AHI16(37),
+	R_OR1K_TLS_LE_AHI16(38),
+	R_OR1K_SLO16(39),
+	R_OR1K_GOTOFF_SLO16(40),
+	R_OR1K_TLS_LE_SLO16(41),
+	R_OR1K_PCREL_PG21(42),
+	R_OR1K_GOT_PG21(43),
+	R_OR1K_TLS_GD_PG21(44),
+	R_OR1K_TLS_LDM_PG21(45),
+	R_OR1K_TLS_IE_PG21(46),
+	R_OR1K_LO13(47),
+	R_OR1K_GOT_LO13(48),
+	R_OR1K_TLS_GD_LO13(49),
+	R_OR1K_TLS_LDM_LO13(50),
+	R_OR1K_TLS_IE_LO13(51),
+	R_OR1K_SLO13(52),
+	R_OR1K_PLTA26(53),
+	R_OR1K_GOT_AHI16(54);
+
+	public final int typeId;
+
+	private OpenRISC_ElfRelocationType(int typeId) {
+		this.typeId = typeId;
+	}
+
+	@Override
+	public int typeId() {
+		return typeId;
+	}
+}

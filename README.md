@@ -21,6 +21,18 @@ Each module's README lists its language variants, how closely it matches the ref
 disassembler, what the p-code models, known gaps and how to run its tests. [STATUS.md](STATUS.md)
 tracks what works and what doesn't across all modules, plus lessons learned.
 
+## Community modules
+
+SLEIGH modules written by others for CPUs Ghidra doesn't support, collected from GitHub and from
+unmerged Ghidra pull requests ([candidates](community/CANDIDATES.md)), then tested to the same
+standard as the modules above and fixed where testing found problems. Each module's `CREDITS.md`
+names its original authors, the upstream commit and every change made here. Fixes are kept as
+commits on an `aleph-void` fork of the original repository, under the original license.
+
+| Module | Processor | Language IDs | Original authors | License |
+|---|---|---|---|---|
+| [OpenRISC](OpenRISC/README.md) | OpenRISC 1000 (ORBIS32, ORFPX32/64A32) | `OpenRISC:BE:32:default`, `OpenRISC:LE:32:default` | Samuel Holland (@smaeul), Jeroen Domburg (@Spritetm) | Apache-2.0 |
+
 ## Relationship to the IDA modules
 
 The IDA modules are distributed as release zips under terms that forbid derivative works; the
@@ -71,5 +83,6 @@ raw binary, which is useful for quick checks.
 
 ## License
 
-[MIT](LICENSE). This license covers only the code in this repository. It does not cover the
-original IDA modules, which have their own terms.
+[MIT](LICENSE) for the five modules written here and the tooling. Community modules keep their
+original licenses (each module directory has its own `LICENSE`). Neither covers the original IDA
+modules, which have their own terms.

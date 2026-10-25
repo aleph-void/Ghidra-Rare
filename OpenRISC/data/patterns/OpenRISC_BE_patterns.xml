@@ -1,0 +1,23 @@
+<!-- Ghidra/Features/Base/src/main/java/ghidra/util/bytesearch/PatternPairSet.java -->
+<patternlist>
+  <patternpairs totalbits="32" postbits="16">
+    <prepatterns>
+      <!-- normal return: l.jr r9; ??? -->
+      <data>0x44004800 0x........</data>
+      <!-- tail call: l.j ???; l.addi r3, ??? -->
+      <data>000000.. 0x...... 10011100 011..... 0x....</data>
+      <!-- tail call: l.j ???; l.lwz r3, ???(???) -->
+      <data>000000.. 0x...... 10000100 011..... 0x....</data>
+      <!-- tail call: l.j ???; l.movhi r3, ???, ??? -->
+      <data>000000.. 0x...... 00011000 011..... 0x....</data>
+    </prepatterns>
+
+    <postpatterns>
+      <!-- l.addi r1, r1, ??? -->
+      <data>0x9c21....</data>
+      <!-- l.sw -???(r1), ??? -->
+      <data>0xd7e1....</data>
+      <possiblefuncstart/>
+    </postpatterns>
+  </patternpairs>
+</patternlist>

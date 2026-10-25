@@ -1,0 +1,87 @@
+# Specification for the 32-bit OpenRISC instruction set
+#
+# Variants are selected with preprocessor symbols defined by the wrapper .slaspec files:
+#   ENDIAN         "big" (default) or "little"
+#   NO_DELAY_SLOT  jumps and branches have no delay slot (CPUCFGR[ND] set)
+
+@ifndef ENDIAN
+@define ENDIAN "big"
+@endif
+
+define endian=$(ENDIAN);
+define alignment=4;
+
+define space ram      type=ram_space      size=4 default;
+define space register type=register_space size=4 wordsize=4;
+
+# Offset chosen to overlap the GPRs in SPR space
+define register offset=0x1000 size=4 [
+	r0  r1  r2  r3  r4  r5  r6  r7  r8  r9  r10 r11 r12 r13 r14 r15
+	r16 r17 r18 r19 r20 r21 r22 r23 r24 r25 r26 r27 r28 r29 r30 r31
+];
+
+@include "OpenRISC_SPRs.sinc"
+
+# SR flags, separated for convenience
+define register offset=0x100000 size=1 [
+	F CY OV
+];
+
+# Program counter (not an SPR; NPC/PPC are views of it in hardware)
+define register offset=0x100100 size=4 [ pc ];
+
+# Scratch result of a double-precision (ORFPX64A32) operation before it is split into a
+# register pair
+define register offset=0x100200 size=8 [ fpres ];
+
+define token instr(32)
+	opcode	= (26, 31) # main opcode
+	op5code	= (24, 25) # used when opcode == 5
+	op6code	= (16, 16) # used when opcode == 6
+	op8code	= (16, 25) # used when opcode == 8
+	cond	= (21, 25) # flag condition
+	major	= ( 8,  9) # used for arithmetic
+	minor	= ( 0,  3) # used for arithmetic
+	mod	= ( 6,  7) # used for shifts and extension
+
+	rD	= (21, 25)
+	rA	= (16, 20)
+	rB	= (11, 15)
+
+	imm16	= ( 0, 15) signed
+	imm16a	= (21, 25) signed
+	imm16b	= ( 0, 10)
+	imm21	= ( 0, 20) signed
+	imm26	= ( 0, 25) signed
+
+	uimm5	= ( 0,  4)
+	uimm6	= ( 0,  5)
+
+	# fixed/reserved bit groups, used to match the binutils opcode masks exactly
+	f_0_7	= ( 0,  7)
+	f_0_10	= ( 0, 10)
+	f_6_9	= ( 6,  9)
+	f_8_10	= ( 8, 10)
+	f_8_15	= ( 8, 15)
+	f_16_23	= (16, 23)
+	f_17_20	= (17, 20)
+	f_16_20	= (16, 20)
+	f_11_15	= (11, 15)
+	f_21_25	= (21, 25)
+
+	# ORFPX64A32 register-pair offset bits (second register is +2 when set, else +1)
+	pD	= (10, 10)
+	pA	= ( 9,  9)
+	pB	= ( 8,  8)
+	uimm16	= ( 0, 15)
+	uimm16a	= (21, 25)
+	uimm16b	= ( 0, 10)
+;
+
+attach variables [ rA rB rD ] [
+	r0  r1  r2  r3  r4  r5  r6  r7  r8  r9  r10 r11 r12 r13 r14 r15
+	r16 r17 r18 r19 r20 r21 r22 r23 r24 r25 r26 r27 r28 r29 r30 r31
+];
+
+@include "OpenRISC_ORBIS32.sinc"
+@include "OpenRISC_ORFPX.sinc"

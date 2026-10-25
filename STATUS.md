@@ -68,6 +68,21 @@ Terms used below:
 | Doesn't work | 64-bit variants decode many random words `nvdisasm` rejects. Kepler was learned only from our kernels plus random probes, and prints `ATOM.CAS`'s implicit register pair as a number. Turing prints `RED [UR]` with an `RZ.64` base; one `ULEA.HI.X.SX32` encoding undecoded; float immediates print as hex. Raw 64-bit images need the `ctl` context set per bundle (the cubin loader does it) |
 | Unverified | Real third-party Kepler and Maxwell code: no held-out cubins for SM35 or SM52 were tested |
 
+## Community modules
+
+Imported from other authors and verified to the same bar; see each module's `CREDITS.md`.
+
+### OpenRISC 1000: done (community: @smaeul, @Spritetm)
+
+| Area | State |
+|---|---|
+| Decode | 100% of non-explained words vs objdump 2.45 on the opcode table (6,090) and fuzz (50,000), BE and LE; differences are 3 documented classes (manual-only `l.lf`/`lf.stod.d`/`lf.dtos.d`, `l.muldu` 0xc vs binutils 0xd, register pairs past r31) |
+| Semantics | Full p-code incl. ORFPX32/ORFPX64A32 on register pairs; emulator 33/33 BE and LE |
+| Real binaries | Bootlin glibc (libc, libm, ld.so, static ldconfig) and a Linux kernel: disassembly identical to objdump (1.31M instructions), 14,303 functions, 0 decompile failures, relocations 0 errors |
+| Fixed here | Delay slots on BE, `l.jal`/`l.jalr` link address, PC-read `l.jal 8`, reserved bits, shift fields, the whole FPU, `l.sys`, `l.cmov`, ELF opinion, DWARF map, relocations, PLT thunks |
+| Doesn't work | glibc `vfprintf` computed-goto tables (49 `.rodata` words disassembled). Kernel exception vectors not auto-disassembled. SR flag bits are separate registers, so `mfspr`/`mtspr SR` doesn't see them. TLS/GOT relocations reported, not applied. `l.muldu` as GNU as encodes it (0xd) doesn't decode |
+| Unverified | LE/no-delay-slot language on real binaries (hx330x images have no public license); `R_OR1K_16`/`8` relocations vs ld |
+
 ## Lessons
 
 ### What worked

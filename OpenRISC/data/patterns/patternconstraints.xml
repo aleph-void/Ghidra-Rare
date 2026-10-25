@@ -1,0 +1,5 @@
+<patternconstraints>
+  <language id="OpenRISC:BE:32:*">
+    <patternfile>OpenRISC_BE_patterns.xml</patternfile>
+  </language>
+</patternconstraints>
