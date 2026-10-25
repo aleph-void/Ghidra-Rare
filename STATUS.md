@@ -115,6 +115,16 @@ Rockwell C39, .NET CIL.
 Imported from other authors and verified to the same bar. Each lives in an `aleph-void` fork
 (git submodule under `community/`); see its `GHIDRA-RARE.md` and `CREDITS.md`.
 
+### C6000: verified with documented packet limitations (community: @geepot)
+
+| Area | State |
+|---|---|
+| Decode | All 415 32-bit opcode rows and 173/174 compact rows reached; random and per-opcode corpora checked against GNU objdump and TI `dis6x` in both byte orders. The remaining compact `SPKERNEL` row has reference formatting/context disagreement |
+| Semantics | 40/40 hand-computed emulator cases in each byte order; branch delay windows, compact packets, arithmetic and addressing exercised |
+| Real binaries | Eight Linux BusyBox/uClibc files and two TI-built zlib files: 10 files, 6,396 functions, 480,153 analysed instructions. BusyBox and smaller libraries decompile fully; uClibc and zlib have documented conditional-packet decompiler errors and zlib timeouts. Shared decoded instructions agree with GNU except documented relocation sites, compact register rendering and `SPKERNEL` text |
+| Fixed here | ELF import and relocations, packet context, branch delay slots, compact and C64x+ decode, calling convention and DWARF map |
+| Doesn't work | Big-endian compact execution order in a 32-bit word, nested branch delay windows, packet atomicity and software-pipelined loop replay in p-code; C66x instructions not decoded |
+
 ### Blackfin: done (community: @geepot)
 
 | Area | State |

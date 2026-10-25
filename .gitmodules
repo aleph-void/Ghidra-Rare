@@ -54,3 +54,7 @@
 	path = community/FR60
 	url = https://github.com/aleph-void/ghidra-fr60.git
 	branch = ghidra-rare
+[submodule "community/C6000"]
+	path = community/C6000
+	url = https://github.com/aleph-void/ghidra-c6000.git
+	branch = ghidra-rare
