@@ -1,11 +1,17 @@
 # Ghidra-Rare
 
-Ghidra processor modules (SLEIGH) for uncommon CPU, DSP and GPU architectures. Target: **Ghidra 12.1.4**.
+Ghidra processor modules (SLEIGH) for uncommon CPU, DSP and GPU architectures. Developed on
+**Ghidra 12.1.4**; release builds cover the three newest Ghidra releases (currently 12.1.3,
+12.1.4 and 12.2).
 
-This project brings to Ghidra the set of architectures covered by
-[Mr-wolf-is-me/IDA-Processor-Modules](https://github.com/Mr-wolf-is-me/IDA-Processor-Modules),
-a collection of IDA Pro processor modules. Each module here is the Ghidra counterpart of one
-of the IDA modules listed there.
+The project has two parts:
+
+- **[Modules](#modules)** written here, which bring to Ghidra the set of architectures covered by
+  [Mr-wolf-is-me/IDA-Processor-Modules](https://github.com/Mr-wolf-is-me/IDA-Processor-Modules),
+  a collection of IDA Pro processor modules. Each is the Ghidra counterpart of one of the IDA
+  modules listed there.
+- **[Community modules](#community-modules)**: SLEIGH modules other people wrote for CPUs Ghidra
+  doesn't support, imported with credit, tested to the same standard and fixed.
 
 ## Modules
 
