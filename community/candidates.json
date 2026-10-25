@@ -471,7 +471,8 @@
   "alternatives": [],
   "why": "Only implementation found",
   "url": "https://github.com/mehmooda/F2MC-16LX",
-  "license_request": "https://github.com/mehmooda/F2MC-16LX/issues/6"
+  "license_request": "https://github.com/mehmooda/F2MC-16LX/issues/6",
+  "license_request_status": "author agrees; waiting for co-contributors @qufb and @mkrasselt1"
  },
  {
   "cpu": "Fujitsu FR (FR/FR60/FR81/MB91)",
@@ -763,8 +764,8 @@
  {
   "cpu": "Micronova",
   "source": "pkooiman/micronova_ghidra",
-  "license": "none",
-  "status": "blocked",
+  "license": "MIT",
+  "status": "ok",
   "compiles": "1/1",
   "constructors": 106,
   "unimpl": 0,
@@ -773,7 +774,8 @@
   "alternatives": [],
   "why": "Only implementation found",
   "url": "https://github.com/pkooiman/micronova_ghidra",
-  "license_request": "https://github.com/pkooiman/micronova_ghidra/issues/1"
+  "license_request": "https://github.com/pkooiman/micronova_ghidra/issues/1",
+  "license_request_status": "license added by the author 2026-10-25"
  },
  {
   "cpu": "Mitsubishi 7700 series (7655/7675)",
@@ -1768,8 +1770,8 @@
  {
   "cpu": "TI TMS34010",
   "source": "ZPaul2Fresh8/Ghidra_TMS34010",
-  "license": "none",
-  "status": "blocked",
+  "license": "Apache-2.0",
+  "status": "ok",
   "compiles": "1/1",
   "constructors": 156,
   "unimpl": 0,
@@ -1778,7 +1780,8 @@
   "alternatives": [],
   "why": "Only implementation found",
   "url": "https://github.com/ZPaul2Fresh8/Ghidra_TMS34010",
-  "license_request": "https://github.com/ZPaul2Fresh8/Ghidra_TMS34010/issues/1"
+  "license_request": "https://github.com/ZPaul2Fresh8/Ghidra_TMS34010/issues/1",
+  "license_request_status": "license added by the author 2026-10-25"
  },
  {
   "cpu": "TI TMS9900",

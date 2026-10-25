@@ -4,7 +4,7 @@ Survey date 2026-10-25. Sources: all 2,160 pull requests to NationalSecurityAgen
 
 122 CPUs not supported by Ghidra 12.2. Where several implementations exist, the most complete one that compiles and is licensed for redistribution is picked; metrics are constructors in the SLEIGH, `unimpl` p-code bodies, spec files, Java, tests and whether every `.slaspec` compiles with Ghidra 12.1.4's `sleigh`. These are first-pass selections; verification can change them.
 
-License status: **84 permissive**, **7 copyleft** (GPL/LGPL), **31 blocked** (no license, non-commercial or unclear: cannot be redistributed without the author's permission).
+License status: **86 permissive**, **7 copyleft** (GPL/LGPL), **29 blocked** (no license, non-commercial or unclear: cannot be redistributed without the author's permission).
 
 Pull requests are covered by Ghidra's contribution terms (Apache-2.0).
 
@@ -57,7 +57,7 @@ Pull requests are covered by Ghidra's contribution terms (Apache-2.0).
 | Lattice LM32 | [jevinskie/ghidra-lm32](https://github.com/jevinskie/ghidra-lm32) | MIT (ok) | 2/2 | 98 | @jevinskie, @cyrozap | Only implementation found |
 | MD32 (MediaTek) | [cyrozap/ghidra-md32](https://github.com/cyrozap/ghidra-md32) | Apache-2.0 (ok) | 1/1 | 207 | @cyrozap | Only implementation found |
 | Microchip PIC16F153xx | [PR#667](https://github.com/NationalSecurityAgency/ghidra/pull/667) | Apache-2.0 (Ghidra contribution) (ok) | 1/1 | 128 | @mh- (commits: Michael Huebler) | Only implementation found |
-| Micronova | [pkooiman/micronova_ghidra](https://github.com/pkooiman/micronova_ghidra) | none (blocked) | 1/1 | 106 | @pkooiman | Only implementation found |
+| Micronova | [pkooiman/micronova_ghidra](https://github.com/pkooiman/micronova_ghidra) | MIT (ok) | 1/1 | 106 | @pkooiman | Only implementation found |
 | Mitsubishi 7700 series (7655/7675) | [Data-ptr/7675-processor](https://github.com/Data-ptr/7675-processor) | Unlicense (ok) | 1/1 | 202 | @Data-ptr | Same author; 7655 and 7675 differ by one constructor; merge into one module Alternatives: Data-ptr/7655-processor. |
 | Mitsubishi MELPS-740 | [PR#5012](https://github.com/NationalSecurityAgency/ghidra/pull/5012) | Apache-2.0 (Ghidra contribution) (ok) | 1/1 | 104 | @philpem (commits: Phil, Philip Pemberton, philpem) | Only implementation found |
 | MOS 6510 (C64) | [anarkiwi/deity-informant](https://github.com/anarkiwi/deity-informant) | Apache-2.0 (ok) | 0/1 | 43 | @anarkiwi, @CBongo | Only implementation found |
@@ -119,7 +119,7 @@ Pull requests are covered by Ghidra's contribution terms (Apache-2.0).
 | TI TMS320C28x | [outlandnish/ghidra-tms320c28x](https://github.com/outlandnish/ghidra-tms320c28x) | Apache-2.0 (ok) | 2/2 | 795 | @outlandnish, @abedegno, @dieseld23 | Includes the CLA coprocessor and tests; mwdmwd (854 constructors) close; decide by verification Alternatives: mwdmwd/ghidra-c28x. |
 | TI TMS320C3x | [gm-stack/tms320-ghidra](https://github.com/gm-stack/tms320-ghidra) | none (blocked) | 2/2 | 811 | @gm-stack | Only implementation found |
 | TI TMS320C6000 | [geepot/ghidra-c6000](https://github.com/geepot/ghidra-c6000) | Apache-2.0 (ok) | 4/4 | 2278 | @geepot, @roblg | 2,278 constructors, tests, Apache; zisonzishen's 43k-constructor generated spec has an unclear license Alternatives: zisonzishen0415-stack/ghidra-c6000, ArapKBett/zoommulti. |
-| TI TMS34010 | [ZPaul2Fresh8/Ghidra_TMS34010](https://github.com/ZPaul2Fresh8/Ghidra_TMS34010) | none (blocked) | 1/1 | 156 | @ZPaul2Fresh8 | Only implementation found |
+| TI TMS34010 | [ZPaul2Fresh8/Ghidra_TMS34010](https://github.com/ZPaul2Fresh8/Ghidra_TMS34010) | Apache-2.0 (ok) | 1/1 | 156 | @ZPaul2Fresh8 | Only implementation found |
 | TI TMS9900 | [gnulnulf/Ghidra-TMS9900](https://github.com/gnulnulf/Ghidra-TMS9900) | Apache-2.0 (ok) | 1/1 | 82 | @gnulnulf, @cvpeck | Only implementation found |
 | TI TopSM (BLE) | [antoniovazquezblanco/GhidraTopSM](https://github.com/antoniovazquezblanco/GhidraTopSM) | MIT (ok) | 1/1 | 52 | @antoniovazquezblanco, @dependabot[bot]; also @rjp5th (rjp5th/beyond-ble-tools) | Same as rjp5th; newer, MIT Alternatives: rjp5th/beyond-ble-tools. |
 | TILE-Gx | [PR#9426](https://github.com/NationalSecurityAgency/ghidra/pull/9426) | Apache-2.0 (Ghidra contribution) (ok) | 1/1 | 631 | @speidy (commits: Idan Freiberg) | 631 constructors, compiles; PR#9281 doesn't Alternatives: PR#9281. |
@@ -157,12 +157,12 @@ Opened 2026-10-25 for every blocked pick. A module moves into the verification q
 | Epson S1C33 | https://github.com/GMMan/s1c33_sleigh/issues/1 | open |
 | Epson S1C88 | https://github.com/xtla/s1c88/issues/1 | open |
 | Femtium | https://github.com/RobertLarsen/GhidraFemtiumProcessor/issues/1 | open |
-| Fujitsu F2MC-16LX | https://github.com/mehmooda/F2MC-16LX/issues/6 | open |
+| Fujitsu F2MC-16LX | https://github.com/mehmooda/F2MC-16LX/issues/6 | author agrees; waiting for co-contributors @qufb and @mkrasselt1 |
 | Hitachi (RotorRE) | https://github.com/phaseseeker/RotorRE/issues/1 | open |
 | Hitachi H8/500 | https://github.com/OZVR4/Ghidra-H8-Processor/issues/5 | open |
 | Hudson HuC6280 | https://github.com/TiCoKH/Ghidra_HuC6280/issues/2 | open |
 | Kirk (PSP crypto) | https://github.com/LemonHaze420/ghidra_kirk/issues/1 | open |
-| Micronova | https://github.com/pkooiman/micronova_ghidra/issues/1 | open |
+| Micronova | https://github.com/pkooiman/micronova_ghidra/issues/1 | license added by the author 2026-10-25 |
 | National SC/MP | https://github.com/sigurasg/GhidraSCMP/issues/45 | open |
 | NEC V60 / Fujitsu MB86233 | https://github.com/frangarcj/model1-ghidra/issues/1 | open |
 | OKI nX-U8 | https://github.com/EwTE-H/nX-U8_for_Ghidra/issues/1 | open |
@@ -176,7 +176,7 @@ Opened 2026-10-25 for every blocked pick. A module moves into the verification q
 | Sunplus SPC970 | https://github.com/DiscoStarslayer/ghidra-spc970/issues/5 | open |
 | Telink TC32 | https://github.com/rgov/Ghidra_TELink_TC32/issues/5 | open |
 | TI TMS320C3x | https://github.com/gm-stack/tms320-ghidra/issues/1 | open |
-| TI TMS34010 | https://github.com/ZPaul2Fresh8/Ghidra_TMS34010/issues/1 | open |
+| TI TMS34010 | https://github.com/ZPaul2Fresh8/Ghidra_TMS34010/issues/1 | license added by the author 2026-10-25 |
 | Toshiba T8x | https://github.com/DrWhax/SLEIGH-Toshiba-T8x/issues/1 | open |
 | Toshiba TLCS-900/H | https://github.com/nevesnunes/ghidra-tlcs900h/issues/1 | open |
 | WCH (CH32 variants) | not requested | Repository says files keep their original rights; the original author is unknown |
