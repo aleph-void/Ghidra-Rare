@@ -38,3 +38,7 @@
 	path = community/Micronova
 	url = https://github.com/aleph-void/micronova_ghidra.git
 	branch = ghidra-rare
+[submodule "community/MCORE"]
+	path = community/MCORE
+	url = https://github.com/aleph-void/ghidra-mcore.git
+	branch = ghidra-rare

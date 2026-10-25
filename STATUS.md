@@ -150,6 +150,17 @@ Imported from other authors and verified to the same bar. Each lives in an `alep
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### M-CORE: done (community: @CUB3D, Ghidra PR #9270)
+
+| Area | State |
+|---|---|
+| Decode | All 65,536 halfwords vs objdump 2.45, BE and LE: 100% semantic, 0 unexplained (differences are manual-only accelerator ops, 3 objdump bugs and GDB simulator calls); 138/138 constructors. The PR scored 41% |
+| Semantics | Full ISA in p-code; trap/bkpt/divide-by-zero take the manual's exception entry; emulator 30/30 per byte order |
+| Real binaries | No freely licensed M-CORE firmware exists; the 19 Embench-IoT programs (GPL-3) built with GCC 14/newlib, BE and LE: 38 ELFs, 159,369 instructions, 100% semantic vs objdump, 3,330/3,330 functions decompile. Relocations vs GNU ld: 62/62 bytes identical |
+| Fixed here | Instruction set reworked from differential testing, GCC cspec and DWARF map, ELF relocation handler, exceptions, newlib's simulator service calls (bad instructions in every program before), LE language, stand-alone extension build |
+| Doesn't work (inherent) | 33 bad instructions in GCC crtstuff stubs (inline asm switches section mid-function; objdump shows the same bytes as data). DWARF line-table bookmarks from a Ghidra bug (signed-byte line advance vs M-CORE gas's line_range 242). h_* accelerator and low-power ops are pcodeops (attached hardware). PSR AF register bank, memory-raised exceptions and interrupts not modelled |
+| Unverified | Real M-CORE firmware (none freely licensed); R_MCORE_PCRELIMM4BY2/PCREL32 (no assembler or linker produces them) |
+
 ### Micronova (Data General microNOVA): done (community: @pkooiman)
 
 | Area | State |
