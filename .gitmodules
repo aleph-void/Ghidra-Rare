@@ -34,3 +34,7 @@
 	path = community/ARCompact
 	url = https://github.com/aleph-void/ghidra-arcompact.git
 	branch = ghidra-rare
+[submodule "community/Micronova"]
+	path = community/Micronova
+	url = https://github.com/aleph-void/micronova_ghidra.git
+	branch = ghidra-rare

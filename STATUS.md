@@ -150,6 +150,17 @@ Imported from other authors and verified to the same bar. Each lives in an `alep
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### Micronova (Data General microNOVA): done (community: @pkooiman)
+
+| Area | State |
+|---|---|
+| Decode | All 65,536 words vs MAME's Nova disassembler: 0 unexplained (2,110 microNOVA-specific encodings checked against the DG manual and novadis); 108/108 constructors; dga assembler corpus 1,180/1,240 (60 dga bugs) |
+| Semantics | ALC/carry/skips, every addressing mode incl. indirect chains and auto-increment, hardware stack/SAV/RET, MUL/DIV, TRAP, CPU device; emulator 45/45 (upstream 18/45) |
+| Real binaries | Nova SOC mini monitor (GPL-3 source listing): 194 instructions identical to MAME and the source, 0 bad, 10/10 decompile |
+| Fixed here | PC-relative indirect depth, JSR's AC3, TRAP decoding (2,048 words decoded as ALC), 1,530 valid words rejected, MUL/DIV/SAV/RET/CPU I/O semantics, carry and interrupt registers, operand syntax, pspec/cspec, stale README |
+| Doesn't work (inherent) | Device I/O, interrupts, RTC and HALT are pcodeops (external hardware); the stack-overflow interrupt isn't raised; returns through a memory cell (`JMP @cell`) decompile as computed jumps |
+| Unverified | Real DG microNOVA software (MP/OS, DTOS and diagnostics aren't freely licensed); mN602 differences |
+
 ### OpenRISC 1000: done (community: @smaeul, @Spritetm)
 
 | Area | State |
@@ -231,6 +242,9 @@ Imported from other authors and verified to the same bar. Each lives in an `alep
 - **Opinion files only see `e_machine` and `e_flags`.** Variants recorded in sections, notes or
   build attributes (xCORE, C7x, TI PRU) need a script or loader extension; `e_flags` layout also
   changed between CUDA 12 and 13.
+- **SLEIGH doesn't backtrack.** A root constructor whose subtable has no matching alternative makes
+  the decode fail instead of trying another root constructor (microNOVA TRAP vs ALC). Put such
+  exclusions in the root pattern.
 - **Size blow-ups in generated SLEIGH.** SASS's first Maxwell spec produced an 11.9 MB `.sinc`, and
   SM35/SM75 hit SLEIGH's constructor limit (Kepler had 80k constructors before modifier groups that
   were really immediates were collapsed into one computed constructor; now ~6.5k). Above ~45k constructors Ghidra's `.sla` decoder
