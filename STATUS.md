@@ -188,11 +188,11 @@ Imported from other authors and verified to the same bar. Each lives in an `alep
 | Area | State |
 |---|---|
 | Decode | 100% semantic on 60,000 random slots and 99.80% on the full opcode corpus vs GNU objdump (G13 and G14 ISAs); every difference is a confirmed objdump quirk. Every constructor reached (466/466, 452/452). Upstream was at 52.9% |
-| Semantics | Full p-code incl. flags, ES:, skips, register banks, S3 multiply/divide/MAC; emulator 56/56 |
-| Real binaries | 11 GCC-built ELFs from public source (msalau samples, FreeRTOS, newlib): 0 bad instructions, 357/357 functions decompile, disassembly identical to objdump |
-| Fixed here | Instruction set regenerated from the RL78 manual; S1/S2 language; ELF opinion (EM_RL78, core from `e_flags`); PC, segment op and volatile SFRs; GCC calling convention; DWARF map; vector/CALLT markup script |
-| Doesn't work | GCC's absolute `__rl78_abs__` symbol becomes a bogus function at the reset vector. Only the GCC calling convention. Flash mirror (MAA) not modelled. BRK is a returning userop. Register bank only follows SEL along the flow |
-| Unverified | CC-RL/IAR output, RL78-S1 (G10) images, third-party prebuilt firmware (none freely licensed found) |
+| Semantics | Full p-code incl. flags, ES:, skips, register banks, S3 multiply/divide/MAC, BRK/RETB through the 0007E vector; emulator 57/57 |
+| Real binaries | 11 GCC-built ELFs from public source (msalau samples, FreeRTOS, newlib): 0 bad instructions, 346/346 functions decompile, disassembly identical to objdump |
+| Fixed here | Instruction set regenerated from the RL78 manual; S1/S2 language; ELF opinion; PC, segment op and volatile SFRs; GCC calling convention; DWARF map; vector analyzer (vector and CALLT tables, no bogus function at 00000, flash mirror block for MAA = 0); BRK as a real call |
+| Doesn't work (inherent) | Register bank of an interrupt handler without SEL depends on PSW.RBS at run time (settable per handler). MAA = 1 mirror is selected at run time; the S1 mirror window differs per chip. BRK1 (erased flash) resets the chip. Ghidra's emulator ignores segmentop |
+| Unverified | CC-RL/IAR output (no freely licensed samples), RL78-S1 (G10) images |
 
 ### TMS34010: done (community: @ZPaul2Fresh8; instruction set rewritten here)
 
