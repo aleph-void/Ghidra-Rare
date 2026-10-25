@@ -224,16 +224,16 @@ Imported from other authors and verified to the same bar. Each lives in an `alep
 | Doesn't work (inherent) | TLS relocations: Ghidra rejects every STT_TLS relocation before the processor's handler runs. `l.cust*`/`lf.cust1` are implementation-defined. Barriers and hardware exceptions (overflow, range, alignment traps). glibc `vfprintf` computed-goto tables (decompiler) |
 | Unverified | LE/no-delay-slot language on real binaries (hx330x firmware has no license); ORBIS64 (no 64-bit core exists) |
 
-### RH850 (V850E2/E3): done (community: @esaulenka and contributors)
+### RH850 (V850E1/E2/E3): done (community: @esaulenka and contributors)
 
 | Area | State |
 |---|---|
-| Decode | 100% semantic vs GNU objdump on the full binutils opcode table, all first halfwords and 100k random words, RH850 and V850E2M; every objdump-only encoding is an objdump bug. 556/556 and 374/374 constructors reached. Ghidra's built-in V850 `v850e3v5` language scores 73% on the same opcode table; upstream as imported 92% |
-| Semantics | Integer, flags, saturation, loads/stores incl. 23-bit, LD.DW and post-increment, PREPARE/DISPOSE, PUSHSP/POPSP, LOOP, SWITCH, LDL/STC, FPU single/double; emulator 51/51. System, debug, hypervisor, TLB, cache and DSP-extension ops are pcodeops |
-| Real binaries | 6 GCC-built ELFs (Lua, zlib; V850E2V3 and RH850): 301,610 instructions, 0 bad instructions, 3,290/3,290 functions decompile, disassembly identical to objdump. On the Lua build Ghidra's built-in module leaves 117 KB undisassembled; this one 138 bytes |
-| Fixed here | Renamed to RH850 (IDs collided with Ghidra's V850 by case), FPU generated from a table, condition operands, SLD sign extension, SST order, shifts, system registers and G4MH instructions, GCC's E2 indirect-call sequence, cspec/DWARF/opinion, CALLT resolution script (upstream issue #20); upstream issues #40, #42 and README TODOs |
-| Doesn't work | Shares EM_V800/EM_V850 with Ghidra's V850 module. libgcc `__save_*` helpers return via `jmp [r10]` (10 unrecovered jumps per E2 image). FPU conversions ignore the rounding mode. CALLT needs `RH850CallT.java` |
-| Unverified | G4MH post-increment/decrement loads/stores (no reference tool decodes them); CC-RH/GHS output; third-party firmware |
+| Decode | 100% semantic where both decode vs GNU objdump on the full binutils opcode table, all first halfwords and 100k random words, in RH850, V850E2M and V850E1; E1 has zero one-sided decodes. 556/556, 374/374 and 243/243 constructors reached. Ghidra's built-in V850 `v850e3v5` language scores 73% on the same opcode table; upstream as imported 92% |
+| Semantics | Integer, flags, saturation, loads/stores, branches, calls, atomic ops, and FPU single/double with FPSR rounding modes and unsigned 64-bit conversions; emulator 63/63 RH850 and 34/34 V850E1. System, debug, hypervisor, TLB, cache and DSP-extension ops remain pcodeops |
+| Real binaries | Nine GCC-built ELFs (Lua, zlib; V850E1, V850E2V3 and RH850): 472,196 instructions, 5,005/5,005 functions decompile, all decoded instructions agree semantically with objdump. E1 has 0 bad-instruction bookmarks; E2V3 has 17 at words objdump also rejects; RH850 has 0 |
+| Fixed here | Added V850E1 core language, RH850 ELF loader, automatic CALLT and GCC prologue-helper analyzers, 46 call fixups verified against 128 linked helpers; improved FPU conversions. Earlier fixes include instruction decode, cspec/DWARF/opinion, system registers and G4MH instructions |
+| Doesn't work | GCC gives E1 and E2V3 identical RH850 ABI flags, so E1 needs explicit language selection. FPU exception flags and traps are not modelled |
+| Unverified | V850E1F FPU and V850ES-specific extensions; G4MH post-increment/decrement loads/stores (no reference tool decodes them); CC-RH/GHS output; third-party firmware |
 
 ### RL78: done (community: @CUB3D; instruction set rebuilt here)
 
