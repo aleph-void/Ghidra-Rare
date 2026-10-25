@@ -58,3 +58,7 @@
 	path = community/C6000
 	url = https://github.com/aleph-void/ghidra-c6000.git
 	branch = ghidra-rare
+[submodule "community/TILEGx"]
+	path = community/TILEGx
+	url = https://github.com/aleph-void/ghidra-tilegx.git
+	branch = ghidra-rare

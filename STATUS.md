@@ -125,6 +125,16 @@ Imported from other authors and verified to the same bar. Each lives in an `alep
 | Fixed here | ELF import and relocations, packet context, branch delay slots, compact and C64x+ decode, calling convention and DWARF map |
 | Doesn't work | Big-endian compact execution order in a 32-bit word, nested branch delay windows, packet atomicity and software-pipelined loop replay in p-code; C66x instructions not decoded |
 
+### TILE-Gx: initial support complete (community: @speidy)
+
+| Area | State |
+|---|---|
+| Decode | 318,760 bundles vs GNU libopcodes: 100% semantic agreement, 0 unexplained; 1,521/1,521 constructors reached |
+| Semantics | 29/29 emulator cases in each of four languages, including parallel bundle behavior, memory, branches, atomics and SIMD |
+| Real binaries | Four linked zlib 1.3.1 ELFs (LE/BE, 32/64 ABI): 35,413 analysed bundles match GNU exactly; 324/324 functions decompile, 0 bad-instruction and error bookmarks |
+| Fixed here | Manual-derived language generator, big-endian data and 32-bit ABI, ELF opinions, signed `char`, DWARF map and test harness |
+| Doesn't work | ELF relocations in relocatable objects; cache/TLB/network and floating-point helper instructions use unverified named user operations; some 32-bit C output has saved-register and switch warnings |
+
 ### Blackfin: done (community: @geepot)
 
 | Area | State |
