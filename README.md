@@ -40,15 +40,21 @@ IDA-Processor-Modules.
 
 Each module directory is a standard Ghidra extension.
 
-**Build an extension zip:**
+**Prebuilt zips:** the [Release builds](.github/workflows/release.yml) workflow builds every
+module for the three newest Ghidra releases. Each `v*` tag publishes the zips on the
+[Releases](https://github.com/aleph-void/Ghidra-Rare/releases) page; other pushes keep them as
+workflow artifacts. A zip only installs into the Ghidra version in its name.
+
+**Build the extension zips yourself:**
 
 ```sh
-export GHIDRA_INSTALL_DIR=/opt/ghidra_12.1.4_PUBLIC
-cd PRU && gradle buildExtension      # zip lands in PRU/dist/
+tools/build-release.sh /opt/ghidra_12.1.4_PUBLIC dist   # one zip per module in dist/
 ```
 
-PRU and MicroBlaze include Java code (ELF loader extensions), so the build needs a full JDK 21 or
-newer with `javac` (a JRE-only package is not enough); point `JAVA_HOME` at it.
+The script compiles the SLEIGH specs with that Ghidra's compiler and builds each module with the
+Gradle wrapper Ghidra ships in `support/gradle`. PRU, MicroBlaze and SASS include Java code (ELF
+loader extensions), so the build needs a full JDK with `javac` (a JRE-only package is not
+enough): JDK 21 or newer for Ghidra 12.1, JDK 25 for Ghidra 12.2. Point `JAVA_HOME` at it.
 
 Install the zip via *File → Install Extensions* in Ghidra, then restart Ghidra.
 

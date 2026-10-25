@@ -17,3 +17,8 @@ else {
 // buildExtension.gradle copies every jar under Ghidra/Processors (including other
 // symlinked modules) into lib/; this module needs none of them.
 copyDependencies.enabled = false
+
+// Release zips carry only what Ghidra loads; generators and test suites stay in the repository.
+buildExtension {
+	exclude 'test/**', 'tools/**', 'spec/**'
+}

@@ -18,3 +18,8 @@ else {
 // symlinked modules) into lib/, where the stray copies shadow those modules' classes.  This module has
 // no Java code or dependencies, so disable it.
 copyDependencies.enabled = false
+
+// Release zips carry only what Ghidra loads; generators and test suites stay in the repository.
+buildExtension {
+	exclude 'test/**', 'gen/**'
+}

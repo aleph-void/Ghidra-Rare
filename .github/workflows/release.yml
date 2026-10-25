@@ -1,0 +1,114 @@
+# Builds every module as a Ghidra extension zip for the three newest Ghidra releases.
+# Pushes and pull requests upload the zips as workflow artifacts; pushing a v* tag also
+# publishes them as a GitHub release. Run it by hand to build other Ghidra versions.
+name: Release builds
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      ghidra_versions:
+        description: Space-separated Ghidra versions, e.g. "12.2 12.1.4" (default is the three newest releases)
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  versions:
+    name: Pick Ghidra versions
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.pick.outputs.matrix }}
+    steps:
+      - id: pick
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED: ${{ inputs.ghidra_versions }}
+        run: |
+          gh api 'repos/NationalSecurityAgency/ghidra/releases?per_page=50' > releases.json
+          matrix=$(jq -c --arg want "$REQUESTED" '
+            [ .[] | select((.draft or .prerelease) | not)
+              | (.tag_name | sub("^Ghidra_"; "") | sub("_build$"; "")) as $version
+              | .assets[] | select(.name | test("^ghidra_.*_PUBLIC_[0-9]+\\.zip$"))
+              | { version: $version, url: .browser_download_url,
+                  sha256: ((.digest // "") | sub("^sha256:"; "")) } ]
+            | if $want == "" then .[:3]
+              else map(select(.version as $v | $want | split(" ") | index($v))) end' releases.json)
+          echo "$matrix" | jq .
+          if [ "$(echo "$matrix" | jq length)" -eq 0 ]; then
+            echo "::error::No Ghidra release matches '$REQUESTED'"
+            exit 1
+          fi
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Ghidra ${{ matrix.ghidra.version }}
+    needs: versions
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ghidra: ${{ fromJSON(needs.versions.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Ghidra ${{ matrix.ghidra.version }}
+        env:
+          URL: ${{ matrix.ghidra.url }}
+          SHA256: ${{ matrix.ghidra.sha256 }}
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/ghidra.zip" "$URL"
+          if [ -n "$SHA256" ]; then
+            echo "$SHA256  $RUNNER_TEMP/ghidra.zip" | sha256sum -c
+          else
+            echo "::warning::GitHub publishes no digest for this release; download not verified"
+          fi
+          unzip -q "$RUNNER_TEMP/ghidra.zip" -d "$RUNNER_TEMP/ghidra"
+          ghidra=$(ls -d "$RUNNER_TEMP"/ghidra/ghidra_*_PUBLIC)
+          echo "GHIDRA_INSTALL_DIR=$ghidra" >> "$GITHUB_ENV"
+          # Each Ghidra release states the oldest JDK it supports (12.1: 21, 12.2: 25).
+          echo "JAVA_MIN=$(sed -n 's/^application.java.min=//p' "$ghidra/Ghidra/application.properties")" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_MIN }}
+
+      - name: Build extensions
+        run: tools/build-release.sh "$GHIDRA_INSTALL_DIR" dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ghidra-${{ matrix.ghidra.version }}
+          path: dist/*.zip
+          if-no-files-found: error
+
+  release:
+    name: Publish release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create or update the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd dist
+          sha256sum *.zip > SHA256SUMS
+          if ! gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+              --title "$GITHUB_REF_NAME" --generate-notes
+          fi
+          gh release upload "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --clobber *.zip SHA256SUMS

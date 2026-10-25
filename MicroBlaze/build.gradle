@@ -20,3 +20,8 @@ else {
 // otherwise copy every jar it finds under Ghidra/Processors into lib/, including other
 // modules' jars when those are symlinked in from outside the Ghidra install.
 copyDependencies.enabled = false
+
+// Release zips carry only what Ghidra loads; generators and test suites stay in the repository.
+buildExtension {
+	exclude 'test/**', 'scripts/**'
+}
