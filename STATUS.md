@@ -165,12 +165,12 @@ Imported from other authors and verified to the same bar. Each lives in an `alep
 
 | Area | State |
 |---|---|
-| Decode | 100% of non-explained words vs objdump 2.45 on the opcode table (6,090) and fuzz (50,000), BE and LE; differences are 3 documented classes (manual-only `l.lf`/`lf.stod.d`/`lf.dtos.d`, `l.muldu` 0xc vs binutils 0xd, register pairs past r31) |
-| Semantics | Full p-code incl. ORFPX32/ORFPX64A32 on register pairs; emulator 33/33 BE and LE |
-| Real binaries | Bootlin glibc (libc, libm, ld.so, static ldconfig) and a Linux kernel: disassembly identical to objdump (1.31M instructions), 14,303 functions, 0 decompile failures, relocations 0 errors |
-| Fixed here | Delay slots on BE, `l.jal`/`l.jalr` link address, PC-read `l.jal 8`, reserved bits, shift fields, the whole FPU, `l.sys`, `l.cmov`, ELF opinion, DWARF map, relocations, PLT thunks |
-| Doesn't work | glibc `vfprintf` computed-goto tables (49 `.rodata` words disassembled). Kernel exception vectors not auto-disassembled. SR flag bits are separate registers, so `mfspr`/`mtspr SR` doesn't see them. TLS/GOT relocations reported, not applied. `l.muldu` as GNU as encodes it (0xd) doesn't decode |
-| Unverified | LE/no-delay-slot language on real binaries (hx330x images have no public license); `R_OR1K_16`/`8` relocations vs ld |
+| Decode | 0 unexplained differences vs objdump 2.45 on the opcode table (95.85%; the rest are manual-only instructions and register pairs past r31) and 50,000 random words (98.45%), BE and LE; 145/145 entries decode. `l.muldu` decodes in both the manual's (0xc) and GNU as's (0xd) encodings |
+| Semantics | Full p-code incl. ORFPX32/ORFPX64A32, exact IEEE `lf.rem`, SR flag bits consistent through `l.mtspr`/`l.mfspr`/`l.rfe`; emulator 38/38 BE and LE |
+| Real binaries | Bootlin glibc (libc, libm, ld.so, static ldconfig) and a Linux kernel: 100% identical to objdump, 0 decompile failures; relocations incl. the GOT model match GNU ld; kernel exception vectors and `__ex_table` fixups found automatically (vmlinux: 9,047 functions) |
+| Fixed here | Delay slots on BE, link address, PC-read `l.jal 8`, reserved bits, shift fields, the FPU, `l.sys`, `l.cmov`, ELF opinion, DWARF map, relocation handler (incl. GOT model), PLT thunks, SR flags, vector analyzer |
+| Doesn't work (inherent) | TLS relocations: Ghidra rejects every STT_TLS relocation before the processor's handler runs. `l.cust*`/`lf.cust1` are implementation-defined. Barriers and hardware exceptions (overflow, range, alignment traps). glibc `vfprintf` computed-goto tables (decompiler) |
+| Unverified | LE/no-delay-slot language on real binaries (hx330x firmware has no license); ORBIS64 (no 64-bit core exists) |
 
 ### RH850 (V850E2/E3): done (community: @esaulenka and contributors)
 
