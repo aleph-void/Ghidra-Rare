@@ -99,12 +99,12 @@ Imported from other authors and verified to the same bar. Each lives in an `alep
 
 | Area | State |
 |---|---|
-| Decode | vs objdump 2.45 on every opcode-table entry and 50k random words: 21264+ 100% (99.2% exact); 21064 99.87% and 21164 98.23%, the rest traced to 2 confirmed objdump bugs. Every entry decodes (EV4 716/716, EV5 880/880, EV6 670/670). CALL_PAL names vs MAME 128/128 per OS |
-| Semantics | Emulator 37/37 (upstream as imported failed 9); 40,000/40,000 random operate instructions agree with qemu-alpha |
-| Real binaries | Debian alpha libz, ls, sort, libc, static busybox and QEMU's palcode-clipper: 826,708 instructions identical to objdump, 0 bad instructions, 1,703 relocations applied, 13,649 functions decompile with 0 failures |
-| Fixed here | PALcode encodings for all 3 PAL formats, `bis ra,lit,rc` as MOV, ZAP/ZAPNOT, EXTxH, NEGT, RPCC/RC/RS, STS size, FP compares, CALLSYS/RDUNIQ results, reserved opcodes, ELF opinion (signed e_machine), relocation handler, DWARF maps, LP64 cspec, gp seeding, PALcode entry-point script |
-| Doesn't work | MVI min/max/PERR, FPCR and IPR accesses are pcodeops. Rounding/trap qualifiers not modelled. VAX FP uses IEEE p-code. LDS/STS convert by value. ~2% of functions lose a switch table. ldgp's double entry gives 2 overlapping functions. gp-relative `.o` relocations not applied |
-| Unverified | Real NT/VMS binaries and EV4/EV5 PALcode images (checked against objdump/MAME only) |
+| Decode | vs objdump 2.45 on every opcode-table entry and 50k random words: 0 unexplained (21064/21164 remainders are 2 confirmed objdump bugs); every entry decodes (EV4 716/716, EV5 880/880, EV6 670/670); CALL_PAL names vs MAME 128/128 per OS |
+| Semantics | Emulator 53/53; 2 x 20,000 random instructions on 206 mnemonics agree with qemu-alpha or, for VAX floating point, an exact-rational model (QEMU's VAX helpers are broken). MVI min/max/PERR, bit-exact LDS/STS/LDF/LDG, /C /M /D rounding with FPCR, real VAX F/G/D arithmetic |
+| Real binaries | Debian alpha libz, ls, sort, libc, static busybox and QEMU palcode: 100% vs objdump, 0 bad, 0 decompile failures, 0 overlapping ldgp entries (was 1,448 in libc). Windows NT/AXP (MiKTeX 1.07, Info-ZIP unzip; GPL/free): 125,022 instructions, 829 functions, 0 failures. OpenVMS AXP (Info-ZIP UnZip): 13,899 instructions, 141 functions decompile |
+| Fixed here | PALcode formats, many semantics bugs, ELF opinion, relocations incl. gp-relative ones in `.o` files, DWARF maps, cspecs (shared int/FP argument slots, 32-bit NT/VMS pointers), ldgp entry thunks, PE support (opinion, `.pdata`, IAT), VMS procedure descriptors, switch tables (102 to 47 lost) |
+| Doesn't work (inherent) | 47 switch tables reached through merged values the decompiler doesn't separate. Trap qualifiers and FPCR exception bits (hardware exception state). RPCC, AMASK, cache hints, barriers, IPRs are pcodeops. TLS relocations: Ghidra rejects them before the handler runs. VMS images have no Ghidra loader (imported raw) |
+| Note | Bit-exact single-precision loads decompile as a bit-mapping expression rather than `(double)f` (30 sites in ls/sort, 23 in libc) |
 
 ### 65816: done (community: @achan1989, @kaayzouee; 65802 added here)
 
