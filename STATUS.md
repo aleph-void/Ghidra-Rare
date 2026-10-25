@@ -150,6 +150,17 @@ Imported from other authors and verified to the same bar. Each lives in an `alep
 | Doesn't work | GCC's absolute `__rl78_abs__` symbol becomes a bogus function at the reset vector. Only the GCC calling convention. Flash mirror (MAA) not modelled. BRK is a returning userop. Register bank only follows SEL along the flow |
 | Unverified | CC-RL/IAR output, RL78-S1 (G10) images, third-party prebuilt firmware (none freely licensed found) |
 
+### TMS34010: done (community: @ZPaul2Fresh8; instruction set rewritten here)
+
+| Area | State |
+|---|---|
+| Decode | 0 unexplained differences vs MAME on all 65,536 opcodes and 50,000 random slots; 330/330 constructors reached; NetBSD gspa assembler corpus 1,644/1,644 vs source. Upstream: 86.4%, and its pspec didn't load in Ghidra 12 |
+| Semantics | Full p-code incl. bit-addressed fields and all graphics ops (PIXT, DRAV, LINE, FILL, PIXBLT with PPOP, transparency, plane mask, window modes); emulator 98/98 (20 from the User's Guide); 137 MAME graphics vectors match (18 differ only in B10-B14 scratch) |
+| Real binaries | NetBSD A2410 grf_ultms program (BSD): 259/259 instructions identical to MAME and to source, 0 bad, decompiles |
+| Fixed here | Module layout, instruction set rewrite, memory model, pspec/cspec, symbol scripts for bit addresses, vector script; all README/TODO limitations from upstream |
+| Doesn't work | Interrupts and PBX resume not modelled (block ops run atomically). Bit-addressed pointers decompile as `*(p>>3)`, so no stack frames or stack parameters. Field sizes unknown at function entry until a SETF. No TI COFF loader. TMS34020 not covered (gap pass queued) |
+| Unverified | Commercial arcade/TIGA code (not freely licensed), TI C compiler output, PIXBLT/FILL W=1/W=2 and PBV with L,L (MAME doesn't implement them) |
+
 ## Lessons
 
 ### What worked

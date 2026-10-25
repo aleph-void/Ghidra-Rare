@@ -26,3 +26,7 @@
 	path = community/RH850
 	url = https://github.com/aleph-void/ghidra_v850.git
 	branch = ghidra-rare
+[submodule "community/TMS34010"]
+	path = community/TMS34010
+	url = https://github.com/aleph-void/Ghidra_TMS34010.git
+	branch = ghidra-rare
