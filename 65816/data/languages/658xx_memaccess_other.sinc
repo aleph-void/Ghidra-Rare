@@ -1,0 +1,27 @@
+# Stack absolute.
+MemStackAbs: !$imm16    is imm16  {
+    local data:2 = imm16;
+    export data;
+}
+
+# Stack direct page indirect.
+# No special wrapping.
+MemStackInd: (<$imm8)    is imm8  {
+    local offset8:1 = imm8;
+    local offset:4 = zext(offset8);
+
+    local data_lo:1; read_direct_noemu(data_lo, offset);
+    local data_hi:1; read_direct_noemu(data_hi, offset + 1);
+    local data:2; pack_lo_hi(data, data_lo, data_hi);
+    export data;
+}
+
+# Stack PC relative. For PER only, don't confuse with stack relative.
+# PER pushes the 16-bit address inst_next + rel16 (wrapping within the program bank); the
+# operand shows that address, as assemblers write it.
+MemStackPCRel: $target    is rel16
+    [ target = (inst_start $and 0xff0000) $or ((inst_next + rel16) $and 0xffff); ]
+{
+    local data:2 = target;
+    export data;
+}

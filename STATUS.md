@@ -72,6 +72,17 @@ Terms used below:
 
 Imported from other authors and verified to the same bar; see each module's `CREDITS.md`.
 
+### 65816: done (community: @achan1989, @kaayzouee)
+
+| Area | State |
+|---|---|
+| Decode | 100% semantic vs MAME's g65816 disassembler (driven with M/X options) in all 5 M/X/E modes, 34,096 records each; 100% ca65 round trip; every opcode decodes in every mode |
+| Semantics | SingleStepTests/65816 25,400/25,600 (only WAI/STP halt pcodeops fail); emulator 45/45; M/X context tracking 20/20 |
+| Real binaries | 13 homebrew ROMs (PVSnesLib examples, snes-test-roms): all 45,803 instructions match MAME, widths correct at every PC in MAME execution traces, 8/530 decompile timeouts |
+| Fixed here | Ghidra 12 cspec load failure, direct JMP/JSR/JSL calls, XCE mode, PER/WDM display, emulator p-code errors (pushes, pulls, PHP/BRK/COP, DP wrap), PHP..PLP and PEA;PLP width tracking, the SNES ROM loader the opinion referred to |
+| Doesn't work | Widths after PLP/RTI with no PHP/PEA, after XCE without CLC/SEC, or after REP/SEP in a callee. Code run at two widths gets a bookmark. WAI/STP are pcodeops. Bank wrap not modelled. Loader has no ExHiROM/SA-1/SRAM and doesn't track DBR |
+| Unverified | Large commercial-style ROMs, the 65802 |
+
 ### OpenRISC 1000: done (community: @smaeul, @Spritetm)
 
 | Area | State |

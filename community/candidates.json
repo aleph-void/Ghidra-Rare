@@ -18,7 +18,7 @@
    "achan1989/ghidra-65816",
    "saffronisa/ghidra-saffron"
   ],
-  "why": "Same SLEIGH as achan1989 (original, credit) plus Java and tests; newest",
+  "why": "achan1989's history (original, credit) plus Kay's semantic fixes (145 lines of the SLEIGH differ); saffronisa/ghidra-saffron is an unmodified copy of achan1989",
   "url": "https://github.com/kaayzouee/ghidra-65816",
   "license_request": null
  },

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<processor_spec>
+  <programcounter register="PC_FULL"/>
+
+  <!-- <volatile outputop="write" inputop="read">
+    <range space="RAM" first="0x0" last="0x20"/>
+  </volatile> -->
+
+  <default_symbols>
+    <!-- We'd like to designate the following as entry point vectors by using the attributes
+    `entry="true" type="code_ptr"`, but that doesn't work properly. Because the PC is three bytes
+    Ghidra expects these vectors to be three bytes, but they are actually only two bytes in ROM
+    (the 65816 always assumes that the highest byte is zero).
+    You must add the entry points manually, or rely on a loader or scripts to set them up. -->
+    <symbol name="VEC_IRQ_EMULATION" address="FFFE"/>
+    <symbol name="VEC_RESET_EMULATION" address="FFFC"/>
+    <symbol name="VEC_NMI_EMULATION" address="FFFA"/>
+    <symbol name="VEC_ABORT_EMULATION" address="FFF8"/>
+    <symbol name="VEC_COP_EMULATION" address="FFF4"/>
+    <symbol name="VEC_IRQ_NATIVE" address="FFEE"/>
+    <symbol name="VEC_NMI_NATIVE" address="FFEA"/>
+    <symbol name="VEC_ABORT_NATIVE" address="FFE8"/>
+    <symbol name="VEC_BRK_NATIVE" address="FFE6"/>
+    <symbol name="VEC_COP_NATIVE" address="FFE4"/>
+  </default_symbols>
+
+  <!--
+  <default_memory_blocks>
+  </default_memory_blocks>
+  -->
+</processor_spec>

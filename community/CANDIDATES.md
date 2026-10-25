@@ -10,7 +10,7 @@ Pull requests are covered by Ghidra's contribution terms (Apache-2.0).
 
 | CPU | Selected source | License | Compiles | Constructors | Original authors (credit) | Alternatives / notes |
 |---|---|---|---|---|---|---|
-| 65816 (SNES) | [kaayzouee/ghidra-65816](https://github.com/kaayzouee/ghidra-65816) | MIT (ok) | 1/1 | 277 | @achan1989, @kaayzouee, @greg-kennedy; also @achan1989, @greg-kennedy (achan1989/ghidra-65816) | Same SLEIGH as achan1989 (original, credit) plus Java and tests; newest Alternatives: achan1989/ghidra-65816, saffronisa/ghidra-saffron. |
+| 65816 (SNES) | [kaayzouee/ghidra-65816](https://github.com/kaayzouee/ghidra-65816) | MIT (ok) | 1/1 | 277 | @achan1989, @kaayzouee, @greg-kennedy; also @achan1989, @greg-kennedy (achan1989/ghidra-65816) | achan1989's history (original, credit) plus Kay's semantic fixes (145 lines of the SLEIGH differ); saffronisa/ghidra-saffron is an unmodified copy of achan1989 Alternatives: achan1989/ghidra-65816, saffronisa/ghidra-saffron. |
 | ADI SHARC | [roblg/ghidra-sharc](https://github.com/roblg/ghidra-sharc) | Apache-2.0 (ok) | 1/1 | 2774 | @roblg | Only implementation found |
 | Adreno SQE (QRISC) | [locus-x64/ida-adreno-qrisc](https://github.com/locus-x64/ida-adreno-qrisc) | MIT (ok) | 3/3 | 118 | @locus-x64 | Only implementation found |
 | Aeon R2 | [eb4x/ghidra-plugin-aeon](https://github.com/eb4x/ghidra-plugin-aeon) | Apache-2.0 (ok) | 3/3 | 816 | @eb4x | Only implementation found |
