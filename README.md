@@ -1,5 +1,7 @@
 # Ghidra-Rare
 
+[![Sponsor Aleph Void](https://img.shields.io/badge/Sponsor-Aleph%20Void-EA4AAA?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/aleph-void)
+
 Ghidra processor modules (SLEIGH) for uncommon CPU, DSP and GPU architectures. Developed on
 **Ghidra 12.1.4**; release builds cover the three newest Ghidra releases (currently 12.1.3,
 12.1.4 and 12.2).
