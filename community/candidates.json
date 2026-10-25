@@ -1985,5 +1985,65 @@
   "why": "Only implementation found",
   "url": "https://github.com/jpelletier/Z8000",
   "license_request": "https://github.com/jpelletier/Z8000/issues/1"
+ },
+ {
+  "cpu": "TI TMS320C54x",
+  "source": "gabtremblay/ghidra-tms320c54x",
+  "license": "Apache-2.0",
+  "status": "ok",
+  "compiles": "?",
+  "constructors": null,
+  "unimpl": null,
+  "authors": "Gabriel Tremblay (@gabtremblay)",
+  "credit_also": [],
+  "alternatives": [],
+  "why": "Only implementation found; released 2026-10-25 for Ghidra 12.2; found after the survey (IDA gap check)",
+  "url": "https://github.com/gabtremblay/ghidra-tms320c54x"
+ },
+ {
+  "cpu": "Hitachi SH-3 / SH-2E",
+  "source": "will07c5/ghidra-sh",
+  "license": "MIT",
+  "status": "ok",
+  "compiles": "?",
+  "constructors": null,
+  "unimpl": null,
+  "authors": "@will07c5",
+  "credit_also": [],
+  "alternatives": [],
+  "why": "Ghidra has SH-1/SH-2/SH-2A and SH-4 but no SH-3 or SH-2E; this repo has SH-3 (SH-2E to be added). Originally set aside as a near-duplicate of Ghidra's SuperH",
+  "url": "https://github.com/will07c5/ghidra-sh"
+ },
+ {
+  "cpu": "WebAssembly",
+  "source": "PR#4103",
+  "license": "Apache-2.0 (Ghidra contribution)",
+  "status": "ok",
+  "compiles": "?",
+  "constructors": null,
+  "unimpl": null,
+  "authors": "@nneonneo",
+  "credit_also": [],
+  "alternatives": [
+   "garrettgu10/ghidra-wasm-plugin (GPL-3.0)",
+   "Ryxm-a/Ghidra-WebAssembly-WASM-Plugin (GPL-3.0)",
+   "andr3colonel/ghidra_wasm (no license)"
+  ],
+  "why": "Bytecode VM, added because IDA supports it out of the box; PR is Apache-2.0 and maintained; compare with the GPL plugins during verification",
+  "url": "https://github.com/NationalSecurityAgency/ghidra/pull/4103"
+ },
+ {
+  "cpu": "EFI Byte Code (EBC)",
+  "source": "meromwolff/Ghidra-EFI-Byte-Code-Processor",
+  "license": "MIT",
+  "status": "ok",
+  "compiles": "1/1",
+  "constructors": null,
+  "unimpl": null,
+  "authors": "@meromwolff",
+  "credit_also": [],
+  "alternatives": [],
+  "why": "Bytecode VM, added because IDA supports it out of the box",
+  "url": "https://github.com/meromwolff/Ghidra-EFI-Byte-Code-Processor"
  }
 ]

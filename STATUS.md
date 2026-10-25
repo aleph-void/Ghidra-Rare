@@ -68,6 +68,28 @@ Terms used below:
 | Doesn't work | 64-bit variants decode many random words `nvdisasm` rejects. Kepler was learned only from our kernels plus random probes, and prints `ATOM.CAS`'s implicit register pair as a number. Turing prints `RED [UR]` with an `RZ.64` base; one `ULEA.HI.X.SX32` encoding undecoded; float immediates print as hex. Raw 64-bit images need the `ctl` context set per bundle (the cubin loader does it) |
 | Unverified | Real third-party Kepler and Maxwell code: no held-out cubins for SM35 or SM52 were tested |
 
+## Planned: clean-room modules for CPUs IDA Pro supports and Ghidra doesn't
+
+From a comparison with IDA Pro 9.1's supported-processor list (2026-10-25). Written here from vendor
+manuals, verified against a free reference disassembler run as a black box:
+
+| CPU | Reference disassembler | Status |
+|---|---|---|
+| Zilog Z8 | MAME `z8` | in progress |
+| Philips XA (51XA) | MAME `xa` | in progress |
+| ST9 / ST9+ | MAME `st9`, `st9p` | in progress |
+| TI TMS320C2x (C25) and TMS320C5x | MAME `tms320c2x`, `tms320c5x` | in progress |
+| Intel i860 | MAME `i860` | planned |
+| Analog Devices ADSP-218x | MAME `adsp21xx` | planned |
+| Motorola DSP56000 and DSP561xx | MAME `dsp56000`, `dsp56156` | planned |
+| Renesas RX (v1, v2, v3) | binutils `rx`, `rx:v2`, `rx:v3` | planned |
+| Intel IA-64 (Itanium) | binutils `ia64` | planned |
+
+Extensions of community modules: V850E1/E1F/ES into RH850 (binutils `v850e1`), H8SX into the H8
+module (binutils `h8300sx`), SH-2E alongside SH-3 (binutils `sh2e`). No reference tool found, so
+not started: ST20, Z380, SAM8, KR1878, M7900, 78K0S, F2MC-8L/LC, DSP566xx, TMS320C55x, TX19/TX19A,
+Rockwell C39, .NET CIL.
+
 ## Community modules
 
 Imported from other authors and verified to the same bar. Each lives in an `aleph-void` fork

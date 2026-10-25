@@ -2,9 +2,9 @@
 
 Survey date 2026-10-25. Sources: all 2,160 pull requests to NationalSecurityAgency/ghidra (changed files checked for new processors or `.slaspec` files), GitHub code search for `.slaspec` files (sharded by size), and repository search by name, description and topic. Copies of Ghidra's own specs are excluded by comparing against the 152 `.slaspec` names in Ghidra master.
 
-122 CPUs not supported by Ghidra 12.2. Where several implementations exist, the most complete one that compiles and is licensed for redistribution is picked; metrics are constructors in the SLEIGH, `unimpl` p-code bodies, spec files, Java, tests and whether every `.slaspec` compiles with Ghidra 12.1.4's `sleigh`. These are first-pass selections; verification can change them.
+126 CPUs not supported by Ghidra 12.2. Where several implementations exist, the most complete one that compiles and is licensed for redistribution is picked; metrics are constructors in the SLEIGH, `unimpl` p-code bodies, spec files, Java, tests and whether every `.slaspec` compiles with Ghidra 12.1.4's `sleigh`. These are first-pass selections; verification can change them.
 
-License status: **86 permissive**, **7 copyleft** (GPL/LGPL), **29 blocked** (no license, non-commercial or unclear: cannot be redistributed without the author's permission).
+License status: **90 permissive**, **7 copyleft** (GPL/LGPL), **29 blocked** (no license, non-commercial or unclear: cannot be redistributed without the author's permission).
 
 Pull requests are covered by Ghidra's contribution terms (Apache-2.0).
 
@@ -132,6 +132,10 @@ Pull requests are covered by Ghidra's contribution terms (Apache-2.0).
 | XaviX | [widberg/rad_sbw](https://github.com/widberg/rad_sbw) | MIT (ok) | 1/1 | 156 | @widberg | MIT; tahg unlicensed copy Alternatives: tahg/x2ghidra. |
 | Xilinx PicoBlaze | [PR#7511](https://github.com/NationalSecurityAgency/ghidra/pull/7511) | Apache-2.0 (Ghidra contribution) (ok) | 2/2 | 117 | @CUB3D (commits: CUB3D) | Same author (CUB3D); PR is newer Alternatives: CUB3D/ghidra-picoblaze. |
 | Zilog Z8000 | [jpelletier/Z8000](https://github.com/jpelletier/Z8000) | none (blocked) | 2/2 | 937 | @jpelletier | Only implementation found |
+| TI TMS320C54x | [gabtremblay/ghidra-tms320c54x](https://github.com/gabtremblay/ghidra-tms320c54x) | Apache-2.0 (ok) | ? | - | Gabriel Tremblay (@gabtremblay) | Only implementation found; released 2026-10-25 for Ghidra 12.2; found after the survey (IDA gap check). |
+| Hitachi SH-3 / SH-2E | [will07c5/ghidra-sh](https://github.com/will07c5/ghidra-sh) | MIT (ok) | ? | - | @will07c5 | Ghidra has SH-1/SH-2/SH-2A and SH-4 but no SH-3 or SH-2E; this repo has SH-3 (SH-2E to be added). Originally set aside as a near-duplicate of Ghidra's SuperH. |
+| WebAssembly | [PR#4103](https://github.com/NationalSecurityAgency/ghidra/pull/4103) | Apache-2.0 (Ghidra contribution) (ok) | ? | - | @nneonneo | Bytecode VM, added because IDA supports it out of the box; PR is Apache-2.0 and maintained; compare with the GPL plugins during verification. Alternatives: garrettgu10/ghidra-wasm-plugin (GPL-3.0), Ryxm-a/Ghidra-WebAssembly-WASM-Plugin (GPL-3.0), andr3colonel/ghidra_wasm (no license). |
+| EFI Byte Code (EBC) | [meromwolff/Ghidra-EFI-Byte-Code-Processor](https://github.com/meromwolff/Ghidra-EFI-Byte-Code-Processor) | MIT (ok) | 1/1 | - | @meromwolff | Bytecode VM, added because IDA supports it out of the box. |
 
 ## Not selected (variants of processors Ghidra already has)
 
@@ -139,7 +143,7 @@ Unmerged pull requests and repositories that extend an official Ghidra processor
 
 ## Not selected (bytecode and script VMs)
 
-WebAssembly (PR#4103, garrettgu10, andr3colonel), EVM (adelapie, syjcnss), V8 bytecode (Llamaware, drylikov, aynakeya), Hermes, NSIS, AGS, CHIP-8, Garmin VM, Wasmtime Pulley, QVM, game script VMs (BGI, YSC, Clock Tower, KH2 AI, fscript), DXBC, EFI Byte Code (meromwolff), toy and test specs.
+WebAssembly and EFI Byte Code moved to the main table (IDA Pro supports them out of the box). Still not selected: EVM (adelapie, syjcnss), V8 bytecode (Llamaware, drylikov, aynakeya), Hermes, NSIS, AGS, CHIP-8, Garmin VM, Wasmtime Pulley, QVM, game script VMs (BGI, YSC, Clock Tower, KH2 AI, fscript), DXBC, toy and test specs.
 
 ## Overlaps with this repository
 
