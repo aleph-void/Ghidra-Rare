@@ -1,7 +1,10 @@
 # Reusable workflow for the aleph-void forks of community processor modules. Each fork's
-# ghidra-rare branch calls it to build its module for the three newest Ghidra releases; pushes
-# keep the zips as workflow artifacts and a tag (ghidra-rare-v*, so it can't collide with upstream's
-# own tags) publishes them as a GitHub release.
+# ghidra-rare branch calls it to build its module for the three newest Ghidra releases:
+# - pushes and pull requests keep the zips as workflow artifacts;
+# - a ghidra-rare-v* tag publishes them as a GitHub release (the prefix keeps clear of upstream's
+#   own tags);
+# - the weekly schedule (check_new) releases "ghidra-rare-ghidra-<version>" when a new Ghidra
+#   version is out that no release of the fork has a build for yet.
 #
 #   jobs:
 #     release:
@@ -9,6 +12,7 @@
 #       with:
 #         module_dir: .        # path of Module.manifest in the fork
 #         name: OpenRISC       # extension name
+#         check_new: ${{ github.event_name == 'schedule' || inputs.check_new == true }}
 #       permissions:
 #         contents: write
 name: Module release builds
@@ -28,6 +32,14 @@ on:
         description: Space-separated Ghidra versions (default is the three newest releases)
         type: string
         default: ''
+      check_new:
+        description: Only build and release if no release has builds for the newest Ghidra yet
+        type: boolean
+        default: false
+      tag_prefix:
+        description: Prefix for the release tag created by check_new
+        type: string
+        default: ghidra-rare-
 
 jobs:
   versions:
@@ -35,31 +47,26 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.pick.outputs.matrix }}
+      proceed: ${{ steps.pick.outputs.proceed }}
+      tag: ${{ steps.pick.outputs.tag }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: aleph-void/Ghidra-Rare
+          sparse-checkout: tools
       - id: pick
         env:
           GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
           REQUESTED: ${{ inputs.ghidra_versions }}
-        run: |
-          gh api 'repos/NationalSecurityAgency/ghidra/releases?per_page=50' > releases.json
-          matrix=$(jq -c --arg want "$REQUESTED" '
-            [ .[] | select((.draft or .prerelease) | not)
-              | (.tag_name | sub("^Ghidra_"; "") | sub("_build$"; "")) as $version
-              | .assets[] | select(.name | test("^ghidra_.*_PUBLIC_[0-9]+\\.zip$"))
-              | { version: $version, url: .browser_download_url,
-                  sha256: ((.digest // "") | sub("^sha256:"; "")) } ]
-            | if $want == "" then .[:3]
-              else map(select(.version as $v | $want | split(" ") | index($v))) end' releases.json)
-          echo "$matrix" | jq .
-          if [ "$(echo "$matrix" | jq length)" -eq 0 ]; then
-            echo "::error::No Ghidra release matches '$REQUESTED'"
-            exit 1
-          fi
-          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          CHECK_NEW: ${{ inputs.check_new }}
+          TAG_PREFIX: ${{ inputs.tag_prefix }}
+        run: tools/ghidra-versions.sh
 
   build:
     name: Ghidra ${{ matrix.ghidra.version }}
     needs: versions
+    if: needs.versions.outputs.proceed == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -112,8 +119,8 @@ jobs:
 
   release:
     name: Publish release
-    if: startsWith(github.ref, 'refs/tags/')
-    needs: build
+    needs: [versions, build]
+    if: startsWith(github.ref, 'refs/tags/') || needs.versions.outputs.tag != ''
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -126,11 +133,18 @@ jobs:
       - name: Create or update the release
         env:
           GH_TOKEN: ${{ github.token }}
+          NEW_TAG: ${{ needs.versions.outputs.tag }}
         run: |
           cd dist
           sha256sum *.zip > SHA256SUMS
-          if ! gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
-            gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
-              --title "$GITHUB_REF_NAME" --generate-notes
+          tag=${NEW_TAG:-$GITHUB_REF_NAME}
+          if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            if [ -n "$NEW_TAG" ]; then
+              gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+                --title "Builds for Ghidra ${tag##*ghidra-}" \
+                --notes "Automatic release: Ghidra ${tag##*ghidra-} is out. The zips build this commit for the three newest Ghidra releases."
+            else
+              gh release create "$tag" --repo "$GITHUB_REPOSITORY" --title "$tag" --generate-notes
+            fi
           fi
-          gh release upload "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --clobber *.zip SHA256SUMS
+          gh release upload "$tag" --repo "$GITHUB_REPOSITORY" --clobber *.zip SHA256SUMS

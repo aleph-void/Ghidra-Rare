@@ -1,6 +1,10 @@
-# Builds every module as a Ghidra extension zip for the three newest Ghidra releases.
-# Pushes and pull requests upload the zips as workflow artifacts; pushing a v* tag also
-# publishes them as a GitHub release. Run it by hand to build other Ghidra versions.
+# Builds every module, including the community submodules, as Ghidra extension zips for the three
+# newest Ghidra releases.
+# - Pushes and pull requests upload the zips as workflow artifacts.
+# - A v* tag publishes them as a GitHub release.
+# - Every Monday the workflow checks for a new Ghidra release; if no release here has builds for
+#   it yet, it publishes "ghidra-<version>" from main. Run it by hand with check_new to do the same
+#   now, or with ghidra_versions to build other versions.
 name: Release builds
 
 on:
@@ -8,12 +12,18 @@ on:
     branches: [main]
     tags: ['v*']
   pull_request:
+  schedule:
+    - cron: '17 6 * * 1'
   workflow_dispatch:
     inputs:
       ghidra_versions:
         description: Space-separated Ghidra versions, e.g. "12.2 12.1.4" (default is the three newest releases)
         required: false
         default: ''
+      check_new:
+        description: Release only if no release has builds for the newest Ghidra yet (what the weekly run does)
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -24,31 +34,25 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.pick.outputs.matrix }}
+      proceed: ${{ steps.pick.outputs.proceed }}
+      tag: ${{ steps.pick.outputs.tag }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: tools
       - id: pick
         env:
           GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
           REQUESTED: ${{ inputs.ghidra_versions }}
-        run: |
-          gh api 'repos/NationalSecurityAgency/ghidra/releases?per_page=50' > releases.json
-          matrix=$(jq -c --arg want "$REQUESTED" '
-            [ .[] | select((.draft or .prerelease) | not)
-              | (.tag_name | sub("^Ghidra_"; "") | sub("_build$"; "")) as $version
-              | .assets[] | select(.name | test("^ghidra_.*_PUBLIC_[0-9]+\\.zip$"))
-              | { version: $version, url: .browser_download_url,
-                  sha256: ((.digest // "") | sub("^sha256:"; "")) } ]
-            | if $want == "" then .[:3]
-              else map(select(.version as $v | $want | split(" ") | index($v))) end' releases.json)
-          echo "$matrix" | jq .
-          if [ "$(echo "$matrix" | jq length)" -eq 0 ]; then
-            echo "::error::No Ghidra release matches '$REQUESTED'"
-            exit 1
-          fi
-          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          CHECK_NEW: ${{ github.event_name == 'schedule' || inputs.check_new == true }}
+          TAG_PREFIX: ''
+        run: tools/ghidra-versions.sh
 
   build:
     name: Ghidra ${{ matrix.ghidra.version }}
     needs: versions
+    if: needs.versions.outputs.proceed == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -92,8 +96,8 @@ jobs:
 
   release:
     name: Publish release
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: build
+    needs: [versions, build]
+    if: startsWith(github.ref, 'refs/tags/v') || needs.versions.outputs.tag != ''
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -106,11 +110,18 @@ jobs:
       - name: Create or update the release
         env:
           GH_TOKEN: ${{ github.token }}
+          NEW_TAG: ${{ needs.versions.outputs.tag }}
         run: |
           cd dist
           sha256sum *.zip > SHA256SUMS
-          if ! gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
-            gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
-              --title "$GITHUB_REF_NAME" --generate-notes
+          tag=${NEW_TAG:-$GITHUB_REF_NAME}
+          if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            if [ -n "$NEW_TAG" ]; then
+              gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+                --title "Builds for Ghidra ${tag#ghidra-}" \
+                --notes "Automatic release: Ghidra ${tag#ghidra-} is out. The zips build this commit for the three newest Ghidra releases."
+            else
+              gh release create "$tag" --repo "$GITHUB_REPOSITORY" --title "$tag" --generate-notes
+            fi
           fi
-          gh release upload "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --clobber *.zip SHA256SUMS
+          gh release upload "$tag" --repo "$GITHUB_REPOSITORY" --clobber *.zip SHA256SUMS
