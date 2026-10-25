@@ -1,0 +1,42 @@
+<dwarf>
+  <!-- GCC/binutils Alpha DWARF numbering: 0..31 integer registers ($30 is the stack pointer),
+       32..63 floating-point registers, 64 the program counter. The CFA at entry is $30 + 0. -->
+  <register_mappings>
+    <register_mapping dwarf="0" ghidra="v0"/>
+    <register_mapping dwarf="1" ghidra="t0"/>
+    <register_mapping dwarf="2" ghidra="t1"/>
+    <register_mapping dwarf="3" ghidra="t2"/>
+    <register_mapping dwarf="4" ghidra="t3"/>
+    <register_mapping dwarf="5" ghidra="t4"/>
+    <register_mapping dwarf="6" ghidra="t5"/>
+    <register_mapping dwarf="7" ghidra="t6"/>
+    <register_mapping dwarf="8" ghidra="t7"/>
+    <register_mapping dwarf="9" ghidra="s0"/>
+    <register_mapping dwarf="10" ghidra="s1"/>
+    <register_mapping dwarf="11" ghidra="s2"/>
+    <register_mapping dwarf="12" ghidra="s3"/>
+    <register_mapping dwarf="13" ghidra="s4"/>
+    <register_mapping dwarf="14" ghidra="s5"/>
+    <register_mapping dwarf="15" ghidra="fp"/>
+    <register_mapping dwarf="16" ghidra="a0"/>
+    <register_mapping dwarf="17" ghidra="a1"/>
+    <register_mapping dwarf="18" ghidra="a2"/>
+    <register_mapping dwarf="19" ghidra="a3"/>
+    <register_mapping dwarf="20" ghidra="a4"/>
+    <register_mapping dwarf="21" ghidra="a5"/>
+    <register_mapping dwarf="22" ghidra="t8"/>
+    <register_mapping dwarf="23" ghidra="t9"/>
+    <register_mapping dwarf="24" ghidra="t10"/>
+    <register_mapping dwarf="25" ghidra="t11"/>
+    <register_mapping dwarf="26" ghidra="ra"/>
+    <register_mapping dwarf="27" ghidra="t12"/>
+    <register_mapping dwarf="28" ghidra="at"/>
+    <register_mapping dwarf="29" ghidra="gp"/>
+    <register_mapping dwarf="30" ghidra="sp" stackpointer="true"/>
+    <register_mapping dwarf="31" ghidra="zero"/>
+    <register_mapping dwarf="32" ghidra="f0" auto_count="31"/> <!-- f0..f30 -->
+    <register_mapping dwarf="63" ghidra="fzero"/>
+    <register_mapping dwarf="64" ghidra="PC"/>
+  </register_mappings>
+  <call_frame_cfa value="0"/>
+</dwarf>

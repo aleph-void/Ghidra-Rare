@@ -1,0 +1,4 @@
+@define 21264 ""
+@define UNIX ""
+
+@include "alpha.sinc"

@@ -1,0 +1,4 @@
+@define 21364 ""
+@define NT ""
+
+@include "alpha.sinc"

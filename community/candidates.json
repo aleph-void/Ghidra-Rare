@@ -309,7 +309,7 @@
   "source": "kkaempf/ghidra-alpha",
   "license": "Apache-2.0",
   "status": "ok",
-  "compiles": "12/15",
+  "compiles": "15/15",
   "constructors": 367,
   "unimpl": 8,
   "authors": "@mattst88, @kkaempf",

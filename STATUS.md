@@ -72,6 +72,17 @@ Terms used below:
 
 Imported from other authors and verified to the same bar; see each module's `CREDITS.md`.
 
+### Alpha: done (community: @kkaempf, @mattst88; 15 languages)
+
+| Area | State |
+|---|---|
+| Decode | vs objdump 2.45 on every opcode-table entry and 50k random words: 21264+ 100% (99.2% exact); 21064 99.87% and 21164 98.23%, the rest traced to 2 confirmed objdump bugs. Every entry decodes (EV4 716/716, EV5 880/880, EV6 670/670). CALL_PAL names vs MAME 128/128 per OS |
+| Semantics | Emulator 37/37 (upstream as imported failed 9); 40,000/40,000 random operate instructions agree with qemu-alpha |
+| Real binaries | Debian alpha libz, ls, sort, libc, static busybox and QEMU's palcode-clipper: 826,708 instructions identical to objdump, 0 bad instructions, 1,703 relocations applied, 13,649 functions decompile with 0 failures |
+| Fixed here | PALcode encodings for all 3 PAL formats, `bis ra,lit,rc` as MOV, ZAP/ZAPNOT, EXTxH, NEGT, RPCC/RC/RS, STS size, FP compares, CALLSYS/RDUNIQ results, reserved opcodes, ELF opinion (signed e_machine), relocation handler, DWARF maps, LP64 cspec, gp seeding, PALcode entry-point script |
+| Doesn't work | MVI min/max/PERR, FPCR and IPR accesses are pcodeops. Rounding/trap qualifiers not modelled. VAX FP uses IEEE p-code. LDS/STS convert by value. ~2% of functions lose a switch table. ldgp's double entry gives 2 overlapping functions. gp-relative `.o` relocations not applied |
+| Unverified | Real NT/VMS binaries and EV4/EV5 PALcode images (checked against objdump/MAME only) |
+
 ### 65816: done (community: @achan1989, @kaayzouee)
 
 | Area | State |
