@@ -239,6 +239,19 @@ Reference-tool bugs: objdump `-m m68hc11` prints 0x00 as the HC12 `bgnd`; MAME m
 
 Language ID changed from `SPU:BE:128:default` (never selectable for ELF32) to `SPU:BE:32:default`; `.trans` files upgrade old programs.
 
+### VAX: done (community: @kkaempf)
+
+| Area | State |
+|---|---|
+| Decode | vs objdump 2.45: every opcode × operand position × addressing mode (36,604 instructions), 40,000 random, and every PC-relative/immediate specifier at every reachable offset (9,111): 0 unexplained (explained: reserved addressing modes objdump prints, the 780's immediate index base, BUGW/BUGL inline codes, 2 objdump bugs). Every-entry 1,490/1,490; upstream's own tests 14/14 |
+| Semantics | All 306 opcodes are p-code (no pcodeops). Checked against SIMH VAX-11/780: 16,140 random-operand cases on 269 opcodes plus 27 programs × 30 register sets (calls/frames, traps, CHMx/REI, queues, CASE, SVPCTX/LDPCTX, MTPR/MFPR, probes): 0 mismatches, including 105 matching faults. Emulator 38/38 hand-computed, broken expectation detected |
+| Real code | NetBSD 10.2/vax ls, ksh, csh, awk, ld.elf_so, libm, libc and the GENERIC kernel, auto-imported: 1,058,549 instructions in 16,320 functions, 1,057,430 identical to objdump, 1,119 explained, 0 unexplained; 3,887 relocations applied; relocatable objects match GNU ld byte for byte; 15,497 functions decompile, 14 fail, 3 time out |
+| Fixed here | Spec did not compile with stock Ghidra; 37 instructions unimplemented; VAX floats used IEEE arithmetic; MUL/DIV did not set V; no ELF opinion, relocations, dwarf or usable cspec; entry masks (#1); register writes (#2); PC-relative relocation off by 4; PLT run-ins; bit-field decompile failures |
+| Doesn't work | Memory management, interrupt delivery, first-part-done restart, machine checks (outside p-code's flat memory); compatibility-mode PDP-11 code; the vector extension (no oracle or binaries); RET skips the saved-PSW MBZ check; float code decompiles as integer arithmetic (decompiler knows only IEEE); 14 decompiler-internal failures and 3 timeouts reproducible with 12.2 |
+| Unverified | BUGW/BUGL inline-code convention (VMS); R_VAX_PC8/PC16; the Debugger GUI; MicroVAX subset emulation traps |
+
+objdump 2.45 bugs: cvtgf destination typed h-float; vax-dis.c MAXLEN 25 overruns on instructions longer than 25 bytes.
+
 ### TILE-Gx: initial support complete (community: @speidy)
 
 | Area | State |

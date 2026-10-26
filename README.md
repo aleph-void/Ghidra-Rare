@@ -72,6 +72,7 @@ as a git submodule under `community/`, pinned to the verified commit
 | [TMS34010/TMS34020](https://github.com/aleph-void/Ghidra_TMS34010/blob/ghidra-rare/GHIDRA-RARE.md) | TI graphics CPUs, with bit-addressed memory and a TI COFF loader | `tms34010:LE:32:default`, `tms34020:LE:32:default` | @ZPaul2Fresh8 | Apache-2.0 |
 | [Cell SPU](https://github.com/aleph-void/GhidraSPU/blob/ghidra-rare/GHIDRA-RARE.md) | Cell Broadband Engine SPU (SPU ISA v1.2), 128-bit SIMD registers, ELF relocations and switch-table analyzer | `SPU:BE:32:default` (renamed from `SPU:BE:128:default`; old programs upgrade automatically) | Adrian (@aerosoul94), @balika011, Eladash (@elad335), Nick Renieris (@VelocityRa) | Apache-2.0 |
 | [TILE-Gx](https://github.com/aleph-void/ghidra-tilegx/blob/ghidra-rare/GHIDRA-RARE.md) | Tilera TILE-Gx, little/big-endian data and 32/64-bit ABI | `TILE:{LE,BE}:{32,64}:default` | Idan Freiberg (@speidy, Ghidra PR #9426) | Apache-2.0 |
+| [VAX](https://github.com/aleph-void/ghidra-vax/blob/ghidra-rare/GHIDRA-RARE.md) | DEC VAX: all 306 opcodes with exact VAX floating point, packed decimal and privileged instructions; ELF relocations and an entry-mask analyzer | `VAX:LE:32:default` | Klaus Kämpf (@kkaempf) | Apache-2.0 |
 
 ## Relationship to the IDA modules
 

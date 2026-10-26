@@ -78,3 +78,7 @@
 	path = community/NS32016
 	url = https://github.com/aleph-void/ghidra-NS32016.git
 	branch = ghidra-rare
+[submodule "community/VAX"]
+	path = community/VAX
+	url = https://github.com/aleph-void/ghidra-vax.git
+	branch = ghidra-rare
