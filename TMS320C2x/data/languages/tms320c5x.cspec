@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<compiler_spec>
+  <data_organization>
+    <absolute_max_alignment value="0"/>
+    <machine_alignment value="2"/>
+    <default_alignment value="2"/>
+    <default_pointer_alignment value="2"/>
+    <pointer_size value="2"/>
+    <char_size value="2"/>
+    <short_size value="2"/>
+    <integer_size value="2"/>
+    <long_size value="4"/>
+    <long_long_size value="4"/>
+    <float_size value="4"/>
+    <double_size value="4"/>
+    <long_double_size value="4"/>
+    <size_alignment_map>
+      <entry size="1" alignment="2"/>
+      <entry size="2" alignment="2"/>
+      <entry size="4" alignment="2"/>
+    </size_alignment_map>
+  </data_organization>
+  <global>
+    <range space="prog"/>
+    <range space="data"/>
+    <range space="io"/>
+  </global>
+  <!-- TI C compiler convention: AR1 is the software stack pointer, growing upward in data memory -->
+  <stackpointer register="AR1" space="data" growth="positive"/>
+  <returnaddress>
+    <register name="STK0"/>
+  </returnaddress>
+  <default_proto>
+    <prototype name="__stdcall" extrapop="0" stackshift="0">
+      <input>
+        <pentry minsize="1" maxsize="500" align="2">
+          <addr offset="0" space="stack"/>
+        </pentry>
+      </input>
+      <output>
+        <pentry minsize="1" maxsize="4">
+          <register name="ACC"/>
+        </pentry>
+      </output>
+      <unaffected>
+        <register name="AR0"/>
+        <register name="AR1"/>
+      </unaffected>
+    </prototype>
+  </default_proto>
+</compiler_spec>

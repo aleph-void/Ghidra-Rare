@@ -27,6 +27,7 @@ The project has two parts:
 | [Z8](Z8/README.md) | Zilog Z8 and UB8830/UB8840, internal or external stack | `Z8:BE:16:default`, `Z8:BE:16:extstack` | Added for IDA built-in CPU parity |
 | [ST9](ST9/README.md) | STMicroelectronics ST9 and ST9+ | `ST9:BE:16:default`, `ST9:BE:24:ST9+` | Added for IDA built-in CPU parity |
 | [XA](XA/README.md) | Philips/NXP XA (51XA), native 24-bit and page-0 16-bit modes | `XA:LE:24:default`, `XA:LE:24:page0` | Added for IDA built-in CPU parity |
+| [TMS320C2x](TMS320C2x/README.md) | TI TMS320C2x (C25/C26) and TMS320C5x DSP, big and little endian, with TI COFF support | `TMS320C2x:{BE,LE}:16:default`, `TMS320C5x:{BE,LE}:16:default` | Added for IDA built-in CPU parity |
 
 Each module's README lists its language variants, how closely it matches the reference
 disassembler, what the p-code models, known gaps and how to run its tests. [STATUS.md](STATUS.md)

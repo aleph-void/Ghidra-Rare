@@ -100,6 +100,16 @@ Terms used below:
 
 MAME `xa` bugs confirmed against the manual: RR/RRC count field, ASR #imm and RLC field decoding, MOV [Rd],dir / dir,[Rs] pointer bits, XCH Rd,dir register bits, 16/8 divide operand sizes, byte register name in CJNE.w Rd,#imm, #data8 read from the wrong byte after a 16-bit offset, data-memory bit addresses offset 20h twice. asxa bug: XCH Rd,[Rs] assembles with the pointer in the wrong bits.
 
+### TI TMS320C2x / C5x: initial support complete
+
+| Area | State |
+|---|---|
+| Decode | 98,304 records per family vs MAME, 0 unexplained (C2x 5,636 and C5x 18,364 explained: reserved ARU 011, MAME's MPYU-as-MPYS, no `MPY #k`, bit-7 and length quirks); every constructor reached (448/448 C2x, 1,655/1,655 C5x); round trip through c5xasm (91,684 records) and AS (84,298): 0 unexplained |
+| Semantics | Arithmetic with carry, overflow and saturation, product shifter, indirect and bit-reversed addressing, RPT/RPTB/XC, delayed branches (C5x), block moves, status registers, optional C5x circular buffers; 41 emulator cases per language, a deliberately broken expectation per family is detected; run-time ARP/DP/SXM/OVM/PM fallback |
+| Real code | MIT C25 program and dump routine plus 9 TI-assembled C5x examples: 0 error bookmarks, all functions decompile, listing identical to MAME apart from the explained classes; c5xlnk COFF .out loads as C5x; relocatable .obj relocates correctly |
+| Doesn't work | Peripherals, interrupts, pipeline effects, CNF/OVLY RAM remap; C2x COFF must be picked manually (opinion offers C5x); COFF data sections are not moved to the data space |
+| Unverified | No hardware or TI firmware check; C26 CONF and C2xx-only encodings are tested only against MAME and AS |
+
 ## Planned: clean-room modules for CPUs IDA Pro supports and Ghidra doesn't
 
 From a comparison with IDA Pro 9.1's supported-processor list (2026-10-25). Written here from vendor
@@ -110,7 +120,7 @@ manuals, verified against a free reference disassembler run as a black box:
 | Zilog Z8 | MAME `z8` | done (see above) |
 | Philips XA (51XA) | MAME `xa` | done (see above) |
 | ST9 / ST9+ | MAME `st9`, `st9p` | initial support complete (see above) |
-| TI TMS320C2x (C25) and TMS320C5x | MAME `tms320c2x`, `tms320c5x` | in progress |
+| TI TMS320C2x (C25) and TMS320C5x | MAME `tms320c2x`, `tms320c5x` | initial support complete (see above) |
 | Intel i860 | MAME `i860` | planned |
 | Analog Devices ADSP-218x | MAME `adsp21xx` | planned |
 | Motorola DSP56000 and DSP561xx | MAME `dsp56000`, `dsp56156` | planned |

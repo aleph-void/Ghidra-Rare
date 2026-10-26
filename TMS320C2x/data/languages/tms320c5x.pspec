@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<processor_spec>
+  <programcounter register="PC"/>
+  <context_data>
+    <context_set space="prog">
+      <!-- ARP and DP unknown until LARP/MAR/indirect ",ARn" and LDPK/LDP #k set them: unknown
+           values are resolved at run time in p-code -->
+      <set name="arp_k" val="0"/>
+      <set name="dp_k" val="0"/>
+      <!-- modes assumed at reset values (SXM=1, OVM=0, PM=0) until an instruction changes them;
+           set *_k to 0 over a range to make the p-code read the status bits instead -->
+      <set name="sxm_k" val="1"/>
+      <set name="sxm_v" val="1"/>
+      <set name="ovm_k" val="1"/>
+      <set name="ovm_v" val="0"/>
+      <set name="pm_k" val="1"/>
+      <set name="pm_v" val="0"/>
+      <!-- PMST.NDX and PMST.TRM at their reset value 0: indexing and CMPR use AR0 (C2x
+           compatible) and loading TREG0 also loads TREG1/TREG2. Set to 1 for code that sets them. -->
+      <set name="ndx" val="0"/>
+      <set name="trm" val="0"/>
+      <!-- circular buffers (CBCR) are not modelled unless circ is 1: then every AR modification
+           checks CBCR/CBERk/CBSRk at run time (SPRU056D section 5.6) -->
+      <set name="circ" val="0"/>
+    </context_set>
+  </context_data>
+  <register_data>
+    <register name="contextreg" hidden="true"/>
+    <register name="RPTI" hidden="true"/>
+  </register_data>
+  <default_symbols>
+    <symbol name="RS_VECTOR" address="prog:0000" entry="true"/>
+    <symbol name="INT1_VECTOR" address="prog:0002"/>
+    <symbol name="INT2_VECTOR" address="prog:0004"/>
+    <symbol name="INT3_VECTOR" address="prog:0006"/>
+    <symbol name="TINT_VECTOR" address="prog:0008"/>
+    <symbol name="RINT_VECTOR" address="prog:000a"/>
+    <symbol name="XINT_VECTOR" address="prog:000c"/>
+    <symbol name="TRNT_VECTOR" address="prog:000e"/>
+    <symbol name="TXNT_VECTOR" address="prog:0010"/>
+    <symbol name="INT4_VECTOR" address="prog:0012"/>
+    <symbol name="HINT_VECTOR" address="prog:0018"/>
+    <symbol name="TRAP_VECTOR" address="prog:0022"/>
+    <symbol name="NMI_VECTOR" address="prog:0024"/>
+    <symbol name="DRR" address="data:0020"/>
+    <symbol name="DXR" address="data:0021"/>
+    <symbol name="SPC" address="data:0022"/>
+    <symbol name="TIM" address="data:0024"/>
+    <symbol name="PRD" address="data:0025"/>
+    <symbol name="TCR" address="data:0026"/>
+    <symbol name="PDWSR" address="data:0028"/>
+    <symbol name="IOWSR" address="data:0029"/>
+    <symbol name="CWSR" address="data:002a"/>
+    <symbol name="TRCV" address="data:0030"/>
+    <symbol name="TDXR" address="data:0031"/>
+    <symbol name="TSPC" address="data:0032"/>
+    <symbol name="TCSR" address="data:0033"/>
+    <symbol name="TRTA" address="data:0034"/>
+    <symbol name="TRAD" address="data:0035"/>
+  </default_symbols>
+</processor_spec>

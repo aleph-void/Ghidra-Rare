@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<processor_spec>
+  <programcounter register="PC"/>
+  <context_data>
+    <context_set space="prog">
+      <!-- ARP and DP unknown until LARP/MAR/indirect ",ARn" and LDPK/LDP #k set them: unknown
+           values are resolved at run time in p-code -->
+      <set name="arp_k" val="0"/>
+      <set name="dp_k" val="0"/>
+      <!-- modes assumed at reset values (SXM=1, OVM=0, PM=0) until an instruction changes them;
+           set *_k to 0 over a range to make the p-code read the status bits instead -->
+      <set name="sxm_k" val="1"/>
+      <set name="sxm_v" val="1"/>
+      <set name="ovm_k" val="1"/>
+      <set name="ovm_v" val="0"/>
+      <set name="pm_k" val="1"/>
+      <set name="pm_v" val="0"/>
+    </context_set>
+  </context_data>
+  <register_data>
+    <register name="contextreg" hidden="true"/>
+    <register name="RPTI" hidden="true"/>
+  </register_data>
+  <default_symbols>
+    <symbol name="RS_VECTOR" address="prog:0000" entry="true"/>
+    <symbol name="INT0_VECTOR" address="prog:0002"/>
+    <symbol name="INT1_VECTOR" address="prog:0004"/>
+    <symbol name="INT2_VECTOR" address="prog:0006"/>
+    <symbol name="TINT_VECTOR" address="prog:0018"/>
+    <symbol name="RINT_VECTOR" address="prog:001a"/>
+    <symbol name="XINT_VECTOR" address="prog:001c"/>
+    <symbol name="TRAP_VECTOR" address="prog:001e"/>
+    <symbol name="DRR" address="data:0000"/>
+    <symbol name="DXR" address="data:0001"/>
+    <symbol name="TIM" address="data:0002"/>
+    <symbol name="PRD" address="data:0003"/>
+    <symbol name="IMR" address="data:0004"/>
+    <symbol name="GREG" address="data:0005"/>
+  </default_symbols>
+</processor_spec>

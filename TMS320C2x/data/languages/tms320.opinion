@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TI COFF (v0/v1/v2) target ID 0x0092 (146) is shared by the TMS320C2x, C2xx and C5x code
+  generation tools; the header does not tell them apart. The C5x language is offered; choose
+  TMS320C2x:LE:16:default explicitly for C2x objects. TI COFF stores words low byte first.
+-->
+<opinions>
+  <constraint loader="Common Object File Format (COFF)" compilerSpecID="default">
+    <constraint primary="146" processor="TMS320C5x" endian="little" size="16" variant="default"/>
+  </constraint>
+  <constraint loader="MS Common Object File Format (COFF)" compilerSpecID="default">
+    <constraint primary="146" processor="TMS320C5x" endian="little" size="16" variant="default"/>
+  </constraint>
+</opinions>

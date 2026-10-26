@@ -1,0 +1,554 @@
+# Hand-computed expectations for the TMS320C2x/C5x p-code, worked out from the instruction
+# descriptions in SPRU014C (C2x) and SPRU056D (C5x), independent of the SLEIGH. Encodings were
+# cross-checked with the Macroassembler AS. Format: see TmsEmuTest.java. Code starts at prog:0100.
+
+# ---------------------------------------------------------------- TMS320C2x
+case c2x_add_shift c2x            # LDPK 0; LAC 60h,4; ADD 61h,8  (SXM=1 sign-extends 8001h)
+code C800 2460 0861
+set data:0060 0x8001
+set data:0061 0x0123
+expect ACC 0xfff92310
+expect C 0
+expect OV 0
+end
+case c2x_sxm_off c2x              # RSXM; LDPK 0; LAC 60h,4  (no sign extension)
+code CE06 C800 2460
+set data:0060 0x8001
+expect ACC 0x00080010
+end
+case c2x_addh_ovf c2x             # ZALH/ADDH overflow; ADDH never clears C
+code C800 4060 4861
+set C 1
+set data:0060 0x7fff
+set data:0061 0x0001
+expect ACC 0x80000000
+expect OV 1
+expect C 1
+end
+case c2x_addh_sat c2x             # SOVM: overflow saturates to 7FFFFFFFh
+code CE03 C800 4060 4861
+set data:0060 0x7fff
+set data:0061 0x0001
+expect ACC 0x7fffffff
+expect OV 1
+expect OVM 1
+end
+case c2x_subk_borrow c2x          # LACK 5; SUBK 7 -> -2, borrow clears C
+code CA05 CD07
+set C 1
+expect ACC 0xfffffffe
+expect C 0
+expect OV 0
+end
+case c2x_mpyk_pac c2x             # LT 60h (-2); MPYK 300; PAC
+code C800 3C60 A12C CE14
+set data:0060 0xfffe
+expect TREG 0xfffe
+expect PREG 0xfffffda8
+expect ACC 0xfffffda8
+end
+case c2x_spm_apac c2x             # SPM 1; APAC: ACC += P << 1
+code CE09 CE15
+set PREG 0x10
+set ACC 0x100
+expect ACC 0x120
+expect PM 1
+end
+case c2x_spm3_pac c2x             # SPM 3; PAC: P >> 6, sign-extended
+code CE0B CE14
+set PREG 0xfffff000
+expect ACC 0xffffffc0
+end
+case c2x_indirect c2x             # LARK AR1,60h; LARP 1; LAC *+; ADD *-,0,AR2
+code C160 5589 20A0 009A
+set data:0060 5
+set data:0061 7
+expect ACC 0xc
+expect AR1 0x60
+expect ARP 2
+expect ARB 1
+end
+case c2x_bitrev c2x               # AR0=8, AR3=0; three MAR *BR0+ -> 8, 4, 0Ch
+code D000 0008 D300 0000 558B 55F0 55F0 55F0
+expect AR3 0xc
+end
+case c2x_banz_loop c2x            # AR2=3; ZAC; loop: ADDK 1; BANZ loop,*-
+code C203 558A CA00 CC01 FB90 0103
+expect ACC 4
+expect AR2 0xffff
+end
+case c2x_rptk_addk c2x            # ZAC; RPTK 4; ADDK 3 -> five additions
+code CA00 CB04 CC03
+expect ACC 0xf
+expect RPTC 0
+end
+case c2x_rptk_blkd c2x            # AR1=70h; RPTK 2; BLKD 60h,*+ copies three words
+code C170 5589 CB02 FDA0 0060
+set data:0060 0x11
+set data:0061 0x22
+set data:0062 0x33
+expect data:0070 0x11
+expect data:0071 0x22
+expect data:0072 0x33
+expect AR1 0x73
+end
+case c2x_call_ret c2x             # CALL 104h; B 106h; 104h: LACK 9; RET
+code FE80 0104 FF80 0106 CA09 CE26
+expect ACC 9
+end
+case c2x_push_pop c2x             # LACK 55h; PUSH; ZAC; POP
+code CA55 CE1C CA00 CE1D
+expect ACC 0x55
+end
+case c2x_subc_divide c2x          # 100 / 7 with RPTK 15; SUBC: quotient 14, remainder 2
+code C800 CA64 CB0F 4760
+set data:0060 7
+expect ACC 0x0002000e
+end
+case c2x_norm c2x                 # ACC=1000h; AR1=0; RPTK 31; NORM *+ -> 18 shifts
+code D001 1000 C100 5589 CB1F CEA2
+expect ACC 0x40000000
+expect AR1 0x12
+expect TC 1
+end
+case c2x_bit c2x                  # BIT 60h,11 tests bit 4
+code C800 9B60
+set data:0060 0x0010
+expect TC 1
+end
+case c2x_sst c2x                  # LARP 5; DINT; LDPK 3; SST 60h (direct SST is forced to page 0)
+code 558D CE01 C803 7860
+set OV 1
+set OVM 0
+expect data:0060 0xb603
+end
+case c2x_lst c2x                  # LDPK 0; LST 60h
+code C800 5060
+set data:0060 0xb603
+expect ARP 5
+expect OV 1
+expect OVM 0
+expect DP 3
+end
+case c2x_mac_repeat c2x           # AR1=60h; RPTK 1; MAC 200h,*+; APAC
+code C160 5589 CB01 5DA0 0200 CE15
+set data:0060 3
+set data:0061 5
+set prog:0200 4
+set prog:0201 6
+expect ACC 0x2a
+expect PREG 0x1e
+expect TREG 5
+expect AR1 0x62
+end
+case c2x_blz c2x                  # ZAC; SUBK 1; BLZ over LACK 7
+code CA00 CD01 F380 0105 CA07
+expect ACC 0xffffffff
+end
+case c2x_bv_clears c2x            # BV taken clears OV
+code F080 0103 5500
+set OV 1
+expect OV 0
+end
+case c2x_bnv_clears c2x           # BNV not taken clears OV
+code F780 0103 5500
+set OV 1
+expect OV 0
+end
+case c2x_sach_sacl c2x            # SACH 60h,4; SACL 61h,1
+code C800 6C60 6161
+set ACC 0x12345678
+expect data:0060 0x2345
+expect data:0061 0xacf0
+end
+case c2x_tblr c2x                 # TBLR 60h reads prog:(ACCL)
+code C800 5860
+set ACC 0x200
+set prog:0200 0xbeef
+expect data:0060 0xbeef
+end
+case c2x_andk c2x                 # ANDK 0FF0h,4
+code D404 0FF0
+set ACC 0x12345678
+expect ACC 0x5600
+end
+case c2x_rol c2x
+code CE34
+set ACC 0x80000001
+set C 0
+expect ACC 2
+expect C 1
+end
+case c2x_ror c2x
+code CE35
+set ACC 0x80000001
+set C 0
+expect ACC 0x40000000
+expect C 1
+end
+case c2x_ltd c2x                  # LTD 60h: T=(60h), (61h)=(60h), ACC += P
+code C800 3F60
+set data:0060 0x11
+set data:0061 0x22
+set PREG 5
+expect TREG 0x11
+expect data:0061 0x11
+expect ACC 5
+end
+case c2x_out c2x                  # OUT 60h,PA3
+code C800 E360
+set data:0060 0xbeef
+expect io:0003 0xbeef
+end
+case c2x_dp_known c2x             # LDPK 2; LAC 5 reads data:0105
+code C802 2005
+set data:0105 0x77
+expect ACC 0x77
+end
+case c2x_addc c2x
+code C800 4360
+set ACC 0xffffffff
+set C 1
+set data:0060 1
+expect ACC 1
+expect C 1
+end
+case c2x_subb c2x                 # 5 - 2 - (1 - C) with C=0
+code C800 4F60
+set ACC 5
+set C 0
+set data:0060 2
+expect ACC 2
+expect C 1
+end
+case c2x_neg c2x
+code CE23
+set ACC 5
+expect ACC 0xfffffffb
+expect C 0
+end
+case c2x_abs_min c2x              # ABS of 80000000h overflows (OVM=0)
+code CE1B
+set ACC 0x80000000
+expect ACC 0x80000000
+expect OV 1
+end
+case c2x_cmpr c2x                 # AR0=5, AR2=3, ARP=2; CMPR 1 (AR < AR0)
+code C005 C203 558A CE51
+expect TC 1
+end
+case c2x_dynamic_arp c2x          # ARP only in the register (context unknown): MAR *+ / LAC *,0,AR4 at run time
+code 55A0 208C
+set ARP 3
+set AR3 0x60
+set data:0061 0x1234
+expect AR3 0x61
+expect ACC 0x1234
+expect ARP 4
+expect ARB 3
+end
+case c2x_dynamic_dp c2x           # DP only in the register: LAC 5 reads data:(DP<<7)+5
+code 2005
+set DP 2
+set data:0105 0x77
+expect ACC 0x77
+end
+case c2x_dynamic_sxm c2x          # SXM unknown to the context: the register decides
+context sxm_k 0
+code C800 2060
+set SXM 0
+set data:0060 0x8000
+expect ACC 0x8000
+end
+case c2x_dynamic_pm c2x           # PM unknown to the context: PAC shifts by the register
+context pm_k 0
+code CE14
+set PM 2
+set PREG 0x10
+expect ACC 0x100
+end
+case c2x_broken_expectation c2x xfail   # must fail: the harness detects a wrong result
+code C800 2460 0861
+set data:0060 0x8001
+set data:0061 0x0123
+expect ACC 0xfff92311
+end
+
+# ---------------------------------------------------------------- TMS320C5x
+case c5x_add_shift c5x            # LDP #0; LACC 60h,4; ADD 61h,8
+code BC00 1460 2861
+set data:0060 0x8001
+set data:0061 0x0123
+expect ACC 0xfff92310
+expect C 0
+end
+case c5x_add16_keeps_c c5x        # SETC C; ZAP; ADD 60h,16: no carry leaves C set
+code BC00 BE4F BE59 6160
+set data:0060 1
+expect ACC 0x10000
+expect C 1
+end
+case c5x_sub16_borrow c5x         # SUB 60h,16 from 0 borrows: C cleared
+code BC00 BE4F BE59 6560
+set data:0060 1
+expect ACC 0xffff0000
+expect C 0
+end
+case c5x_bd c5x                   # BD 105h; two delay-slot words execute; 104h is skipped
+code 7D80 0105 B901 B802 B909
+expect ACC 3
+end
+case c5x_calld_retd c5x           # CALLD 106h (2 slots); RETD (2 slots) back to 104h: B 10Ah
+code 7E80 0106 B901 B802 7980 010A FF00 B804 B808 B810
+expect ACC 0xf
+end
+case c5x_xc_true c5x              # ZAP; XC 1,EQ; LACL #5; ADD #1
+code BE59 E788 B905 B801
+expect ACC 6
+end
+case c5x_xc_false c5x             # LACL #1; XC 1,EQ skips ADD #5
+code B901 E788 B805 B802
+expect ACC 3
+end
+case c5x_xc2_two_word c5x         # XC 2,EQ false skips a 2-word ADD #100h
+code B901 F788 BF90 0100 B802
+expect ACC 3
+end
+case c5x_rptb c5x                 # BRCR=2; RPTB 104h over ADD #1; ADD #2 -> three passes
+code B900 BEC6 0104 B801 B802
+set data:0009 2
+expect ACC 9
+expect data:0009 0
+expect data:0007 0
+expect data:000a 0x103
+expect data:000b 0x104
+end
+case c5x_rptb_two_word_end c5x    # block ends in the second word of ADD #2,0 (PAER = 105h)
+code B900 BEC6 0105 B801 BF90 0002
+set data:0009 1
+expect ACC 6
+end
+case c5x_mac_repeat c5x           # LAR AR1,#60h; MAR *,AR1; RPT #1; MAC 200h,*+; APAC
+code B160 8B89 BB01 A2A0 0200 BE04
+set data:0060 3
+set data:0061 5
+set prog:0200 4
+set prog:0201 6
+expect ACC 0x2a
+expect PREG 0x1e
+expect data:000c 5
+expect data:0011 0x62
+end
+case c5x_mpy_short c5x            # TREG0=3; MPY #-2
+code DFFE
+set data:000c 3
+expect PREG 0xfffffffa
+end
+case c5x_bsar c5x                 # BSAR 4 with SXM=1
+code BFE3
+set ACC 0x80000000
+expect ACC 0xf8000000
+end
+case c5x_abs c5x                  # ABS clears C
+code BE00
+set ACC 0xfffffff6
+set C 1
+expect ACC 0xa
+expect C 0
+end
+case c5x_crgt c5x                 # ACC < ACCB: ACC = ACCB, C = 0
+code BE1B
+set ACC 5
+set ACCB 7
+expect ACC 7
+expect ACCB 7
+expect C 0
+end
+case c5x_apl c5x                  # APL 60h with DBMR: nonzero result clears TC
+code BC00 5A60
+set data:0060 0x0f0f
+set data:000f 0x00ff
+set TC 1
+expect data:0060 0x000f
+expect TC 0
+end
+case c5x_cpl_lk c5x               # CPL #1234h,60h
+code BC00 5F60 1234
+set data:0060 0x1234
+expect TC 1
+end
+case c5x_samm_page0 c5x           # LDP #5; LACL #42h; SAMM 12h writes AR2 regardless of DP
+code BC05 B942 8812
+expect data:0012 0x42
+end
+case c5x_ndx1_indx c5x            # NDX=1: *0+ adds INDX
+context ndx 1
+code B310 8B8B 8BE0
+set data:0018 4
+set data:0010 1
+expect data:0013 0x14
+end
+case c5x_ndx0_ar0 c5x             # NDX=0 (reset): *0+ adds AR0
+code B310 8B8B 8BE0
+set data:0018 4
+set data:0010 1
+expect data:0013 0x11
+end
+case c5x_lt_trm0 c5x              # TRM=0: LT also loads TREG1 (5 bits) and TREG2 (4 bits)
+code BC00 7360
+set data:0060 0x23
+expect data:000c 0x23
+expect data:000d 0x03
+expect data:000e 0x3
+end
+case c5x_cc_retc c5x              # CC 106h,EQ taken; RETC GEQ returns to 103h
+code B900 EB88 0106 B801 7980 0109 B802 EF8C B804
+expect ACC 3
+end
+case c5x_sflb c5x                 # 64-bit shift ACC:ACCB left
+code BE16
+set ACC 0x80000000
+set ACCB 0x80000001
+expect C 1
+expect ACC 1
+expect ACCB 2
+end
+case c5x_subb c5x
+code BC00 6460
+set ACC 5
+set C 0
+set data:0060 2
+expect ACC 2
+expect C 1
+end
+case c5x_sst1 c5x                 # SST #1,60h with ARB=6 TC SXM C HM PM=2
+code BC00 8F60
+set ARB 6
+set CNF 0
+set TC 1
+set SXM 1
+set C 1
+set HM 1
+set XF 0
+set PM 2
+expect data:0060 0xcfee
+end
+case c5x_lst1 c5x                 # LST #1,60h loads ARB and ARP from bits 15-13
+code BC00 0F60
+set data:0060 0xcfee
+expect ARB 6
+expect ARP 6
+expect TC 1
+expect SXM 1
+expect C 1
+expect HM 1
+expect PM 2
+end
+case c5x_lmmr c5x                 # LMMR 14h,#300h -> AR4
+code 8914 0300
+set data:0300 0x99
+expect data:0014 0x99
+end
+case c5x_splk c5x
+code BC00 AE61 ABCD
+expect data:0061 0xabcd
+end
+case c5x_rptz_bldd c5x            # AR1=70h; RPTZ #2; BLDD #300h,*+ copies three words, clears ACC/PREG
+code B170 8B89 BEC5 0002 A8A0 0300
+set ACC 5
+set PREG 5
+set data:0300 1
+set data:0301 2
+set data:0302 3
+expect data:0070 1
+expect data:0071 2
+expect data:0072 3
+expect ACC 0
+expect PREG 0
+end
+case c5x_norm c5x                 # LACC #1000h; AR1=0; RPT #31; NORM *+
+code BF80 1000 B100 8B89 BB1F A0A0
+expect ACC 0x40000000
+expect data:0011 0x12
+expect TC 1
+end
+case c5x_bcnd_lt c5x              # LACL #0; SUB #1; BCND 105h,LT over LACL #7
+code B900 BA01 E344 0105 B907
+expect ACC 0xffffffff
+end
+case c5x_bcnd_ov_clears c5x       # BCND on OV clears OV
+code E322 0103 B901
+set OV 1
+expect OV 0
+expect ACC 0
+end
+case c5x_lacc_lk_shift c5x        # LACC #1234h,4
+code BF84 1234
+expect ACC 0x12340
+end
+case c5x_or_lk16 c5x              # OR #8000h,16
+code BE82 8000
+set ACC 1
+expect ACC 0x80000001
+end
+case c5x_sach c5x                 # SACH 61h,4
+code BC00 9C61
+set ACC 0x12345678
+expect data:0061 0x2345
+end
+case c5x_madd c5x                 # MADD 60h: P = (60h) * prog[BMAR]; (61h) = (60h)
+code BC00 AB60
+set data:001f 0x200
+set prog:0200 4
+set data:0060 3
+expect PREG 0xc
+expect data:0061 3
+expect data:000c 3
+end
+case c5x_dynamic_arp c5x          # ARP only in the register: MAR *+ / LACC *,0,AR4
+code 8BA0 108C
+set ARP 3
+set data:0013 0x60
+set data:0061 0x1234
+expect data:0013 0x61
+expect ACC 0x1234
+expect ARP 4
+end
+case c5x_dynamic_ovm c5x          # OVM unknown to the context, set in the register: saturate
+context ovm_k 0
+code BC00 6A60 6160
+set OVM 1
+set data:0060 0x7fff
+expect ACC 0x7fffffff
+expect OV 1
+end
+case c5x_circular_inc c5x         # circ=1: AR6=203h=CBER1, CBCR=0Eh: LACC *+ wraps to CBSR1 (SPRU056D ex. 5-13 case 4)
+context circ 1
+code BF0E 0203 8B8E 10A0
+set data:001a 0x200
+set data:001b 0x203
+set data:001e 0x0e
+expect data:0016 0x200
+end
+case c5x_circular_adrk c5x        # case 7 and 8 (buffer 1 on AR6, buffer 2 on AR7): ADRK 2 from 202h gives 204h; from 203h wraps
+context circ 1
+code BF0E 0202 8B8E 7802 BF0F 0203 8B8F 7802
+set data:001a 0x200
+set data:001b 0x203
+set data:001c 0x200
+set data:001d 0x203
+set data:001e 0xfe
+expect data:0016 0x204
+expect data:0017 0x200
+end
+case c5x_circular_off c5x         # circ=0 (default): no wrap
+code BF0E 0203 8B8E 10A0
+set data:001a 0x200
+set data:001b 0x203
+set data:001e 0x0e
+expect data:0016 0x204
+end
+case c5x_broken_expectation c5x xfail   # must fail
+code BD00
+expect DP 0xff
+end

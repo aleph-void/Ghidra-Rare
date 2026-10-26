@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language_definitions>
+  <language processor="TMS320C2x" endian="big" size="16" variant="default" version="1.0"
+            slafile="tms320c2x.sla" processorspec="tms320c2x.pspec" id="TMS320C2x:BE:16:default">
+    <description>TI TMS320C2x (TMS32020/C25/C26) DSP, 16-bit words stored high byte first</description>
+    <compiler name="default" spec="tms320c2x.cspec" id="default"/>
+  </language>
+  <language processor="TMS320C2x" endian="little" size="16" variant="default" version="1.0"
+            slafile="tms320c2x_le.sla" processorspec="tms320c2x.pspec" id="TMS320C2x:LE:16:default">
+    <description>TI TMS320C2x (TMS32020/C25/C26) DSP, 16-bit words stored low byte first</description>
+    <compiler name="default" spec="tms320c2x.cspec" id="default"/>
+  </language>
+  <language processor="TMS320C5x" endian="big" size="16" variant="default" version="1.0"
+            slafile="tms320c5x.sla" processorspec="tms320c5x.pspec" id="TMS320C5x:BE:16:default">
+    <description>TI TMS320C5x (C50/C51/C52/C53/C56/C57) DSP, 16-bit words stored high byte first</description>
+    <compiler name="default" spec="tms320c5x.cspec" id="default"/>
+  </language>
+  <language processor="TMS320C5x" endian="little" size="16" variant="default" version="1.0"
+            slafile="tms320c5x_le.sla" processorspec="tms320c5x.pspec" id="TMS320C5x:LE:16:default">
+    <description>TI TMS320C5x (C50/C51/C52/C53/C56/C57) DSP, 16-bit words stored low byte first</description>
+    <compiler name="default" spec="tms320c5x.cspec" id="default"/>
+  </language>
+</language_definitions>
