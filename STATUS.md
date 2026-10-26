@@ -147,6 +147,18 @@ Imported from other authors and verified to the same bar. Each lives in an `alep
 | Fixed here | ELF import and relocations, packet context, branch delay slots, compact and C64x+ decode, calling convention and DWARF map |
 | Doesn't work | Big-endian compact execution order in a 32-bit word, nested branch delay windows, packet atomicity and software-pipelined loop replay in p-code; C66x instructions not decoded |
 
+### Cell SPU: done (community: @aerosoul94, @balika011, @elad335, @VelocityRa)
+
+| Area | State |
+|---|---|
+| Decode | All 199 opcodes match the SPU ISA v1.2 document; 158,304 words (every 11-bit opcode × 48 fills + 60,000 random) vs objdump 2.45: 97,699 identical, 92 display-only differences, 60,513 rejected by both, 0 others; 262/262 constructors reached |
+| Semantics | 128-bit registers with complete p-code; 37/37 emulator sequences (SIMD integer, shufb/selb, all load/store forms, branches, channels, iret, exact single-precision range rules, double-precision FMA rounded once), broken expectation detected |
+| Real code | GCC 6.5 zlib linked with Ubuntu's SPU newlib/libgcc, Ubuntu libm/libc objects, Linux spufs images: 149,466 instructions, 100% agreement with objdump, 0 bad-instruction bookmarks, 1,120/1,120 functions decompile; 8,570/8,570 relocations agree with GNU ld; 32/32 switch statements recovered |
+| Doesn't work | Double-precision rounding-mode fields not applied (flags are); frest/frsqest return an exact estimate; stop/halt and channel hardware are user ops; PPU relocations reported, not applied; 8-byte/vector DWARF register variables unmappable |
+| Unverified | No SPU hardware or simulator; implementation-defined results (estimate-table bits, NaN payloads, DENORM) |
+
+Language ID changed from `SPU:BE:128:default` (never selectable for ELF32) to `SPU:BE:32:default`; `.trans` files upgrade old programs.
+
 ### TILE-Gx: initial support complete (community: @speidy)
 
 | Area | State |

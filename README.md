@@ -62,6 +62,7 @@ as a git submodule under `community/`, pinned to the verified commit
 | [RL78](https://github.com/aleph-void/ghidra-rl78/blob/ghidra-rare/RL78/GHIDRA-RARE.md) | Renesas RL78 (S1/S2 and S3 cores) | `RL78:LE:16:default` (S3), `RL78:LE:16:S2` | Callum Thomson (@CUB3D) | Apache-2.0 |
 | [SPC700](https://github.com/aleph-void/SPCdra/blob/ghidra-rare/GHIDRA-RARE.md) | Sony SPC700 (SNES audio), Sony and 65816-style mnemonics, with an .spc loader | `spc700:LE:16:default`, `spc700:LE:16:65816` | @qwertymodo | Apache-2.0 |
 | [TMS34010/TMS34020](https://github.com/aleph-void/Ghidra_TMS34010/blob/ghidra-rare/GHIDRA-RARE.md) | TI graphics CPUs, with bit-addressed memory and a TI COFF loader | `tms34010:LE:32:default`, `tms34020:LE:32:default` | @ZPaul2Fresh8 | Apache-2.0 |
+| [Cell SPU](https://github.com/aleph-void/GhidraSPU/blob/ghidra-rare/GHIDRA-RARE.md) | Cell Broadband Engine SPU (SPU ISA v1.2), 128-bit SIMD registers, ELF relocations and switch-table analyzer | `SPU:BE:32:default` (renamed from `SPU:BE:128:default`; old programs upgrade automatically) | Adrian (@aerosoul94), @balika011, Eladash (@elad335), Nick Renieris (@VelocityRa) | Apache-2.0 |
 | [TILE-Gx](https://github.com/aleph-void/ghidra-tilegx/blob/ghidra-rare/GHIDRA-RARE.md) | Tilera TILE-Gx, little/big-endian data and 32/64-bit ABI | `TILE:{LE,BE}:{32,64}:default` | Idan Freiberg (@speidy, Ghidra PR #9426) | Apache-2.0 |
 
 ## Relationship to the IDA modules

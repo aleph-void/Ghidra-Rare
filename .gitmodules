@@ -62,3 +62,7 @@
 	path = community/TILEGx
 	url = https://github.com/aleph-void/ghidra-tilegx.git
 	branch = ghidra-rare
+[submodule "community/SPU"]
+	path = community/SPU
+	url = https://github.com/aleph-void/GhidraSPU.git
+	branch = ghidra-rare
