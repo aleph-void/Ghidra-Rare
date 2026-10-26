@@ -66,3 +66,7 @@
 	path = community/SPU
 	url = https://github.com/aleph-void/GhidraSPU.git
 	branch = ghidra-rare
+[submodule "community/s390x"]
+	path = community/s390x
+	url = https://github.com/aleph-void/ghidra-s390x.git
+	branch = ghidra-rare

@@ -183,6 +183,16 @@ Imported from other authors and verified to the same bar. Each lives in an `alep
 | Fixed here | ELF import and relocations, packet context, branch delay slots, compact and C64x+ decode, calling convention and DWARF map |
 | Doesn't work | Big-endian compact execution order in a 32-bit word, nested branch delay windows, packet atomicity and software-pipelined loop replay in p-code; C66x instructions not decoded |
 
+### s390x (IBM z/Architecture): done with listed gaps (community: @paulovitorjp)
+
+| Area | State |
+|---|---|
+| Decode | All 2,748 opcode-table entries (g5 to z17) agree with objdump 2.45; 100% of the 42,020 fuzz words objdump decodes agree; llvm-objdump 21 agrees on 16,850 of 17,303 (the rest differ only in spelling) |
+| Semantics | P-code for general, decimal, BFP, HFP, DFP, vector, vector packed decimal and z17 instructions, PLO, CUSE, CFC, UPT, TRTE. Emulator 97/97 hand-computed; qemu-s390x 10.2 differential 22,080/22,080 over 1,334 mnemonics; reference models: packed decimal 2,100/2,100, HFP 6,240/6,240, DFP 12,900/12,900, vector packed decimal 5,250/5,250 |
+| Real code | Debian libz/ls/sort/libc/busybox and Ubuntu libc: 1,007,254 instructions, all agree with objdump; 12,092 functions, 0 decompile failures or timeouts. Remaining bookmarks: trap halfwords after noreturn calls, two generic Ghidra .rodata issues |
+| Doesn't work | CPACF crypto (KM*, KIMD, KLMD, KDSA, PCC, PCKMO), CMPSC, SORTL and PFPO are still pcodeops (the .sla is 12.5 MB of the 16 MB limit); privileged/I-O/clock instructions, transactional execution, guarded storage, traps, EX/EXRL, NNPA, DFLTCC, PRNO TRNG are inherent; PM3+ program objects, CTL+RLD, overlay and PDS images refused (no legal samples) |
+| Unverified | z/OS loaders on real z/OS modules; vector packed decimal and HFP scaling instructions are checked only against models of PoO behaviour; PLO, CUSE, CFC, UPT, TRTE and z17 additions have hand-computed tests only; the 12.1.3 and 12.2 zips were built but not loaded |
+
 ### Cell SPU: done (community: @aerosoul94, @balika011, @elad335, @VelocityRa)
 
 | Area | State |
