@@ -94,7 +94,7 @@ Terms used below:
 |---|---|
 | Decode | 262,144 slot records per configuration (every first/second byte pair × 3 operand tails, plus 65,536 random) vs MAME in native/DS tracked, native/DS dynamic and page 0: 0 unexplained. 224,711 agree (68,090 both invalid), 9,433 confirmed MAME bugs, 27,220 encodings MAME accepts that the user guide forbids, 780 odd FCALL/FJMP targets. 3,658/3,658 constructors reached |
 | Semantics | ALU/flags (PSW write precedence), all addressing modes with DS/ES/SSEL segments and DS tracking, bits, shifts/rotates/NORM/DA, mul/div, CJNE/DJNZ, PUSH/POP lists, USP, call/trap/RETI frames; emulator 160/160 per language (80 cases × 2 DS modes), broken expectation detected |
-| Real code | asxa 1.12 example programs (assembled with asxa as a black box, fetched by pinned URL + SHA-256): listing-guided disassembly identical to the source on all but 0 checked statements; 0 MAME differences beyond its bugs; 146/146 functions decompile |
+| Real code | asxa 1.12 example programs (assembled with asxa as a black box, fetched by pinned URL + SHA-256): listing-guided disassembly identical to the assembler source on every statement compared (e.g. 1,271/1,272, 1,259/1,260, 263/271; the rest skipped, 0 different); 0 MAME differences beyond its bugs; 146/146 functions decompile |
 | Doesn't work | Register banks (one R0–R3), user-mode stacks (R7 = system SP), 80C51 compatibility mode, odd-address word alignment, interrupts/peripherals. Emulation needs a `segment` user-op callback. Inline-argument calls decode the string as code; table-dispatched monitor commands are not reached by auto-analysis |
 | Unverified | No freely licensed third-party XA firmware or compiled C (SDCC xa51 not built); hardware behavior |
 
