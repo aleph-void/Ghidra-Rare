@@ -82,3 +82,7 @@
 	path = community/VAX
 	url = https://github.com/aleph-void/ghidra-vax.git
 	branch = ghidra-rare
+[submodule "community/SM83"]
+	path = community/SM83
+	url = https://github.com/aleph-void/ghidra-sm83.git
+	branch = ghidra-rare

@@ -252,6 +252,18 @@ Language ID changed from `SPU:BE:128:default` (never selectable for ELF32) to `S
 
 objdump 2.45 bugs: cvtgf destination typed h-float; vax-dis.c MAXLEN 25 overruns on instructions longer than 25 bytes.
 
+### SM83 (Game Boy): done (community: @Gekkio, @minorum)
+
+| Area | State |
+|---|---|
+| Decode | 146,432 slots vs MAME `lr35902` (every opcode and operand pattern, every first/second byte pair, 17 three-byte forms × every high byte, 65,536 random): 122,985 exact, 17,706 spelling-only, 5,741 both invalid (the 11 undefined opcodes), 0 unexplained. RGBDS 1.0.1 reassembles Ghidra's own text to the original bytes for 73,182 instructions (386 differ only in STOP's ignored second byte). 121/121 constructors reached |
+| Semantics | 114/114 hand-computed emulator cases (ALU, flags, DAA, rotates, BIT, 16-bit ops, all load modes, stack, call/ret/rst, EI/DI/HALT/STOP), broken expectation detected; upstream's JUnit suite passes (496 tests, 4 new) |
+| Real code | 175 ROMs auto-detected as SM83 (115 Mooneye test ROMs built from pinned source, 60 GBDK-2020/SDCC programs incl. MBC5 autobanked): 149,843 instructions, 3,483 functions, 0 unexplained differences vs MAME; 3,480 decompile, 1 fails, 2 time out; 91 bad-instruction bookmarks, all explained |
+| Doesn't work | IME, HALT, STOP and MBC writes are user ops (interrupt dispatch, EI delay, HALT bug, bank switching not modelled); bank-switched calls resolve only after constant bank writes or through configured dispatchers; one RAM routine that falls through past its copied bytes does not decompile; carry-chain idioms decompile byte-wise (decompiler); `__sdcccall1` cannot express every SDCC placement; no processor manual index |
+| Unverified | Boot ROM loading; commercial games, CGB double speed, SGB, exotic MBCs; the Debugger factory and GUI import dialog; the full ROM run and JUnit suite were on 12.1.4 only |
+
+Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1, GBDK/SDCC conventions, symbol import (.sym/.noi), 12.2 build (hardware type is now a drop-down option).
+
 ### TILE-Gx: initial support complete (community: @speidy)
 
 | Area | State |
