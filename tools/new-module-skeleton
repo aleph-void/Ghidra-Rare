@@ -1,0 +1,203 @@
+#!/usr/bin/env bash
+# Create a new processor module directory with this repository's standard layout.
+#   tools/new-module-skeleton <Name> <processor> [endian: little|big] [size in bits]
+# Example: tools/new-module-skeleton Foo16 Foo little 16
+#
+# The stub language (one NOP) compiles; replace it with the real instruction set. The test suite
+# starts with the steps every module needs (generator check, SLEIGH compile); add the emulator,
+# every-entry, decode-differential and real-code steps as described in docs/VERIFICATION.md.
+set -euo pipefail
+NAME=${1:?usage: new-module-skeleton <Name> <processor> [little|big] [size]}
+PROC=${2:?processor name used in language IDs}
+ENDIAN=${3:-little}
+SIZE=${4:-32}
+case $ENDIAN in little) E=LE ;; big) E=BE ;; *) echo "endian must be little or big" >&2; exit 2 ;; esac
+ROOT=$(cd "$(dirname "$0")/.." && pwd)
+M=$ROOT/$NAME
+[[ -e $M ]] && { echo "$M exists" >&2; exit 1; }
+LOW=$(echo "$PROC" | tr 'A-Z' 'a-z')
+ID="$PROC:$E:$SIZE:default"
+TODAY=$(date +%F)
+mkdir -p "$M/data/languages" "$M/test" "$M/tools"
+
+cat > "$M/.gitignore" <<'EOF'
+*.sla
+build/
+dist/
+.gradle/
+lib/
+EOF
+
+: > "$M/Module.manifest"
+
+cat > "$M/extension.properties" <<EOF
+name=$NAME
+description=$PROC processor module: SLEIGH disassembly and p-code semantics.
+author=Ghidra-Rare contributors
+createdOn=$TODAY
+version=@extversion@
+EOF
+
+cat > "$M/build.gradle" <<'EOF'
+// Builds an installable Ghidra extension:
+//   GHIDRA_INSTALL_DIR=/path/to/ghidra_PUBLIC gradle buildExtension
+def ghidraInstallDir
+if (System.env.GHIDRA_INSTALL_DIR) {
+	ghidraInstallDir = System.env.GHIDRA_INSTALL_DIR
+}
+else if (project.hasProperty("GHIDRA_INSTALL_DIR")) {
+	ghidraInstallDir = project.getProperty("GHIDRA_INSTALL_DIR")
+}
+if (ghidraInstallDir) {
+	apply from: new File(ghidraInstallDir).getCanonicalPath() + "/support/buildExtension.gradle"
+}
+else {
+	throw new GradleException("GHIDRA_INSTALL_DIR is not defined!")
+}
+
+// The module has no third-party dependencies. buildExtension.gradle's copyDependencies would
+// otherwise copy every jar it finds under Ghidra/Processors into lib/, including other
+// modules' jars when those are symlinked in from outside the Ghidra install.
+copyDependencies.enabled = false
+
+// Release zips carry only what Ghidra loads; generators and test suites stay in the repository.
+buildExtension {
+	exclude 'test/**', 'tools/**'
+}
+EOF
+
+cat > "$M/data/languages/$LOW.slaspec" <<EOF
+# $PROC: stub language. Replace with the real instruction set.
+define endian=$ENDIAN;
+define alignment=1;
+
+define space ram type=ram_space size=4 default;
+define space register type=register_space size=4;
+
+define register offset=0 size=4 [ PC SP ];
+
+define token instr(8)
+	op = (0, 7)
+;
+
+:nop is op=0x00 { }
+EOF
+
+cat > "$M/data/languages/$LOW.ldefs" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+
+<language_definitions>
+  <language processor="$PROC"
+            endian="$ENDIAN"
+            size="$SIZE"
+            variant="default"
+            version="1.0"
+            slafile="$LOW.sla"
+            processorspec="$LOW.pspec"
+            id="$ID">
+    <description>$PROC (TODO: variants and cores covered)</description>
+    <compiler name="default" spec="$LOW.cspec" id="default"/>
+  </language>
+</language_definitions>
+EOF
+
+cat > "$M/data/languages/$LOW.pspec" <<'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+
+<processor_spec>
+  <programcounter register="PC"/>
+</processor_spec>
+EOF
+
+cat > "$M/data/languages/$LOW.cspec" <<'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+
+<compiler_spec>
+  <data_organization>
+    <pointer_size value="4"/>
+    <integer_size value="4"/>
+    <long_size value="4"/>
+    <long_long_size value="8"/>
+  </data_organization>
+  <global>
+    <range space="ram"/>
+  </global>
+  <stackpointer register="SP" space="ram" growth="negative"/>
+  <default_proto>
+    <prototype name="__asm" extrapop="unknown" stackshift="0">
+      <input></input>
+      <output></output>
+    </prototype>
+  </default_proto>
+</compiler_spec>
+EOF
+
+cat > "$M/test/run-tests.sh" <<EOF
+#!/usr/bin/env bash
+# $NAME test suite:  test/run-tests.sh [--real <workdir>] [<workdir>]
+# Steps to add as the module grows (see docs/VERIFICATION.md):
+#   - the generator reproduces the checked-in generated SLEIGH
+#   - emulator cases pass, and a deliberately broken expectation is reported
+#   - every SLEIGH constructor is reached
+#   - decode differential vs a reference disassembler: 0 unexplained differences
+#   - with --real: real-code checks on freely licensed or self-built binaries
+# GHIDRA_INSTALL_DIR must point at a Ghidra install with this module linked (tools/link-modules.sh).
+set -euo pipefail
+: "\${GHIDRA_INSTALL_DIR:?set GHIDRA_INSTALL_DIR}"
+HERE=\$(cd "\$(dirname "\$0")" && pwd)
+MOD=\$(cd "\$HERE/.." && pwd)
+fail=0
+step() { echo; echo "== \$*"; }
+
+step "SLEIGH compile"
+for s in "\$MOD"/data/languages/*.slaspec; do
+	out=\$("\$GHIDRA_INSTALL_DIR/support/sleigh" "\$s" 2>&1) || { echo "\$out"; fail=1; }
+	echo "\$out" | grep -E "^(ERROR|Error)" && fail=1
+	echo "\$(basename "\$s" .slaspec).sla \$(stat -c %s "\${s%.slaspec}.sla") bytes"
+done
+
+if [[ \$fail -ne 0 ]]; then echo; echo "FAILED"; exit 1; fi
+echo; echo "ALL TESTS PASSED"
+EOF
+chmod +x "$M/test/run-tests.sh"
+
+cat > "$M/README.md" <<EOF
+# $NAME
+
+$PROC processor module for Ghidra (SLEIGH).
+
+## Languages
+
+| Language ID | Description |
+|---|---|
+| \`$ID\` | TODO |
+
+## Sources
+
+TODO: vendor manuals (with SHA-256 of the PDFs used), reference disassemblers run as black boxes,
+and the free toolchain or binaries used for real-code tests. See
+[CONTRIBUTING.md](../CONTRIBUTING.md) for the clean-room rules.
+
+## Results
+
+The bar is [docs/VERIFICATION.md](../docs/VERIFICATION.md). Fill in:
+
+| Area | State |
+|---|---|
+| Decode | |
+| Semantics | |
+| Real code | |
+| Doesn't work | |
+| Unverified | |
+
+Confirmed bugs in the reference tools: TODO.
+
+## Tests
+
+\`\`\`sh
+GHIDRA_INSTALL_DIR=/path/to/ghidra $NAME/test/run-tests.sh [--real <workdir>]
+\`\`\`
+EOF
+
+echo "Created $M"
+echo "Next: tools/link-modules.sh, then $NAME/test/run-tests.sh. Add the module to README.md and STATUS.md in the same commit."

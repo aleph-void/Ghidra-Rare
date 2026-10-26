@@ -83,6 +83,12 @@ repositories themselves hold only READMEs, licenses and screenshots. This projec
 Credit for the idea and for choosing these architectures goes to the author of
 IDA-Processor-Modules.
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add a module (including
+`tools/new-module-skeleton`) and the clean-room rules, and [docs/VERIFICATION.md](docs/VERIFICATION.md)
+for the bar a module has to meet before it is called done.
+
 ## Installing
 
 Each module directory is a standard Ghidra extension.
