@@ -357,6 +357,18 @@ Language ID changed from `SPU:BE:128:default` (never selectable for ELF32) to `S
 | Doesn't work (inherent) | Device I/O, interrupts, RTC and HALT are pcodeops (external hardware); the stack-overflow interrupt isn't raised; returns through a memory cell (`JMP @cell`) decompile as computed jumps |
 | Unverified | Real DG microNOVA software (MP/OS, DTOS and diagnostics aren't freely licensed); mN602 differences |
 
+### NS32016 / NS32532: done (community: @raybellis; instruction set regenerated here)
+
+| Area | State |
+|---|---|
+| Decode | 402,804 slots per variant (binutils opcode table × 32×32 mode fields, all option/register values, 200,000 random) vs libopcodes and MAME `unidasm`: 0 unexplained (default: 297,844 agree, 31,480 both invalid, 73,480 explained; NS32532: 313,164 / 31,480 / 58,160). Constructors reached 1,624/1,624 and 1,670/1,670 |
+| Semantics | Full p-code for the NS32016, NS32081 FPU and NS32082 MMU instructions, plus the NS32532 variant. Emulator 1,251 (default) and 1,258 (NS32532) tests, 0 failed, 3 deliberately wrong expectations detected each; hand-computed groups plus random vectors × 22 ALU/shift/mul/div ops × 3 sizes against an independent Python model |
+| Real code | 31 NetBSD 1.5 pc532 programs and libraries (cc1, cc1plus, f771, gdb, libc, libm, …) auto-imported by the new a.out loader: 1,175,301 instructions, 1,175,292 identical to libopcodes (the other 9 are a binutils `cxp` bug); 2,794 functions decompiled, 2 failures (libm) |
+| Doesn't work | Hardware operations (SVC/BPT/FLAG traps, WAIT, EOI, RDVAL/WRVAL, CINV, TLB purge) are pcodeops; NS32381 POLY/DOT/SCALB/LOGB pcodeops (no documentation); FSR flags and rounding mode, interrupts and the 24-bit bus not modelled; no ELF/DWARF (no such toolchain exists) |
+| Unverified | No hardware or ns32k emulator oracle for semantics (MAME source only): ROUND ties-even, CMPf N rule, DIV floor (MAME differs), CHECK/INDEX/BCD details, NS32381 register aliasing, NS32332 and CG16 |
+
+Reference-tool bugs: binutils: `@disp` printed as decimal digits read as hex, `cxp` operand shown as an address, 19-bit ids compared on 16 bits, `sfsr` index byte misdecoded; gas `$` immediate parsed as a symbol. MAME: 64-bit immediate low dword FFFFFFFF, MOVM/CMPM negative length unsigned, SFSR decodes an unused field.
+
 ### OpenRISC 1000: done (community: @smaeul, @Spritetm)
 
 | Area | State |
