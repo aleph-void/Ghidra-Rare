@@ -205,6 +205,18 @@ Imported from other authors and verified to the same bar. Each lives in an `alep
 | Doesn't work | CPACF crypto (KM*, KIMD, KLMD, KDSA, PCC, PCKMO), CMPSC, SORTL and PFPO are still pcodeops (the .sla is 12.5 MB of the 16 MB limit); privileged/I-O/clock instructions, transactional execution, guarded storage, traps, EX/EXRL, NNPA, DFLTCC, PRNO TRNG are inherent; PM3+ program objects, CTL+RLD, overlay and PDS images refused (no legal samples) |
 | Unverified | z/OS loaders on real z/OS modules; vector packed decimal and HFP scaling instructions are checked only against models of PoO behaviour; PLO, CUSE, CFC, UPT, TRTE and z17 additions have hand-computed tests only; the 12.1.3 and 12.2 zips were built but not loaded |
 
+### 6800 / 6801 / HD6301 / 68HC11: done (community: @sigurasg, @antoniovazquezblanco)
+
+| Area | State |
+|---|---|
+| Decode | 0 unexplained differences in about 258,000 slots (full opcode pages × 4 patterns + 40,960 random per language) vs binutils libopcodes (HC11) and MAME `unidasm` (all four); every-entry 197/197, 220/220, 230/230, 308/308 and nothing outside the tables decodes |
+| Semantics | 22,920 model-checked emulator cases (reference model from the manuals) + 183 hand-computed sequences, 0 failures, broken expectation detected; upstream's 432 JUnit tests pass. Fixed: BRN length, ROR sign, V after shifts, LSRD direction, TST/MUL/ABA flags, DAA, TAP, SWI vector, HC11 BRSET/BSET/BCLR, HC11 using the 6801 vectors, Y missing from the HC11 interrupt frame |
+| Real code | 10 m68hc11-elf programs (B-Con crypto, tiny-AES-c, tiny-regex-c; GCC 3.4.6 built from source): 87,662 instructions identical to objdump, 0 bad-instruction bookmarks, 602/602 functions decompile; relocation handler byte-identical to ld on 4 objects |
+| Doesn't work | WAI pushes and continues; STOP/SLP/TEST are no-ops; illegal-opcode/TRAP not simulated; HC11 INIT remap not followed; GCC soft frame pointer not mappable; banked relocations (R_M68HC11_24/3B/PAGE); 6800/6801/6301 calling convention heuristic; no HD6301 manual index |
+| Unverified | Silicon behaviour; real 6800/6801/HD6301 firmware (no legal binaries or compiler); HD6301 AIM/OIM/EIM/TIM flags beyond the descriptions; X/Y-variant peripherals |
+
+Reference-tool bugs: objdump `-m m68hc11` prints 0x00 as the HC12 `bgnd`; MAME misspells BRCLR (18 1F) as `brlcr`, decodes undefined store-immediate opcodes and HD6301 0x12/0x13, and decodes BRN/JSR-direct on the 6800.
+
 ### Cell SPU: done (community: @aerosoul94, @balika011, @elad335, @VelocityRa)
 
 | Area | State |

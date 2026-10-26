@@ -70,3 +70,7 @@
 	path = community/s390x
 	url = https://github.com/aleph-void/ghidra-s390x.git
 	branch = ghidra-rare
+[submodule "community/HC11"]
+	path = community/HC11
+	url = https://github.com/aleph-void/GhidraMC6800.git
+	branch = ghidra-rare
