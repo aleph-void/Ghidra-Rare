@@ -1,0 +1,13 @@
+<dwarf>
+	<!-- GCC (i860 port) numbers r0-r31 as 0-31 and f0-f31 as 32-63; 64-bit values are
+	     described as two 4-byte pieces. No call-frame information is emitted. -->
+	<register_mappings>
+		<register_mapping dwarf="0" ghidra="r0"/>
+		<register_mapping dwarf="1" ghidra="r1"/>
+		<register_mapping dwarf="2" ghidra="sp" stackpointer="true"/>
+		<register_mapping dwarf="3" ghidra="fp"/>
+		<register_mapping dwarf="4" ghidra="r4" auto_count="28"/>
+		<register_mapping dwarf="32" ghidra="f0" auto_count="32"/>
+	</register_mappings>
+	<call_frame_cfa value="0"/>
+</dwarf>

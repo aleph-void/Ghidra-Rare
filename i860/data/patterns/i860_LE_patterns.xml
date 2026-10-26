@@ -1,0 +1,14 @@
+<!-- Function starts in GCC-compiled i860 code (bytes in memory order, little-endian words).
+     The GCC i860 port puts the word 0xc80000NN (NN = offset of the end of the prologue) right
+     before every function, and functions open with "addu -N,sp,sp". -->
+<patternlist>
+  <patternpairs totalbits="32" postbits="16">
+    <prepatterns>
+      <data>0x.. 0x00 0x00 0xc8</data>                    <!-- .long .ep.f-f+0xc8000000 -->
+    </prepatterns>
+    <postpatterns>
+      <data>0x.. 1....... 0x42 0x84</data>                <!-- addu -N,sp,sp -->
+      <funcstart/>
+    </postpatterns>
+  </patternpairs>
+</patternlist>

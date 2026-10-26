@@ -122,6 +122,18 @@ MAME `xa` bugs confirmed against the manual: RR/RRC count field, ASR #imm and RL
 
 objdump bugs confirmed against the manual: BFMOV slsb/width, MVTDC field order (gas encodes it the same wrong way). Encodings the manual doesn't list decode as invalid even where objdump accepts them.
 
+### Intel i860 (XR/XP): done
+
+| Area | State |
+|---|---|
+| Decode | 589,824 corpus words vs MAME per language: 0 unexplained (XR: 487,387 agree, 63,571 both invalid, 38,866 explained: MAME accepts misaligned pairs, undefined control registers, reserved core-escape and FP precision/P encodings, plus confirmed MAME bugs). 1,154/1,154 GNU as forms identical to source; 709/709 (XP) and 683/683 (XR) constructors reached |
+| Semantics | Full p-code for core, FP, graphics and all 62 dual-operation data paths. Delay slots incl. annulled bc.t/bnc.t; dual-instruction mode tracked in the disassembler context with the 8.6.1 CC rules; adder/multiplier/graphics/load pipelines as registers. Emulator 68/68 (XP), 67/67 (XR); 19/19 kernel runs (pipelined dot products in dual mode, z-buffer) |
+| Real code | No freely licensed third-party i860 binaries exist. 36 GCC 4.0.4 builds of zlib 1.3.1 and Embench-IoT 1.0 (old port patched just enough to build, test/real/patch-gcc.py): 132,259 instructions identical to objdump, 0 bad, 2,675/2,675 functions decompile; relocations 24/24 identical to GNU ld |
+| Doesn't work | Traps/bri trap return, KNF/DS, paging, caches, FP exceptions and rounding modes, big-endian mode; frcp/frsqr are exact (hardware ~8 bits); mixed single/double multiplier pipelines; dual-mode switches across branches assume steady state; GOT relocations not applied; ~30 DWARF line bookmarks per program (Ghidra line_range bug) |
+| Unverified | Third-party i860 code (NeXTdimension, Paragon, iPSC/860 software is not free); XP-only instructions vs a second disassembler (MAME lacks them; checked with GNU as/objdump); hardware behaviour |
+
+MAME i860 bugs confirmed against the manual: control-register codes shown as code & 7; core-escape opcodes decoded by bits 1-0 (stio→lock, ldint→calli); intovr and unlock not decoded; pfeq.dd printed as pfeq.ds; reserved PFMAM data-path code 1111 printed as mm12tpm; spellings ppfld, pstd.d, pfmul3.ddss. GNU as sets flush bit 2, which the manual says must be zero, so the module ignores those bits.
+
 ## Planned: clean-room modules for CPUs IDA Pro supports and Ghidra doesn't
 
 From a comparison with IDA Pro 9.1's supported-processor list (2026-10-25). Written here from vendor
@@ -133,7 +145,7 @@ manuals, verified against a free reference disassembler run as a black box:
 | Philips XA (51XA) | MAME `xa` | done (see above) |
 | ST9 / ST9+ | MAME `st9`, `st9p` | initial support complete (see above) |
 | TI TMS320C2x (C25) and TMS320C5x | MAME `tms320c2x`, `tms320c5x` | initial support complete (see above) |
-| Intel i860 | MAME `i860` | planned |
+| Intel i860 | MAME `i860` | done (see above) |
 | Analog Devices ADSP-218x | MAME `adsp21xx` | planned |
 | Motorola DSP56000 and DSP561xx | MAME `dsp56000`, `dsp56156` | planned |
 | Renesas RX (v1, v2, v3) | binutils `rx`, `rx:v2`, `rx:v3` | done (see above) |

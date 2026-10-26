@@ -1,0 +1,3 @@
+# Intel i860 XP (80860XP): XR plus ldio/stio/ldint/scyc, pfld.q and the bear, ccr, p0-p3 control registers
+@define XP "1"
+@include "i860.sinc"

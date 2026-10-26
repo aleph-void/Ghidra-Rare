@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Intel i860, GCC (i860 SVR4 port) calling convention, learned from GCC 4.0.4 output:
+     integer and pointer arguments in r16-r27, floating-point arguments in f8-f15 (singles packed,
+     doubles in the next even pair), the rest on the stack from 0(sp); results in r16 (r16:r17 for
+     64-bit integers) or f8 / f8:f9. r1 holds the return address, r2 (sp) the stack pointer, r3
+     (fp) the frame pointer. r4-r15 and f2-f7 are callee-saved. -->
+<compiler_spec>
+  <data_organization>
+    <absolute_max_alignment value="0"/>
+    <machine_alignment value="8"/>
+    <default_alignment value="1"/>
+    <default_pointer_alignment value="4"/>
+    <pointer_size value="4"/>
+    <wchar_size value="4"/>
+    <short_size value="2"/>
+    <integer_size value="4"/>
+    <long_size value="4"/>
+    <long_long_size value="8"/>
+    <float_size value="4"/>
+    <double_size value="8"/>
+    <long_double_size value="8"/>
+    <size_alignment_map>
+      <entry size="1" alignment="1"/>
+      <entry size="2" alignment="2"/>
+      <entry size="4" alignment="4"/>
+      <entry size="8" alignment="8"/>
+    </size_alignment_map>
+  </data_organization>
+  <global>
+    <range space="ram"/>
+    <range space="io"/>
+  </global>
+  <stackpointer register="sp" space="ram" growth="negative"/>
+  <returnaddress>
+    <register name="r1"/>
+  </returnaddress>
+  <default_proto>
+    <prototype name="__stdcall" extrapop="0" stackshift="0">
+      <input>
+        <pentry minsize="1" maxsize="4" metatype="float"><register name="f8"/></pentry>
+        <pentry minsize="1" maxsize="4" metatype="float"><register name="f9"/></pentry>
+        <pentry minsize="1" maxsize="4" metatype="float"><register name="f10"/></pentry>
+        <pentry minsize="1" maxsize="4" metatype="float"><register name="f11"/></pentry>
+        <pentry minsize="1" maxsize="4" metatype="float"><register name="f12"/></pentry>
+        <pentry minsize="1" maxsize="4" metatype="float"><register name="f13"/></pentry>
+        <pentry minsize="1" maxsize="4" metatype="float"><register name="f14"/></pentry>
+        <pentry minsize="1" maxsize="4" metatype="float"><register name="f15"/></pentry>
+        <pentry minsize="5" maxsize="8" metatype="float"><register name="fd8"/></pentry>
+        <pentry minsize="5" maxsize="8" metatype="float"><register name="fd10"/></pentry>
+        <pentry minsize="5" maxsize="8" metatype="float"><register name="fd12"/></pentry>
+        <pentry minsize="5" maxsize="8" metatype="float"><register name="fd14"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="r16"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="r17"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="r18"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="r19"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="r20"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="r21"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="r22"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="r23"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="r24"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="r25"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="r26"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="r27"/></pentry>
+        <pentry minsize="1" maxsize="500" align="4"><addr offset="0" space="stack"/></pentry>
+      </input>
+      <output>
+        <pentry minsize="1" maxsize="4" metatype="float"><register name="f8"/></pentry>
+        <pentry minsize="5" maxsize="8" metatype="float"><register name="fd8"/></pentry>
+        <pentry minsize="1" maxsize="4"><register name="r16"/></pentry>
+        <pentry minsize="5" maxsize="8"><addr space="join" piece1="r17" piece2="r16"/></pentry>
+      </output>
+      <unaffected>
+        <register name="sp"/>
+        <register name="fp"/>
+        <register name="r4"/>
+        <register name="r5"/>
+        <register name="r6"/>
+        <register name="r7"/>
+        <register name="r8"/>
+        <register name="r9"/>
+        <register name="r10"/>
+        <register name="r11"/>
+        <register name="r12"/>
+        <register name="r13"/>
+        <register name="r14"/>
+        <register name="r15"/>
+        <register name="f2"/>
+        <register name="f3"/>
+        <register name="f4"/>
+        <register name="f5"/>
+        <register name="f6"/>
+        <register name="f7"/>
+      </unaffected>
+      <killedbycall>
+        <register name="r1"/>
+        <register name="r16"/>
+        <register name="r17"/>
+        <register name="r18"/>
+        <register name="r19"/>
+        <register name="r20"/>
+        <register name="r21"/>
+        <register name="r22"/>
+        <register name="r23"/>
+        <register name="r24"/>
+        <register name="r25"/>
+        <register name="r26"/>
+        <register name="r27"/>
+        <register name="r28"/>
+        <register name="r29"/>
+        <register name="r30"/>
+        <register name="r31"/>
+        <register name="f8"/>
+        <register name="f9"/>
+        <register name="f10"/>
+        <register name="f11"/>
+        <register name="f12"/>
+        <register name="f13"/>
+        <register name="f14"/>
+        <register name="f15"/>
+        <register name="f16"/>
+        <register name="f17"/>
+        <register name="f18"/>
+        <register name="f19"/>
+        <register name="f20"/>
+        <register name="f21"/>
+        <register name="f22"/>
+        <register name="f23"/>
+        <register name="f24"/>
+        <register name="f25"/>
+        <register name="f26"/>
+        <register name="f27"/>
+        <register name="f28"/>
+        <register name="f29"/>
+        <register name="f30"/>
+        <register name="f31"/>
+        <!-- condition codes, shift count, pixel mask and the floating-point pipelines -->
+        <register name="CC"/>
+        <register name="LCC"/>
+        <register name="OF"/>
+        <register name="SC"/>
+        <register name="PM"/>
+        <register name="KR"/>
+        <register name="KI"/>
+        <register name="T"/>
+        <register name="MERGE"/>
+        <register name="A1"/>
+        <register name="A2"/>
+        <register name="A3"/>
+        <register name="M1"/>
+        <register name="M2"/>
+        <register name="M3"/>
+        <register name="G1"/>
+        <register name="L1"/>
+        <register name="L2"/>
+        <register name="L3"/>
+      </killedbycall>
+    </prototype>
+  </default_proto>
+</compiler_spec>

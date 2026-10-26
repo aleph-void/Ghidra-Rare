@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<language_definitions>
+  <language processor="i860"
+            endian="little"
+            size="32"
+            variant="XR"
+            version="1.0"
+            slafile="i860xr.sla"
+            processorspec="i860.pspec"
+            id="i860:LE:32:XR">
+    <description>Intel i860 XR (80860XR), little-endian</description>
+    <compiler name="default" spec="i860.cspec" id="default"/>
+    <external_name tool="gnu" name="i860"/>
+    <external_name tool="DWARF.register.mapping.file" name="i860.dwarf"/>
+  </language>
+  <language processor="i860"
+            endian="little"
+            size="32"
+            variant="XP"
+            version="1.0"
+            slafile="i860xp.sla"
+            processorspec="i860.pspec"
+            id="i860:LE:32:XP">
+    <description>Intel i860 XP (80860XP), little-endian: XR plus ldio/stio/ldint/scyc, pfld.q and the bear, ccr, p0-p3 control registers</description>
+    <compiler name="default" spec="i860.cspec" id="default"/>
+    <external_name tool="gnu" name="i860"/>
+    <external_name tool="DWARF.register.mapping.file" name="i860.dwarf"/>
+  </language>
+</language_definitions>

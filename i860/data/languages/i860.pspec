@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Intel i860. The context registers track dual-instruction mode (see i860.sinc): code starts in
+     single-instruction mode. -->
+<processor_spec>
+  <programcounter register="pc"/>
+  <context_data>
+    <context_set space="ram">
+      <set name="dual" val="0" description="1 when the instruction executes in dual-instruction mode"/>
+      <set name="dnext" val="0" description="mode of the next instruction or pair"/>
+      <set name="dnn" val="0" description="mode of the step after the next (dual pairs)"/>
+    </context_set>
+  </context_data>
+  <register_data>
+    <register name="contextreg" hidden="true"/>
+    <register name="CCold" hidden="true"/>
+  </register_data>
+</processor_spec>

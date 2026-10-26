@@ -1,0 +1,5 @@
+<patternconstraints>
+  <language id="i860:LE:32:*">
+    <patternfile>i860_LE_patterns.xml</patternfile>
+  </language>
+</patternconstraints>

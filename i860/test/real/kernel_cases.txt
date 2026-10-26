@@ -1,0 +1,430 @@
+case dot_pipe_1
+func dot_pipe
+set ram:30000/4 0xc0000000
+set ram:30400/4 0xc0800000
+set ram:30004/4 0x0
+set ram:30404/4 0x0
+set r16 0x30000
+set r17 0x30400
+set r18 0x1
+expect f8 0x41000000
+end
+case dot_dual_1
+func dot_dual
+set ram:30000/4 0xc0000000
+set ram:30400/4 0xc0800000
+set ram:30004/4 0x0
+set ram:30404/4 0x0
+set r16 0x30000
+set r17 0x30400
+set r18 0x1
+expect f8 0x41000000
+end
+case dot_pipe_2
+func dot_pipe
+set ram:30000/4 0xc0000000
+set ram:30400/4 0xc0800000
+set ram:30004/4 0x3f800000
+set ram:30404/4 0x3f800000
+set ram:30008/4 0x0
+set ram:30408/4 0x0
+set r16 0x30000
+set r17 0x30400
+set r18 0x2
+expect f8 0x41100000
+end
+case dot_dual_2
+func dot_dual
+set ram:30000/4 0xc0000000
+set ram:30400/4 0xc0800000
+set ram:30004/4 0x3f800000
+set ram:30404/4 0x3f800000
+set ram:30008/4 0x0
+set ram:30408/4 0x0
+set r16 0x30000
+set r17 0x30400
+set r18 0x2
+expect f8 0x41100000
+end
+case dot_pipe_3
+func dot_pipe
+set ram:30000/4 0xc0000000
+set ram:30400/4 0xc0800000
+set ram:30004/4 0x3f800000
+set ram:30404/4 0x3f800000
+set ram:30008/4 0x40800000
+set ram:30408/4 0x40c00000
+set ram:3000c/4 0x0
+set ram:3040c/4 0x0
+set r16 0x30000
+set r17 0x30400
+set r18 0x3
+expect f8 0x42040000
+end
+case dot_dual_3
+func dot_dual
+set ram:30000/4 0xc0000000
+set ram:30400/4 0xc0800000
+set ram:30004/4 0x3f800000
+set ram:30404/4 0x3f800000
+set ram:30008/4 0x40800000
+set ram:30408/4 0x40c00000
+set ram:3000c/4 0x0
+set ram:3040c/4 0x0
+set r16 0x30000
+set r17 0x30400
+set r18 0x3
+expect f8 0x42040000
+end
+case dot_pipe_4
+func dot_pipe
+set ram:30000/4 0xc0000000
+set ram:30400/4 0xc0800000
+set ram:30004/4 0x3f800000
+set ram:30404/4 0x3f800000
+set ram:30008/4 0x40800000
+set ram:30408/4 0x40c00000
+set ram:3000c/4 0x0
+set ram:3040c/4 0x0
+set ram:30010/4 0x0
+set ram:30410/4 0x0
+set r16 0x30000
+set r17 0x30400
+set r18 0x4
+expect f8 0x42040000
+end
+case dot_dual_4
+func dot_dual
+set ram:30000/4 0xc0000000
+set ram:30400/4 0xc0800000
+set ram:30004/4 0x3f800000
+set ram:30404/4 0x3f800000
+set ram:30008/4 0x40800000
+set ram:30408/4 0x40c00000
+set ram:3000c/4 0x0
+set ram:3040c/4 0x0
+set ram:30010/4 0x0
+set ram:30410/4 0x0
+set r16 0x30000
+set r17 0x30400
+set r18 0x4
+expect f8 0x42040000
+end
+case dot_pipe_7
+func dot_pipe
+set ram:30000/4 0xc0000000
+set ram:30400/4 0xc0800000
+set ram:30004/4 0x3f800000
+set ram:30404/4 0x3f800000
+set ram:30008/4 0x40800000
+set ram:30408/4 0x40c00000
+set ram:3000c/4 0x0
+set ram:3040c/4 0x0
+set ram:30010/4 0x40400000
+set ram:30410/4 0x40a00000
+set ram:30014/4 0xbf800000
+set ram:30414/4 0xbf800000
+set ram:30018/4 0x40000000
+set ram:30418/4 0x40800000
+set ram:3001c/4 0x0
+set ram:3041c/4 0x0
+set r16 0x30000
+set r17 0x30400
+set r18 0x7
+expect f8 0x42640000
+end
+case dot_dual_7
+func dot_dual
+set ram:30000/4 0xc0000000
+set ram:30400/4 0xc0800000
+set ram:30004/4 0x3f800000
+set ram:30404/4 0x3f800000
+set ram:30008/4 0x40800000
+set ram:30408/4 0x40c00000
+set ram:3000c/4 0x0
+set ram:3040c/4 0x0
+set ram:30010/4 0x40400000
+set ram:30410/4 0x40a00000
+set ram:30014/4 0xbf800000
+set ram:30414/4 0xbf800000
+set ram:30018/4 0x40000000
+set ram:30418/4 0x40800000
+set ram:3001c/4 0x0
+set ram:3041c/4 0x0
+set r16 0x30000
+set r17 0x30400
+set r18 0x7
+expect f8 0x42640000
+end
+case dot_pipe_16
+func dot_pipe
+set ram:30000/4 0xc0000000
+set ram:30400/4 0xc0800000
+set ram:30004/4 0x3f800000
+set ram:30404/4 0x3f800000
+set ram:30008/4 0x40800000
+set ram:30408/4 0x40c00000
+set ram:3000c/4 0x0
+set ram:3040c/4 0x0
+set ram:30010/4 0x40400000
+set ram:30410/4 0x40a00000
+set ram:30014/4 0xbf800000
+set ram:30414/4 0xbf800000
+set ram:30018/4 0x40000000
+set ram:30418/4 0x40800000
+set ram:3001c/4 0xc0000000
+set ram:3041c/4 0xc0000000
+set ram:30020/4 0x3f800000
+set ram:30420/4 0x40400000
+set ram:30024/4 0x40800000
+set ram:30424/4 0xc0400000
+set ram:30028/4 0x0
+set ram:30428/4 0x40000000
+set ram:3002c/4 0x40400000
+set ram:3042c/4 0xc0800000
+set ram:30030/4 0xbf800000
+set ram:30430/4 0x3f800000
+set ram:30034/4 0x40000000
+set ram:30434/4 0x40c00000
+set ram:30038/4 0xc0000000
+set ram:30438/4 0x0
+set ram:3003c/4 0x3f800000
+set ram:3043c/4 0x40a00000
+set ram:30040/4 0x0
+set ram:30440/4 0x0
+set r16 0x30000
+set r17 0x30400
+set r18 0x10
+expect f8 0x42600000
+end
+case dot_dual_16
+func dot_dual
+set ram:30000/4 0xc0000000
+set ram:30400/4 0xc0800000
+set ram:30004/4 0x3f800000
+set ram:30404/4 0x3f800000
+set ram:30008/4 0x40800000
+set ram:30408/4 0x40c00000
+set ram:3000c/4 0x0
+set ram:3040c/4 0x0
+set ram:30010/4 0x40400000
+set ram:30410/4 0x40a00000
+set ram:30014/4 0xbf800000
+set ram:30414/4 0xbf800000
+set ram:30018/4 0x40000000
+set ram:30418/4 0x40800000
+set ram:3001c/4 0xc0000000
+set ram:3041c/4 0xc0000000
+set ram:30020/4 0x3f800000
+set ram:30420/4 0x40400000
+set ram:30024/4 0x40800000
+set ram:30424/4 0xc0400000
+set ram:30028/4 0x0
+set ram:30428/4 0x40000000
+set ram:3002c/4 0x40400000
+set ram:3042c/4 0xc0800000
+set ram:30030/4 0xbf800000
+set ram:30430/4 0x3f800000
+set ram:30034/4 0x40000000
+set ram:30434/4 0x40c00000
+set ram:30038/4 0xc0000000
+set ram:30438/4 0x0
+set ram:3003c/4 0x3f800000
+set ram:3043c/4 0x40a00000
+set ram:30040/4 0x0
+set ram:30440/4 0x0
+set r16 0x30000
+set r17 0x30400
+set r18 0x10
+expect f8 0x42600000
+end
+case dot_pipe_33
+func dot_pipe
+set ram:30000/4 0xc0000000
+set ram:30400/4 0xc0800000
+set ram:30004/4 0x3f800000
+set ram:30404/4 0x3f800000
+set ram:30008/4 0x40800000
+set ram:30408/4 0x40c00000
+set ram:3000c/4 0x0
+set ram:3040c/4 0x0
+set ram:30010/4 0x40400000
+set ram:30410/4 0x40a00000
+set ram:30014/4 0xbf800000
+set ram:30414/4 0xbf800000
+set ram:30018/4 0x40000000
+set ram:30418/4 0x40800000
+set ram:3001c/4 0xc0000000
+set ram:3041c/4 0xc0000000
+set ram:30020/4 0x3f800000
+set ram:30420/4 0x40400000
+set ram:30024/4 0x40800000
+set ram:30424/4 0xc0400000
+set ram:30028/4 0x0
+set ram:30428/4 0x40000000
+set ram:3002c/4 0x40400000
+set ram:3042c/4 0xc0800000
+set ram:30030/4 0xbf800000
+set ram:30430/4 0x3f800000
+set ram:30034/4 0x40000000
+set ram:30434/4 0x40c00000
+set ram:30038/4 0xc0000000
+set ram:30438/4 0x0
+set ram:3003c/4 0x3f800000
+set ram:3043c/4 0x40a00000
+set ram:30040/4 0x40800000
+set ram:30440/4 0xbf800000
+set ram:30044/4 0x0
+set ram:30444/4 0x40800000
+set ram:30048/4 0x40400000
+set ram:30448/4 0xc0000000
+set ram:3004c/4 0xbf800000
+set ram:3044c/4 0x40400000
+set ram:30050/4 0x40000000
+set ram:30450/4 0xc0400000
+set ram:30054/4 0xc0000000
+set ram:30454/4 0x40000000
+set ram:30058/4 0x3f800000
+set ram:30458/4 0xc0800000
+set ram:3005c/4 0x40800000
+set ram:3045c/4 0x3f800000
+set ram:30060/4 0x0
+set ram:30460/4 0x40c00000
+set ram:30064/4 0x40400000
+set ram:30464/4 0x0
+set ram:30068/4 0xbf800000
+set ram:30468/4 0x40a00000
+set ram:3006c/4 0x40000000
+set ram:3046c/4 0xbf800000
+set ram:30070/4 0xc0000000
+set ram:30470/4 0x40800000
+set ram:30074/4 0x3f800000
+set ram:30474/4 0xc0000000
+set ram:30078/4 0x40800000
+set ram:30478/4 0x40400000
+set ram:3007c/4 0x0
+set ram:3047c/4 0xc0400000
+set ram:30080/4 0x40400000
+set ram:30480/4 0x40000000
+set ram:30084/4 0x0
+set ram:30484/4 0x0
+set r16 0x30000
+set r17 0x30400
+set r18 0x21
+expect f8 0x42080000
+end
+case dot_dual_33
+func dot_dual
+set ram:30000/4 0xc0000000
+set ram:30400/4 0xc0800000
+set ram:30004/4 0x3f800000
+set ram:30404/4 0x3f800000
+set ram:30008/4 0x40800000
+set ram:30408/4 0x40c00000
+set ram:3000c/4 0x0
+set ram:3040c/4 0x0
+set ram:30010/4 0x40400000
+set ram:30410/4 0x40a00000
+set ram:30014/4 0xbf800000
+set ram:30414/4 0xbf800000
+set ram:30018/4 0x40000000
+set ram:30418/4 0x40800000
+set ram:3001c/4 0xc0000000
+set ram:3041c/4 0xc0000000
+set ram:30020/4 0x3f800000
+set ram:30420/4 0x40400000
+set ram:30024/4 0x40800000
+set ram:30424/4 0xc0400000
+set ram:30028/4 0x0
+set ram:30428/4 0x40000000
+set ram:3002c/4 0x40400000
+set ram:3042c/4 0xc0800000
+set ram:30030/4 0xbf800000
+set ram:30430/4 0x3f800000
+set ram:30034/4 0x40000000
+set ram:30434/4 0x40c00000
+set ram:30038/4 0xc0000000
+set ram:30438/4 0x0
+set ram:3003c/4 0x3f800000
+set ram:3043c/4 0x40a00000
+set ram:30040/4 0x40800000
+set ram:30440/4 0xbf800000
+set ram:30044/4 0x0
+set ram:30444/4 0x40800000
+set ram:30048/4 0x40400000
+set ram:30448/4 0xc0000000
+set ram:3004c/4 0xbf800000
+set ram:3044c/4 0x40400000
+set ram:30050/4 0x40000000
+set ram:30450/4 0xc0400000
+set ram:30054/4 0xc0000000
+set ram:30454/4 0x40000000
+set ram:30058/4 0x3f800000
+set ram:30458/4 0xc0800000
+set ram:3005c/4 0x40800000
+set ram:3045c/4 0x3f800000
+set ram:30060/4 0x0
+set ram:30460/4 0x40c00000
+set ram:30064/4 0x40400000
+set ram:30464/4 0x0
+set ram:30068/4 0xbf800000
+set ram:30468/4 0x40a00000
+set ram:3006c/4 0x40000000
+set ram:3046c/4 0xbf800000
+set ram:30070/4 0xc0000000
+set ram:30470/4 0x40800000
+set ram:30074/4 0x3f800000
+set ram:30474/4 0xc0000000
+set ram:30078/4 0x40800000
+set ram:30478/4 0x40400000
+set ram:3007c/4 0x0
+set ram:3047c/4 0xc0400000
+set ram:30080/4 0x40400000
+set ram:30480/4 0x40000000
+set ram:30084/4 0x0
+set ram:30484/4 0x0
+set r16 0x30000
+set r17 0x30400
+set r18 0x21
+expect f8 0x42080000
+end
+case zbuf8
+func zbuf8
+set ram:30800/8 0x7012c00050064
+set ram:30808/8 0x3200320001ffff
+set ram:30820/8 0x9012c00060063
+set ram:30828/8 0x31003300008000
+set ram:30840/8 0x4444333322221111
+set ram:30848/8 0x8888777766665555
+set ram:30860/8 0xa003a002a001a000
+set ram:30868/8 0xa007a006a005a004
+set r16 0x30800
+set r17 0x30820
+set r18 0x30840
+set r19 0x30860
+expect ram:30800/8 0x7012c00050063
+expect ram:30808/8 0x31003200008000
+expect ram:30840/8 0x4444a0022222a000
+expect ram:30848/8 0xa0077777a005a004
+expect PS 0x1
+end
+case poly_dual_0.0
+func poly_dual
+set fd8 0x0
+expect fd8 0x4014000000000000
+end
+case poly_dual_1.0
+func poly_dual
+set fd8 0x3ff0000000000000
+expect fd8 0x4026000000000000
+end
+case poly_dual_2.0
+func poly_dual
+set fd8 0x4000000000000000
+expect fd8 0x4043800000000000
+end
+case poly_dual_-1.5
+func poly_dual
+set fd8 0xbff8000000000000
+expect fd8 0xc001000000000000
+end

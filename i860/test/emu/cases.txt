@@ -1,0 +1,516 @@
+case addu_carry
+code 0020a680
+set r4 0xffffffff
+set r5 0x1
+expect r6 0x0
+expect CC 0x1
+expect OF 0x1
+end
+case addu_plain
+code 0020a680
+set r4 0x1
+set r5 0x2
+set CC 0x1
+set OF 0x1
+expect r6 0x3
+expect CC 0x0
+expect OF 0x0
+end
+case adds_overflow
+code 0020a690
+set r4 0x7fffffff
+set r5 0x1
+expect r6 0x80000000
+expect OF 0x1
+expect CC 0x0
+end
+case adds_negative
+code 0020a690
+set r4 0xfffffffb
+set r5 0x3
+expect r6 0xfffffffe
+expect OF 0x0
+expect CC 0x1
+end
+case subu_borrow
+code 0020a688
+set r4 0x5
+set r5 0x7
+expect r6 0xfffffffe
+expect CC 0x0
+expect OF 0x1
+end
+case subu_equal
+code 0020a688
+set r4 0x5
+set r5 0x5
+expect r6 0x0
+expect CC 0x1
+expect OF 0x0
+end
+case subs_less
+code 0020a698
+set r4 0xffffffff
+set r5 0x1
+expect r6 0xfffffffe
+expect CC 0x1
+expect OF 0x0
+end
+case subs_overflow
+code 0020a698
+set r4 0x80000000
+set r5 0x1
+expect r6 0x7fffffff
+expect CC 0x1
+expect OF 0x1
+end
+case adds_imm_mov
+code fdff0694
+set r6 0x7
+expect r6 0xfffffffd
+expect CC 0x1
+end
+case subu_imm_minuend
+code 0200a68c
+set r5 0x7
+expect r6 0xfffffffb
+expect CC 0x0
+end
+case r0_reads_zero
+code 00000680341200e40000e880
+set r6 0x9
+set r7 0x5
+expect r6 0x0
+expect r8 0x5
+end
+case and_zero_cc
+code f00086c4
+set r4 0xf0f
+expect r6 0x0
+expect CC 0x1
+end
+case orh_or_const32
+code 341206eccdabc6e4
+expect r6 0x1234abcd
+expect CC 0x0
+end
+case andnoth
+code ffff86dc
+set r4 0x12345678
+expect r6 0x5678
+end
+case xor_andnot
+code 0020a6f00020a7d0
+set r4 0xff00ff00
+set r5 0xff00ff0
+expect r6 0xf0f0f0f0
+expect r7 0xf000f0
+end
+case xorh_cc
+code 008086fc
+set r4 0x80000000
+expect r6 0x0
+expect CC 0x1
+end
+case shr_sets_sc
+code 040086ac
+set r4 0x80000010
+expect r6 0x8000001
+expect SC 0x4
+end
+case shra
+code 040086bc
+set r4 0x80000010
+expect r6 0xf8000001
+end
+case shl_count_mod32
+code 002886a0
+set r4 0x3
+set r5 0x21
+expect r6 0x6
+end
+case shrd_rotate
+code 080000ac0020a6b0
+set r4 0x11223344
+set r5 0x55667788
+expect r6 0x44556677
+expect SC 0x8
+end
+case ld_b_sign
+code 01008604
+set r4 0x2000
+set ram:2000/4 0x8000
+expect r6 0xffffff80
+end
+case ld_s_l
+code 0200861405008714
+set r4 0x2000
+set ram:2000/8 0x8000000080010000
+expect r6 0xffff8001
+expect r7 0x80000000
+end
+case ld_index
+code 01288610
+set r4 0x2000
+set r5 0x8
+set ram:2008/4 0xcafef00d
+expect r6 0xcafef00d
+end
+case st_split_offset
+code 0528821cfe2f9f1cff2f9e0c
+set r4 0x2000
+set r5 0x11223344
+expect ram:3004/4 0x11223344
+expect ram:1ffe/2 0x3344
+expect ram:17ff/1 0x44
+end
+case fld_d_autoinc
+code 09008224
+set r4 0x2000
+set ram:2008/8 0x123456789abcdef
+expect fd2 0x123456789abcdef
+expect f2 0x89abcdef
+expect f3 0x1234567
+expect r4 0x2008
+end
+case fst_l_index
+code 023085280000802c
+set r4 0x2000
+set r6 0x10
+set f5 0x3f800000
+set ram:2000/8 0xffffffffffffffff
+expect ram:2010/4 0x3f800000
+expect ram:2000/8 0x0
+end
+case fld_q
+code 14008424
+set r4 0x2000
+set ram:2010/8 0x1111111122222222
+set ram:2018/8 0x3333333344444444
+expect f4 0x22222222
+expect f5 0x11111111
+expect f6 0x44444444
+expect f7 0x33333333
+end
+case ixfr_fxfr
+code 0020020840100648
+set r4 0x40490fdb
+expect f2 0x40490fdb
+expect r6 0x40490fdb
+end
+case psr_fields
+code 0020203800002630
+set r4 0xf440004
+expect CC 0x1
+expect SC 0x2
+expect PS 0x1
+expect PM 0xf
+expect r6 0xf440004
+end
+case epsr_of
+code 002080800000a630
+set r4 0x80000000
+expect OF 0x1
+expect r6 0x1000000
+end
+case fsr_dirbase
+code 00208038002840380000863000004730
+set r4 0xc
+set r5 0x1001
+expect fsr 0xc
+expect r6 0xc
+expect r7 0x1001
+end
+case br_delay_slot
+code 0200006801008484640084840a008484
+set r4 0x0
+expect r4 0xb
+end
+case call_link_and_return
+code 0400006c010084840200848404000068000000a0100084840008004020008484
+main 32
+set r4 0x0
+expect r4 0x33
+expect r1 0x1008
+end
+case bc_t_taken
+code 020000740100848464008484
+set CC 0x1
+set r4 0x0
+expect r4 0x1
+end
+case bc_t_not_taken_skips_slot
+code 03000074010084840200848404008484
+set CC 0x0
+set r4 0x0
+expect r4 0x6
+end
+case bnc_t_taken
+code 0200007c0100848464008484
+set CC 0x0
+set r4 0x0
+expect r4 0x1
+end
+case bc_bnc_no_delay
+code 01000070010084840100007802008484
+set CC 0x1
+set r4 0x0
+expect r4 0x2
+end
+case bte_btne
+code 0128805c0100c684013880500200c684
+set r4 0x5
+set r7 0x5
+set r6 0x0
+expect r6 0x2
+end
+case bla_loop
+code 0128c0b4000000a0ff2fdfb401000885
+set r5 0xffffffff
+set r6 0x3
+set r8 0x0
+expect r8 0x4
+expect r6 0xfffffffe
+expect LCC 0x0
+end
+case calli_bri
+code 0228004c0100848402008484000000a00008004010008484
+main 12
+set r5 0x1010
+set r4 0x0
+expect r4 0x13
+expect r1 0x1008
+end
+case intovr_no_trap
+code 0400004c01008484
+set OF 0x0
+set r4 0x0
+expect r4 0x1
+end
+case fadd_ss
+code 30106448
+set f2 0x3fc00000
+set f3 0x40100000
+expect f4 0x40700000
+expect A3 0x40700000
+end
+case fmul_dd
+code a0118648
+set fd2 0x4008000000000000
+set fd4 0x3fe0000000000000
+expect fd6 0x3ff8000000000000
+end
+case fsub_sd
+code b1106448
+set f2 0x3f800000
+set f3 0x3e800000
+expect fd4 0x3fe8000000000000
+end
+case famov_ds
+code 33110548
+set fd2 0x4004000000000000
+expect f5 0x40200000
+end
+case famov_sd
+code b3280248
+set f5 0xbec00000
+expect fd2 0xbfd8000000000000
+end
+case fix_ftrunc
+code b2110448ba310848
+set fd2 0x4006000000000000
+set fd6 0xc006000000000000
+expect f4 0x3
+expect f8 0xfffffffe
+end
+case frcp_frsqr
+code a20144482300c748
+set fd2 0x4010000000000000
+set f6 0x41800000
+expect fd4 0x3fd0000000000000
+expect f7 0x3e800000
+end
+case pfgt_pfle_cc
+code 34146048b414604800002630
+set f2 0x40000000
+set f3 0x3f800000
+set CC 0x0
+expect CC 0x1
+expect r6 0x4
+end
+case pfeq_dd
+code 35158048
+set fd2 0x3ff4000000000000
+set fd4 0x3ff4000000000000
+expect CC 0x1
+end
+case fmlow_integer_multiply
+code a1118648
+set fd2 0x1e240
+set fd4 0x3e8
+expect f6 0x75bca00
+expect f7 0x0
+end
+case fiadd_fisub
+code c91186484d484849
+set fd2 0x1ffffffff
+set fd4 0x1
+set f9 0x0
+set f10 0x3
+expect fd6 0x200000000
+expect f8 0xfffffffd
+end
+case pfadd_pipeline
+code 301460483024a0483034e0483004084830040948
+set f2 0x3f800000
+set f3 0x40000000
+set f4 0x40800000
+set f5 0x41000000
+set f6 0x41800000
+set f7 0x42000000
+expect f8 0x40400000
+expect f9 0x41400000
+expect A3 0x42400000
+expect A2 0x0
+expect A1 0x0
+end
+case pfmul_dd_two_stages
+code a0158048a0350049a0050a48
+set fd2 0x4008000000000000
+set fd4 0x4014000000000000
+set fd6 0x4000000000000000
+set fd8 0x3fe0000000000000
+expect fd10 0x402e000000000000
+expect M2 0x3ff0000000000000
+expect M1 0x0
+end
+case pfmul_ss_three_stages
+code 2014604820144048201c604820040448
+set f2 0x40400000
+set f3 0xc0000000
+expect f4 0xc0c00000
+end
+case pfld_pipeline
+code 02008064060080640a0080640e00826411008464
+set r4 0x2000
+set ram:2000/8 0x2222222211111111
+set ram:2008/8 0x4444444433333333
+set ram:2010/8 0x6666666655555555
+expect f2 0x11111111
+expect f4 0x22222222
+expect r4 0x2010
+end
+case pfiadd_one_stage
+code 4914604849040448
+set f2 0x5
+set f3 0x6
+expect f4 0xb
+end
+case r2p1_ss
+code 00146448
+set KR 0x40000000
+set f2 0x3f800000
+set f3 0x40400000
+set M3 0x40a00000
+set A3 0x40e00000
+expect f4 0x40e00000
+expect A1 0x40c00000
+expect M1 0x40c00000
+expect A3 0x0
+expect M3 0x0
+end
+case i2apt_dd
+code 87158648
+set T 0x3ff0000000000000
+set A3 0x4000000000000000
+set M2 0x4010000000000000
+set fd2 0x4008000000000000
+set fd4 0x4014000000000000
+expect fd6 0x4000000000000000
+expect KI 0x4008000000000000
+expect M1 0x402e000000000000
+expect A1 0x4008000000000000
+expect T 0x4010000000000000
+end
+case mm12msm_ss
+code 19106448
+set f2 0x40000000
+set f3 0x40800000
+set M3 0x3fc00000
+set A3 0x41100000
+expect f4 0x3fc00000
+expect M1 0x41000000
+expect A1 0x0
+end
+case faddp_8bit_pixels
+code d0118648
+set PS 0x0
+set MERGE 0x1111111111111111
+set fd2 0x180028003800480
+set fd4 0x80008000800080
+expect fd6 0x200030004000500
+expect MERGE 0x211031104110511
+end
+case faddz_form
+code d1118048da310848
+set MERGE 0xaaaabbbbccccdddd
+set fd2 0x1000000020000
+set fd4 0x1800000018000
+set fd6 0x3
+expect fd8 0x2aaaa0003cccf
+expect MERGE 0x0
+end
+case fzchks_pm
+code df118648
+set PM 0xa0
+set fd2 0x5000a00010004
+set fd4 0x6000900010003
+expect fd6 0x5000900010003
+expect PM 0x7a
+end
+case pst_d_16bit
+code 0800823c
+set PS 0x1
+set PM 0x35
+set r4 0x2000
+set fd2 0x1111222233334444
+set ram:2008/8 0xaaaabbbbccccdddd
+expect ram:2008/8 0xaaaa2222cccc4444
+expect PM 0x3
+end
+case dual_mode_compare_and_branch
+code 000200b0000000a03416604804000070301064480100c684000000b00200c6840400c684
+set f2 0x40000000
+set f3 0x3f800000
+set CC 0x0
+set r6 0x0
+expect CC 0x0
+expect r6 0x7
+expect f4 0x40400000
+end
+case dual_mode_core_sets_cc
+code 000200b0000000a03516604800208088000000b0000000a0000000b0000000a0000000a0
+set f2 0x40000000
+set f3 0x3f800000
+set r4 0x1
+set CC 0x1
+expect CC 0x0
+end
+case dual_mode_call_link
+code 000200b0000000a0301242480800006c301a63480100c684000000b00200c684000000b0000000a0000000a0000000a01000c684
+main 52
+set f2 0x3f800000
+set f3 0x40000000
+set r6 0x0
+expect r1 0x1018
+expect r6 0x11
+expect f2 0x40000000
+expect f3 0x40800000
+end
+case ldio_stio xp
+code 092c804c0802864c
+set r4 0x40
+set r5 0x1234fedc
+expect io:40/4 0x1234fedc
+expect r6 0xfffffedc
+end
