@@ -1,0 +1,3 @@
+# Philips XA, page 0 mode (SCR.PZ = 1): 16-bit addresses, 2-byte return frames
+@define PAGE0 ""
+@include "xa.sinc"

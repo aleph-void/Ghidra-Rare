@@ -88,6 +88,18 @@ Terms used below:
 | Doesn't work | ST9+ DPR physical data-memory mapping, peripheral behavior, interrupt timing, HALT/WFI side effects |
 | Unverified | No freely licensed third-party ST9 firmware found; most p-code forms have not been checked against hardware |
 
+### XA (Philips 51XA): done
+
+| Area | State |
+|---|---|
+| Decode | 262,144 slot records per configuration (every first/second byte pair × 3 operand tails, plus 65,536 random) vs MAME in native/DS tracked, native/DS dynamic and page 0: 0 unexplained. 224,711 agree (68,090 both invalid), 9,433 confirmed MAME bugs, 27,220 encodings MAME accepts that the user guide forbids, 780 odd FCALL/FJMP targets. 3,658/3,658 constructors reached |
+| Semantics | ALU/flags (PSW write precedence), all addressing modes with DS/ES/SSEL segments and DS tracking, bits, shifts/rotates/NORM/DA, mul/div, CJNE/DJNZ, PUSH/POP lists, USP, call/trap/RETI frames; emulator 160/160 per language (80 cases × 2 DS modes), broken expectation detected |
+| Real code | asxa 1.12 example programs (assembled with asxa as a black box, fetched by pinned URL + SHA-256): listing-guided disassembly identical to the source on all but 0 checked statements; 0 MAME differences beyond its bugs; 146/146 functions decompile |
+| Doesn't work | Register banks (one R0–R3), user-mode stacks (R7 = system SP), 80C51 compatibility mode, odd-address word alignment, interrupts/peripherals. Emulation needs a `segment` user-op callback. Inline-argument calls decode the string as code; table-dispatched monitor commands are not reached by auto-analysis |
+| Unverified | No freely licensed third-party XA firmware or compiled C (SDCC xa51 not built); hardware behavior |
+
+MAME `xa` bugs confirmed against the manual: RR/RRC count field, ASR #imm and RLC field decoding, MOV [Rd],dir / dir,[Rs] pointer bits, XCH Rd,dir register bits, 16/8 divide operand sizes, byte register name in CJNE.w Rd,#imm, #data8 read from the wrong byte after a 16-bit offset, data-memory bit addresses offset 20h twice. asxa bug: XCH Rd,[Rs] assembles with the pointer in the wrong bits.
+
 ## Planned: clean-room modules for CPUs IDA Pro supports and Ghidra doesn't
 
 From a comparison with IDA Pro 9.1's supported-processor list (2026-10-25). Written here from vendor
@@ -96,7 +108,7 @@ manuals, verified against a free reference disassembler run as a black box:
 | CPU | Reference disassembler | Status |
 |---|---|---|
 | Zilog Z8 | MAME `z8` | done (see above) |
-| Philips XA (51XA) | MAME `xa` | in progress |
+| Philips XA (51XA) | MAME `xa` | done (see above) |
 | ST9 / ST9+ | MAME `st9`, `st9p` | initial support complete (see above) |
 | TI TMS320C2x (C25) and TMS320C5x | MAME `tms320c2x`, `tms320c5x` | in progress |
 | Intel i860 | MAME `i860` | planned |

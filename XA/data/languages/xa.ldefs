@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<language_definitions>
+  <language processor="XA"
+            endian="little"
+            size="24"
+            variant="default"
+            version="1.0"
+            slafile="xa.sla"
+            processorspec="xa.pspec"
+            id="XA:LE:24:default">
+    <description>Philips/NXP XA (51XA, XA-G3/S3/G49...), native mode: 24-bit addresses, 4-byte return frames (SCR.PZ = 0)</description>
+    <compiler name="default" spec="xa.cspec" id="default"/>
+  </language>
+  <language processor="XA"
+            endian="little"
+            size="24"
+            variant="page0"
+            version="1.0"
+            slafile="xa_page0.sla"
+            processorspec="xa.pspec"
+            id="XA:LE:24:page0">
+    <description>Philips/NXP XA (51XA), page 0 mode: 16-bit addresses, 2-byte return frames (SCR.PZ = 1)</description>
+    <compiler name="default" spec="xa_page0.cspec" id="default"/>
+  </language>
+</language_definitions>

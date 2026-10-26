@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Philips XA: SFR names from the XA-G3 data sheet (1997 data handbook IC25); other derivatives
+     move peripheral SFRs. The vector table (user guide 4.8.2) holds 4-byte entries, PSW word then
+     handler address word: exceptions 00h-3Fh, traps 40h-7Fh, events 80h-FFh, software interrupts
+     100h-11Bh. XAVectorAnalyzer follows the entries to the handlers. -->
+<processor_spec>
+  <programcounter register="PC"/>
+  <segmentop space="data" userop="segment" farpointer="yes">
+    <pcode>
+      <input name="base" size="1"/>
+      <input name="inner" size="2"/>
+      <output name="res" size="3"/>
+      <body><![CDATA[
+        res = (zext(base) << 16) + zext(inner);
+      ]]></body>
+    </pcode>
+    <constresolve>
+      <register name="DS"/>
+    </constresolve>
+  </segmentop>
+  <context_data>
+    <context_set space="code">
+      <set name="dsk" val="1" description="1 when DS (direct addressing segment) is known"/>
+      <set name="dsv" val="0" description="tracked DS value (resets to 0)"/>
+    </context_set>
+  </context_data>
+  <volatile outputop="write_volatile" inputop="read_volatile">
+    <range space="sfr" first="0x404" last="0x43f"/>
+    <range space="sfr" first="0x444" last="0x7ff"/>
+  </volatile>
+  <default_symbols>
+    <symbol name="PCON" address="sfr:404"/>
+    <symbol name="TCON" address="sfr:410"/>
+    <symbol name="TSTAT" address="sfr:411"/>
+    <symbol name="T2CON" address="sfr:418"/>
+    <symbol name="T2MOD" address="sfr:419"/>
+    <symbol name="WDCON" address="sfr:41F"/>
+    <symbol name="S0CON" address="sfr:420"/>
+    <symbol name="S0STAT" address="sfr:421"/>
+    <symbol name="S1CON" address="sfr:424"/>
+    <symbol name="S1STAT" address="sfr:425"/>
+    <symbol name="IEL" address="sfr:426"/>
+    <symbol name="IEH" address="sfr:427"/>
+    <symbol name="SWR" address="sfr:42A"/>
+    <symbol name="P0" address="sfr:430"/>
+    <symbol name="P1" address="sfr:431"/>
+    <symbol name="P2" address="sfr:432"/>
+    <symbol name="P3" address="sfr:433"/>
+    <symbol name="TL0" address="sfr:450"/>
+    <symbol name="TH0" address="sfr:451"/>
+    <symbol name="TL1" address="sfr:452"/>
+    <symbol name="TH1" address="sfr:453"/>
+    <symbol name="RTL0" address="sfr:454"/>
+    <symbol name="RTH0" address="sfr:455"/>
+    <symbol name="RTL1" address="sfr:456"/>
+    <symbol name="RTH1" address="sfr:457"/>
+    <symbol name="TL2" address="sfr:458"/>
+    <symbol name="TH2" address="sfr:459"/>
+    <symbol name="T2CAPL" address="sfr:45A"/>
+    <symbol name="T2CAPH" address="sfr:45B"/>
+    <symbol name="TMOD" address="sfr:45C"/>
+    <symbol name="WFEED1" address="sfr:45D"/>
+    <symbol name="WFEED2" address="sfr:45E"/>
+    <symbol name="WDL" address="sfr:45F"/>
+    <symbol name="S0BUF" address="sfr:460"/>
+    <symbol name="S0ADDR" address="sfr:461"/>
+    <symbol name="S0ADEN" address="sfr:462"/>
+    <symbol name="S1BUF" address="sfr:464"/>
+    <symbol name="S1ADDR" address="sfr:465"/>
+    <symbol name="S1ADEN" address="sfr:466"/>
+    <symbol name="BTRL" address="sfr:468"/>
+    <symbol name="BTRH" address="sfr:469"/>
+    <symbol name="BCR" address="sfr:46A"/>
+    <symbol name="P0CFGA" address="sfr:470"/>
+    <symbol name="P1CFGA" address="sfr:471"/>
+    <symbol name="P2CFGA" address="sfr:472"/>
+    <symbol name="P3CFGA" address="sfr:473"/>
+    <symbol name="SWE" address="sfr:47A"/>
+    <symbol name="IPA0" address="sfr:4A0"/>
+    <symbol name="IPA1" address="sfr:4A1"/>
+    <symbol name="IPA2" address="sfr:4A2"/>
+    <symbol name="IPA4" address="sfr:4A4"/>
+    <symbol name="IPA5" address="sfr:4A5"/>
+    <symbol name="P0CFGB" address="sfr:4F0"/>
+    <symbol name="P1CFGB" address="sfr:4F1"/>
+    <symbol name="P2CFGB" address="sfr:4F2"/>
+    <symbol name="P3CFGB" address="sfr:4F3"/>
+    <symbol name="RESET_VECTOR" address="code:000000"/>
+    <symbol name="BREAKPOINT_VECTOR" address="code:000004"/>
+    <symbol name="TRACE_VECTOR" address="code:000008"/>
+    <symbol name="STACK_OVERFLOW_VECTOR" address="code:00000C"/>
+    <symbol name="DIVIDE_BY_ZERO_VECTOR" address="code:000010"/>
+    <symbol name="USER_RETI_VECTOR" address="code:000014"/>
+    <symbol name="EXCEPTION6_VECTOR" address="code:000018"/>
+    <symbol name="EXCEPTION7_VECTOR" address="code:00001C"/>
+    <symbol name="EXCEPTION8_VECTOR" address="code:000020"/>
+    <symbol name="EXCEPTION9_VECTOR" address="code:000024"/>
+    <symbol name="EXCEPTION10_VECTOR" address="code:000028"/>
+    <symbol name="EXCEPTION11_VECTOR" address="code:00002C"/>
+    <symbol name="EXCEPTION12_VECTOR" address="code:000030"/>
+    <symbol name="EXCEPTION13_VECTOR" address="code:000034"/>
+    <symbol name="EXCEPTION14_VECTOR" address="code:000038"/>
+    <symbol name="EXCEPTION15_VECTOR" address="code:00003C"/>
+    <symbol name="TRAP0_VECTOR" address="code:000040"/>
+    <symbol name="TRAP1_VECTOR" address="code:000044"/>
+    <symbol name="TRAP2_VECTOR" address="code:000048"/>
+    <symbol name="TRAP3_VECTOR" address="code:00004C"/>
+    <symbol name="TRAP4_VECTOR" address="code:000050"/>
+    <symbol name="TRAP5_VECTOR" address="code:000054"/>
+    <symbol name="TRAP6_VECTOR" address="code:000058"/>
+    <symbol name="TRAP7_VECTOR" address="code:00005C"/>
+    <symbol name="TRAP8_VECTOR" address="code:000060"/>
+    <symbol name="TRAP9_VECTOR" address="code:000064"/>
+    <symbol name="TRAP10_VECTOR" address="code:000068"/>
+    <symbol name="TRAP11_VECTOR" address="code:00006C"/>
+    <symbol name="TRAP12_VECTOR" address="code:000070"/>
+    <symbol name="TRAP13_VECTOR" address="code:000074"/>
+    <symbol name="TRAP14_VECTOR" address="code:000078"/>
+    <symbol name="TRAP15_VECTOR" address="code:00007C"/>
+    <symbol name="EVENT0_VECTOR" address="code:000080"/>
+    <symbol name="EVENT1_VECTOR" address="code:000084"/>
+    <symbol name="EVENT2_VECTOR" address="code:000088"/>
+    <symbol name="EVENT3_VECTOR" address="code:00008C"/>
+    <symbol name="EVENT4_VECTOR" address="code:000090"/>
+    <symbol name="EVENT5_VECTOR" address="code:000094"/>
+    <symbol name="EVENT6_VECTOR" address="code:000098"/>
+    <symbol name="NMI_VECTOR" address="code:00009C"/>
+    <symbol name="EVENT8_VECTOR" address="code:0000A0"/>
+    <symbol name="EVENT9_VECTOR" address="code:0000A4"/>
+    <symbol name="EVENT10_VECTOR" address="code:0000A8"/>
+    <symbol name="EVENT11_VECTOR" address="code:0000AC"/>
+    <symbol name="EVENT12_VECTOR" address="code:0000B0"/>
+    <symbol name="EVENT13_VECTOR" address="code:0000B4"/>
+    <symbol name="EVENT14_VECTOR" address="code:0000B8"/>
+    <symbol name="EVENT15_VECTOR" address="code:0000BC"/>
+    <symbol name="EVENT16_VECTOR" address="code:0000C0"/>
+    <symbol name="EVENT17_VECTOR" address="code:0000C4"/>
+    <symbol name="EVENT18_VECTOR" address="code:0000C8"/>
+    <symbol name="EVENT19_VECTOR" address="code:0000CC"/>
+    <symbol name="EVENT20_VECTOR" address="code:0000D0"/>
+    <symbol name="EVENT21_VECTOR" address="code:0000D4"/>
+    <symbol name="EVENT22_VECTOR" address="code:0000D8"/>
+    <symbol name="EVENT23_VECTOR" address="code:0000DC"/>
+    <symbol name="EVENT24_VECTOR" address="code:0000E0"/>
+    <symbol name="EVENT25_VECTOR" address="code:0000E4"/>
+    <symbol name="EVENT26_VECTOR" address="code:0000E8"/>
+    <symbol name="EVENT27_VECTOR" address="code:0000EC"/>
+    <symbol name="EVENT28_VECTOR" address="code:0000F0"/>
+    <symbol name="EVENT29_VECTOR" address="code:0000F4"/>
+    <symbol name="EVENT30_VECTOR" address="code:0000F8"/>
+    <symbol name="EVENT31_VECTOR" address="code:0000FC"/>
+    <symbol name="SWI1_VECTOR" address="code:000100"/>
+    <symbol name="SWI2_VECTOR" address="code:000104"/>
+    <symbol name="SWI3_VECTOR" address="code:000108"/>
+    <symbol name="SWI4_VECTOR" address="code:00010C"/>
+    <symbol name="SWI5_VECTOR" address="code:000110"/>
+    <symbol name="SWI6_VECTOR" address="code:000114"/>
+    <symbol name="SWI7_VECTOR" address="code:000118"/>
+  </default_symbols>
+  <default_memory_blocks>
+    <memory_block name="SFR" start_address="sfr:0400" length="0x400" initialized="false"/>
+    <memory_block name="DATA" start_address="data:000000" length="0x10000" initialized="false"/>
+  </default_memory_blocks>
+</processor_spec>

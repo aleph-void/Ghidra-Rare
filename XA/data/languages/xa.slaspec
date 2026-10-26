@@ -1,0 +1,2 @@
+# Philips XA, native mode (SCR.PZ = 0): 24-bit addresses, 4-byte return frames
+@include "xa.sinc"
