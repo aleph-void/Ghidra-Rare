@@ -1,0 +1,4 @@
+# Intel IA-64 (Itanium), big-endian data (HP-UX). Instruction bundles are little-endian in both.
+@define ENDIAN "big"
+define endian=big;
+@include "ia64.sinc"

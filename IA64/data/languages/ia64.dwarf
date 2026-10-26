@@ -1,0 +1,14 @@
+<dwarf>
+  <!-- IA-64 DWARF register numbers (Itanium Software Conventions and Runtime Architecture
+       Guide): r0-r127 = 0-127 (checked against the zlib1g-dbg DWARF: frame base r12, arguments
+       and locals in r32..), f0-f127 = 128-255, p0-p63 = 256-319, b0-b7 = 320-327. -->
+  <register_mappings>
+    <register_mapping dwarf="0" ghidra="r0" auto_count="12"/>
+    <register_mapping dwarf="12" ghidra="r12" stackpointer="true"/>
+    <register_mapping dwarf="13" ghidra="r13" auto_count="115"/>
+    <register_mapping dwarf="128" ghidra="f0" auto_count="128"/>
+    <register_mapping dwarf="256" ghidra="p0" auto_count="64"/>
+    <register_mapping dwarf="320" ghidra="b0" auto_count="8"/>
+  </register_mappings>
+  <call_frame_cfa value="0"/>
+</dwarf>

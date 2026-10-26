@@ -158,6 +158,16 @@ MAME `adsp21xx` bugs confirmed against the manual: AMF 01101 (`MR − xop·yop (
 
 MAME bugs confirmed against the manuals and the assemblers: dsp56000: XY-move Y mode/register taken from the X fields; MOVEP pp address bits; Tcc S1,D1 table; accumulator source of ADD/SUB/TFR/CMP omitted; absolute-address extension word ignored in class I/II moves, bit ops and REP; reserved bits/codes accepted. dsp56156: no BF* instructions or (R2+xx) forms; dual-read multiply sources printed reversed; don't-care bits must be zero; SHFL/SHFR decoded at 15Dx/15Fx (in neither manual).
 
+### Intel IA-64 (Itanium): done
+
+| Area | State |
+|---|---|
+| Decode | Per slot vs objdump -m ia64-elf64, all 3 languages: 100k random bundles (299,352 slots) plus an opcode-space corpus (1,074,686 slots: every value of bits 27-40 per unit and slot, plus MLX), pseudo-ops (3,852) and branches (65): 0 unexplained. Explained: Itanium 9500 hint.m/mov dahr and lfetch.count (not in SDM rev 2.3), reserved mux1 values. Every entry 5,079/5,079 per language |
+| Semantics | Full p-code for integer, compare/predication (all types), multimedia, FP (80-bit model with 17-bit exponent conversion), NaT propagation, spill/fill, speculation (chk.a always recovers), register stack (decompiler model with argsave plus an emulated RSE backing store), rotating registers (br.ctop/cexit/wtop/wexit), MLX movl/brl. Emulator 37/37 per language; broken expectation detected |
+| Real code | Debian 7 ia64 (libz, busybox dynamic and static, gzip, bc, libsqlite3, libm, libc): 1,393,145 instructions, all identical to objdump; 0 bad instructions except 1 in busybox-static (a mis-ranged jump table); 11,224/11,247 functions decompile (22 hit a Ghidra decompiler bug, 1 times out). GCC 14 objects/exe/so (Linux) and HP-UX ILP32/LP64 objects: 16/16 functions decompile, DWARF imported |
+| Doesn't work | ALAT, deferred faults, interruptions, async RSE, FP status/rounding, IA-32 mode, TLS relocations; loop-switch jump tables are not recovered (149 sqlite warnings, 87 in libc); extra call arguments for unknown prototypes; "Illegal op in iblock" is Ghidra's conditional-execution bug, reproduced in 5 instructions |
+| Unverified | Hardware or simulator behaviour; Windows, OpenVMS and HP-UX executables (only HP-UX objects built here) |
+
 ## Planned: clean-room modules for CPUs IDA Pro supports and Ghidra doesn't
 
 From a comparison with IDA Pro 9.1's supported-processor list (2026-10-25). Written here from vendor
@@ -173,7 +183,7 @@ manuals, verified against a free reference disassembler run as a black box:
 | Analog Devices ADSP-218x | MAME `adsp21xx` | done (see above) |
 | Motorola DSP56000 and DSP561xx | MAME `dsp56000`, `dsp56156` | done (see above) |
 | Renesas RX (v1, v2, v3) | binutils `rx`, `rx:v2`, `rx:v3` | done (see above) |
-| Intel IA-64 (Itanium) | binutils `ia64` | planned |
+| Intel IA-64 (Itanium) | binutils `ia64` | done (see above) |
 
 Extensions of community modules: V850E1/E1F/ES into RH850 (binutils `v850e1`), H8SX into the H8
 module (binutils `h8300sx`), SH-2E alongside SH-3 (binutils `sh2e`). No reference tool found, so

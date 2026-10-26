@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<language_definitions>
+  <language processor="IA64"
+            endian="little"
+            size="64"
+            variant="default"
+            version="1.0"
+            slafile="ia64_le.sla"
+            processorspec="ia64.pspec"
+            id="IA64:LE:64:default">
+    <description>Intel IA-64 (Itanium), little-endian data (Linux, Windows, OpenVMS)</description>
+    <compiler name="default" spec="ia64.cspec" id="default"/>
+    <external_name tool="gnu" name="ia64"/>
+    <external_name tool="DWARF.register.mapping.file" name="ia64.dwarf"/>
+  </language>
+  <language processor="IA64"
+            endian="big"
+            instructionEndian="little"
+            size="64"
+            variant="default"
+            version="1.0"
+            slafile="ia64_be.sla"
+            processorspec="ia64.pspec"
+            id="IA64:BE:64:default">
+    <description>Intel IA-64 (Itanium), big-endian data (HP-UX); bundles stay little-endian</description>
+    <compiler name="default" spec="ia64.cspec" id="default"/>
+    <external_name tool="gnu" name="ia64"/>
+    <external_name tool="DWARF.register.mapping.file" name="ia64.dwarf"/>
+  </language>
+  <language processor="IA64"
+            endian="big"
+            instructionEndian="little"
+            size="32"
+            variant="default"
+            version="1.0"
+            slafile="ia64_be32.sla"
+            processorspec="ia64.pspec"
+            id="IA64:BE:32:default">
+    <description>Intel IA-64 (Itanium), big-endian data, 32-bit addresses (HP-UX ILP32); 64-bit registers</description>
+    <compiler name="default" spec="ia64_ilp32.cspec" id="default"/>
+    <external_name tool="gnu" name="ia64"/>
+    <external_name tool="DWARF.register.mapping.file" name="ia64.dwarf"/>
+  </language>
+</language_definitions>

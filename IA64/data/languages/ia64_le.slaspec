@@ -1,0 +1,4 @@
+# Intel IA-64 (Itanium), little-endian data (Linux, Windows, OpenVMS, FreeBSD)
+@define ENDIAN "little"
+define endian=little;
+@include "ia64.sinc"

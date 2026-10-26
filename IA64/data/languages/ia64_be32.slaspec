@@ -1,0 +1,8 @@
+# Intel IA-64 (Itanium), big-endian data with 32-bit data addresses (HP-UX ILP32): registers are
+# 64-bit, addresses are truncated to 32 bits (addp4 region bits dropped). Bundles stay
+# little-endian.
+@define ENDIAN "big"
+@define ADDRSIZE "4"
+@define GEN "ia64_gen32.sinc"
+define endian=big;
+@include "ia64.sinc"
