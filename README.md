@@ -30,6 +30,7 @@ The project has two parts:
 | [TMS320C2x](TMS320C2x/README.md) | TI TMS320C2x (C25/C26) and TMS320C5x DSP, big and little endian, with TI COFF support | `TMS320C2x:{BE,LE}:16:default`, `TMS320C5x:{BE,LE}:16:default` | Added for IDA built-in CPU parity |
 | [RX](RX/README.md) | Renesas RX, RXv1, RXv2 and RXv3 (FPU, DSP and double-precision FPU) | `RX:LE:32:RXv1`, `RXv2`, `RXv3` (each with `default` and `d64` compiler specs) | Added for IDA built-in CPU parity |
 | [i860](i860/README.md) | Intel i860 XR and XP, dual-instruction mode, delay slots, FP pipeline and graphics instructions | `i860:LE:32:XR`, `i860:LE:32:XP` | Added for IDA built-in CPU parity |
+| [ADSP218x](ADSP218x/README.md) | Analog Devices ADSP-218x (ADSP-2181 family), with a VisualDSP++ DXE loader | `ADSP218x:BE:16:default` | Added for IDA built-in CPU parity |
 
 Each module's README lists its language variants, how closely it matches the reference
 disassembler, what the p-code models, known gaps and how to run its tests. [STATUS.md](STATUS.md)

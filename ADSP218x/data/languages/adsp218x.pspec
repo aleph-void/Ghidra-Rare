@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ADSP-218x: interrupt vectors are 4-instruction slots at pm:0000-002F (ADSP-2181 data sheet
+     and User's Manual Appendix D): reset at 0000, then IRQ2, IRQL1, IRQL0, SPORT0 transmit,
+     SPORT0 receive, IRQE, BDMA, SPORT1 transmit/IRQ1, SPORT1 receive/IRQ0, timer, power-down.
+     Memory-mapped control registers sit at dm:3FE0-3FFF. -->
+<processor_spec>
+  <programcounter register="PC"/>
+  <data_space space="dm"/>
+  <context_data>
+    <context_set space="pm">
+      <set name="lpend" val="0"/>
+    </context_set>
+  </context_data>
+  <default_symbols>
+    <symbol name="RESET_VECTOR" address="pm:0000" entry="true"/>
+    <symbol name="IRQ2_VECTOR" address="pm:0004" entry="true"/>
+    <symbol name="IRQL1_VECTOR" address="pm:0008" entry="true"/>
+    <symbol name="IRQL0_VECTOR" address="pm:000c" entry="true"/>
+    <symbol name="SPORT0_TX_VECTOR" address="pm:0010" entry="true"/>
+    <symbol name="SPORT0_RX_VECTOR" address="pm:0014" entry="true"/>
+    <symbol name="IRQE_VECTOR" address="pm:0018" entry="true"/>
+    <symbol name="BDMA_VECTOR" address="pm:001c" entry="true"/>
+    <symbol name="SPORT1_TX_IRQ1_VECTOR" address="pm:0020" entry="true"/>
+    <symbol name="SPORT1_RX_IRQ0_VECTOR" address="pm:0024" entry="true"/>
+    <symbol name="TIMER_VECTOR" address="pm:0028" entry="true"/>
+    <symbol name="POWERDOWN_VECTOR" address="pm:002c" entry="true"/>
+    <symbol name="IDMA_CONTROL" address="dm:3fe0"/>
+    <symbol name="BDMA_BIAD" address="dm:3fe1"/>
+    <symbol name="BDMA_BEAD" address="dm:3fe2"/>
+    <symbol name="BDMA_CONTROL" address="dm:3fe3"/>
+    <symbol name="BDMA_WORD_COUNT" address="dm:3fe4"/>
+    <symbol name="PFLAG_DATA" address="dm:3fe5"/>
+    <symbol name="PFLAG_TYPE" address="dm:3fe6"/>
+    <symbol name="SPORT1_AUTOBUF" address="dm:3fef"/>
+    <symbol name="SPORT1_RFSDIV" address="dm:3ff0"/>
+    <symbol name="SPORT1_SCLKDIV" address="dm:3ff1"/>
+    <symbol name="SPORT1_CONTROL" address="dm:3ff2"/>
+    <symbol name="SPORT0_AUTOBUF" address="dm:3ff3"/>
+    <symbol name="SPORT0_RFSDIV" address="dm:3ff4"/>
+    <symbol name="SPORT0_SCLKDIV" address="dm:3ff5"/>
+    <symbol name="SPORT0_CONTROL" address="dm:3ff6"/>
+    <symbol name="SPORT0_MCE_TX_HI" address="dm:3ff7"/>
+    <symbol name="SPORT0_MCE_TX_LO" address="dm:3ff8"/>
+    <symbol name="SPORT0_MCE_RX_HI" address="dm:3ff9"/>
+    <symbol name="SPORT0_MCE_RX_LO" address="dm:3ffa"/>
+    <symbol name="TSCALE" address="dm:3ffb"/>
+    <symbol name="TCOUNT" address="dm:3ffc"/>
+    <symbol name="TPERIOD" address="dm:3ffd"/>
+    <symbol name="DM_WAIT" address="dm:3ffe"/>
+    <symbol name="SYSTEM_CONTROL" address="dm:3fff"/>
+  </default_symbols>
+  <!-- volatile ranges and block lengths are in bytes (dm and io have 2-byte words) -->
+  <volatile outputop="write_volatile" inputop="read_volatile">
+    <range space="dm" first="0x7fc0" last="0x7fff"/>
+    <range space="io" first="0x0" last="0xfff"/>
+  </volatile>
+  <default_memory_blocks>
+    <memory_block name="DM" start_address="dm:0000" length="0x8000" initialized="false"/>
+    <memory_block name="IO" start_address="io:0000" length="0x1000" initialized="false"/>
+  </default_memory_blocks>
+</processor_spec>

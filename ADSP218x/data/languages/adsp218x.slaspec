@@ -1,0 +1,726 @@
+# Analog Devices ADSP-218x (ADSP-2181 family) for Ghidra.
+#
+# Written from the ADSP-2100 Family User's Manual, 3rd edition (Analog Devices, 1995): Appendix A
+# (instruction coding), Chapter 15 (instruction set reference), Chapters 2-4 (computational units,
+# program sequencer, data address generators).  Register codes PMOVLAY/DMOVLAY (REG group 01,
+# codes 1110/1111) follow MAME unidasm -arch adsp21xx used as a black box; nothing was taken
+# from any tool's source.
+#
+# Memory: pm = program memory, 24-bit words (one instruction per word, word addressed);
+#         dm = data memory, 16-bit words; io = ADSP-218x I/O space (2048 x 16 bits);
+#         the sequencer's PC, loop, count and status stacks are register files.
+
+define endian=big;
+define alignment=3;      # one 24-bit word (the Disassembler checks alignment in bytes)
+
+define space pm       type=ram_space      size=2 wordsize=3 default;
+define space dm       type=ram_space      size=2 wordsize=2;
+define space io       type=ram_space      size=2 wordsize=2;
+define space register type=register_space size=2;
+
+# MR = MR2:MR1:MR0 (40 bits, held sign-extended in 48), SR = SR1:SR0.  Every 16-bit register
+# holds its value as the DMD bus reads it (I, L, CNTR zero-extended from 14 bits, M from 14 bits
+# and MR2/SE/SB sign-extended), so reads need no conversion.
+define register offset=0x00 size=2 [
+  MR2 MR1 MR0 SR1 SR0
+  AX0 AX1 MX0 MX1 AY0 AY1 MY0 MY1 SI SE AR AF MF SB PX
+  ASTAT MSTAT SSTAT IMASK ICNTL CNTR IFC OWRCNTR RX0 TX0 RX1 TX1 PMOVLAY DMOVLAY
+  I0 I1 I2 I3 I4 I5 I6 I7 M0 M1 M2 M3 M4 M5 M6 M7 L0 L1 L2 L3 L4 L5 L6 L7
+  PC CNTRW EXPV
+];
+define register offset=0x00 size=6 [ MR ];
+define register offset=0x06 size=4 [ SR ];
+
+# ASTAT bits, MSTAT mode bits, flag pins and sequencer state, one byte each
+define register offset=0x100 size=1 [
+  AZ AN AV AC AS AQ MV SS
+  SEC_REG BIT_REV AV_LATCH AR_SAT M_MODE TIMER G_MODE
+  FI FO FL0 FL1 FL2 INTENA AVN
+  PCSP LPSP CNTSP STSP
+];
+
+define register offset=0x300 size=2 [ PCS0 PCS1 PCS2 PCS3 PCS4 PCS5 PCS6 PCS7 PCS8 PCS9 PCS10 PCS11 PCS12 PCS13 PCS14 PCS15 CNTS0 CNTS1 CNTS2 CNTS3 STSA0 STSA1 STSA2 STSA3 STSA4 STSA5 STSA6 STSA7 STSA8 STSA9 STSA10 STSA11 STSM0 STSM1 STSM2 STSM3 STSM4 STSM5 STSM6 STSM7 STSM8 STSM9 STSM10 STSM11 STSI0 STSI1 STSI2 STSI3 STSI4 STSI5 STSI6 STSI7 STSI8 STSI9 STSI10 STSI11 ];
+define register offset=0x400 size=4 [ LPS0 LPS1 LPS2 LPS3 ];
+
+# Hardware loop context, set by DO UNTIL at the loop's last instruction
+define register offset=0x200 size=4 [ contextreg ];
+define context contextreg
+  lpend  = (0,0)   noflow    # this instruction ends a DO UNTIL loop
+  lpterm = (1,4)   noflow    # its termination code (TERM field of the DO)
+  lpstart= (5,18)  noflow    # address of the first instruction of the loop
+;
+
+define token ins(24)
+  w      = (0,23)
+  b23_22 = (22,23)
+  b23_21 = (21,23)
+  b23_20 = (20,23)
+  b23_19 = (19,23)
+  b23_18 = (18,23)
+  b23_17 = (17,23)
+  b23_16 = (16,23)
+  b23_15 = (15,23)
+  b23_12 = (12,23)
+  b23_11 = (11,23)
+  b23_13 = (13,23)
+  b23_8  = (8,23)
+  b23_6  = (6,23)
+  b23_5  = (5,23)
+  b23_4  = (4,23)
+  b15_12 = (12,15)
+  b15_5  = (5,15)
+  b14_4  = (4,14)
+  b7_0   = (0,7)
+  b7_4   = (4,7)
+  b1_0   = (0,1)
+  b5     = (5,5)
+  b4     = (4,4)
+  # type 1
+  pd     = (20,21)
+  dd     = (18,19)
+  pmi    = (6,7)
+  pmm    = (4,5)
+  dmi    = (2,3)
+  dmm    = (0,1)
+  # common ALU/MAC fields
+  amf    = (13,17)
+  yop    = (11,12)
+  ya     = (11,12)
+  ym     = (11,12)
+  ydv    = (11,12)
+  xop    = (8,10)
+  xa     = (8,10)
+  xm     = (8,10)
+  xs     = (8,10)
+  xm2    = (8,10)
+  g20    = (20,20)
+  d20    = (20,20)
+  d19    = (19,19)
+  z18    = (18,18)
+  dreg4  = (4,7)
+  dreg0  = (0,3)
+  i32    = (2,3)
+  m10    = (0,1)
+  # immediates and addresses
+  data16 = (4,19)
+  data14 = (4,17)
+  addr14 = (4,17)
+  rgp    = (18,19)
+  reg    = (0,3)
+  # type 9 constants
+  yy     = (11,12)
+  cc6    = (6,7)
+  bo     = (4,5)
+  cond   = (0,3)
+  term   = (0,3)
+  s18    = (18,18)
+  # shifter
+  g16    = (16,16)
+  d15    = (15,15)
+  sf     = (11,14)
+  exp8   = (0,7) signed
+  # type 17
+  drgp   = (10,11)
+  srgp   = (8,9)
+  dregf  = (4,7)
+  sregf  = (0,3)
+  # type 18 mode control
+  mti    = (14,15)
+  mmm    = (12,13)
+  mas    = (10,11)
+  mol    = (8,9)
+  mbr    = (6,7)
+  msr    = (4,5)
+  mgm    = (2,3)
+  # type 19
+  ij     = (6,7)
+  s4     = (4,4)
+  # type 21
+  g4     = (4,4)
+  # type 26
+  spp    = (0,1)
+  cp     = (2,2)
+  lp     = (3,3)
+  pp     = (4,4)
+  # type 27
+  fa12   = (4,15)
+  fa2    = (2,3)
+  fic    = (1,1)
+  fs     = (0,0)
+  # type 28
+  ffl2   = (10,11)
+  ffl1   = (8,9)
+  ffl0   = (6,7)
+  ffo    = (4,5)
+  # type 29
+  iod    = (15,15)
+  ioaddr = (4,14)
+  # type 31
+  dv     = (0,3)
+;
+
+attach variables [ dreg4 dreg0 ] [ AX0 AX1 MX0 MX1 AY0 AY1 MY0 MY1 SI SE AR MR0 MR1 MR2 SR0 SR1 ];
+attach variables [ xa ] [ AX0 AX1 AR MR0 MR1 MR2 SR0 SR1 ];
+attach variables [ xm xm2 ] [ MX0 MX1 AR MR0 MR1 MR2 SR0 SR1 ];
+attach variables [ xs ] [ SI _ AR MR0 MR1 MR2 SR0 SR1 ];
+attach variables [ ya ] [ AY0 AY1 AF _ ];
+attach variables [ ym ] [ MY0 MY1 MF _ ];
+attach variables [ ydv ] [ _ AY1 AF _ ];
+attach variables [ dd ] [ AX0 AX1 MX0 MX1 ];
+attach variables [ pd ] [ AY0 AY1 MY0 MY1 ];
+
+define pcodeop idle;
+define pcodeop ifc;
+
+# ------------------------------------------------------------------ ALU / MAC helpers
+
+# r = a + b + c (16 bits) with AZ, AN, AV, AC; AV sticks while MSTAT AV_LATCH is set
+macro aluadd(a, b, c, r) {
+  local aa:2 = a;
+  local bb:2 = b;
+  local ci:1 = c;
+  local s:4 = zext(aa) + zext(bb) + zext(ci);
+  r = s:2;
+  AZ = r == 0;
+  AN = r s< 0;
+  AVN = ((aa ^ r) & (bb ^ r)) s< 0;
+  AV = AVN | (AV & AV_LATCH);
+  AC = (s >> 16) != 0;
+}
+
+macro aluadd2(a, b, r) {
+  local aa:2 = a;
+  local bb:2 = b;
+  r = aa + bb;
+  AZ = r == 0;
+  AN = r s< 0;
+  AVN = scarry(aa, bb);
+  AV = AVN | (AV & AV_LATCH);
+  AC = carry(aa, bb);
+}
+
+# r = a - b: AC is the adder's carry out of a + ~b + 1, i.e. no borrow (a >= b unsigned)
+macro alusub(a, b, r) {
+  local aa:2 = a;
+  local bb:2 = b;
+  r = aa - bb;
+  AZ = r == 0;
+  AN = r s< 0;
+  AVN = sborrow(aa, bb);
+  AV = AVN | (AV & AV_LATCH);
+  AC = aa >= bb;
+}
+
+macro alulog(r) {
+  AZ = r == 0;
+  AN = r s< 0;
+  AVN = 0;
+  AV = AV & AV_LATCH;
+  AC = 0;
+}
+
+macro aluabs(x, r) {
+  AS = x s< 0;
+  r = x;
+  if (x s>= 0) goto <pos>;
+  r = -x;
+<pos>
+  AZ = r == 0;
+  AN = x == 0x8000;
+  AVN = x == 0x8000;
+  AV = AVN | (AV & AV_LATCH);
+  AC = 0;
+}
+
+# AR saturation mode (MSTAT AR_SAT): an overflowing ALU result loads full scale
+macro arsat() {
+  if ((AR_SAT & AVN) == 0) goto <done>;
+  AR = 0x7fff + zext(AC);
+<done>
+}
+
+# MAC: wrap to 40 bits (sign-extended in 8 bytes) and set MV (bits 39-31 not all equal)
+macro macfin(r) {
+  r = (r << 24) s>> 24;
+  local top:8 = r s>> 31;
+  MV = (top + 1) > 1;
+}
+
+# unbiased rounding at the bit 15/16 boundary (manual 2.3.2.6)
+macro macrnd(r) {
+  r = r + 0x8000;
+  r = r & ~(zext((r & 0xffff) == 0) << 16);
+}
+
+# exponent detector, HI mode: EXPV = -(number of redundant sign bits) (Table 2.5)
+macro expdet(x) {
+  local n:2 = lzcount(x ^ (x s>> 15));
+  EXPV = 1 - n;
+}
+
+# ------------------------------------------------------------------ status registers
+
+macro setastat(v) {
+  AZ = (v & 1) != 0; AN = (v & 2) != 0; AV = (v & 4) != 0; AC = (v & 8) != 0;
+  AS = (v & 0x10) != 0; AQ = (v & 0x20) != 0; MV = (v & 0x40) != 0; SS = (v & 0x80) != 0;
+  ASTAT = v & 0xff;
+}
+macro getastatm(v) {
+  v = zext(AZ) | (zext(AN) << 1) | (zext(AV) << 2) | (zext(AC) << 3) | (zext(AS) << 4) |
+      (zext(AQ) << 5) | (zext(MV) << 6) | (zext(SS) << 7);
+}
+macro setmstat(v) {
+  SEC_REG = (v & 1) != 0; BIT_REV = (v & 2) != 0; AV_LATCH = (v & 4) != 0; AR_SAT = (v & 8) != 0;
+  M_MODE = (v & 0x10) != 0; TIMER = (v & 0x20) != 0; G_MODE = (v & 0x40) != 0;
+  MSTAT = v & 0x7f;
+}
+macro getmstatm(v) {
+  v = zext(SEC_REG) | (zext(BIT_REV) << 1) | (zext(AV_LATCH) << 2) | (zext(AR_SAT) << 3) |
+      (zext(M_MODE) << 4) | (zext(TIMER) << 5) | (zext(G_MODE) << 6);
+}
+macro getsstatm(v) {
+  v = zext(PCSP == 0) | (zext(CNTSP == 0) << 2) | (zext(STSP == 0) << 4) | (zext(LPSP == 0) << 6);
+}
+
+# ------------------------------------------------------------------ hardware stacks
+# The PC (16 deep), count (4), loop (4) and status (12) stacks are register files, top of stack
+# in entry 0; a push shifts every entry down, a pop shifts them back.  PCSP, CNTSP, LPSP and
+# STSP count the entries (for SSTAT).  Overflow (pushing past the depth) loses the bottom
+# entry; the sticky SSTAT overflow bits are not modelled.
+
+macro pcpush(v) { local vv:2 = v; PCS15 = PCS14; PCS14 = PCS13; PCS13 = PCS12; PCS12 = PCS11; PCS11 = PCS10; PCS10 = PCS9; PCS9 = PCS8; PCS8 = PCS7; PCS7 = PCS6; PCS6 = PCS5; PCS5 = PCS4; PCS4 = PCS3; PCS3 = PCS2; PCS2 = PCS1; PCS1 = PCS0; PCS0 = vv; PCSP = PCSP + 1; }
+macro pcpop(v) { v = PCS0; PCS0 = PCS1; PCS1 = PCS2; PCS2 = PCS3; PCS3 = PCS4; PCS4 = PCS5; PCS5 = PCS6; PCS6 = PCS7; PCS7 = PCS8; PCS8 = PCS9; PCS9 = PCS10; PCS10 = PCS11; PCS11 = PCS12; PCS12 = PCS13; PCS13 = PCS14; PCS14 = PCS15; PCSP = PCSP - 1; }
+macro lppush(v) { LPS3 = LPS2; LPS2 = LPS1; LPS1 = LPS0; LPS0 = v; LPSP = LPSP + 1; }
+macro lppop() { LPS0 = LPS1; LPS1 = LPS2; LPS2 = LPS3; LPSP = LPSP - 1; }
+macro cntpush(v) { CNTS3 = CNTS2; CNTS2 = CNTS1; CNTS1 = CNTS0; CNTS0 = v; CNTSP = CNTSP + 1; }
+macro cntpop() { CNTR = CNTS0; CNTS0 = CNTS1; CNTS1 = CNTS2; CNTS2 = CNTS3; CNTSP = CNTSP - 1; }
+macro stspush() {
+  local v:2 = 0;
+  getastatm(v);
+  STSA11 = STSA10; STSA10 = STSA9; STSA9 = STSA8; STSA8 = STSA7; STSA7 = STSA6; STSA6 = STSA5; STSA5 = STSA4; STSA4 = STSA3; STSA3 = STSA2; STSA2 = STSA1; STSA1 = STSA0; STSA0 = v;
+  getmstatm(v);
+  STSM11 = STSM10; STSM10 = STSM9; STSM9 = STSM8; STSM8 = STSM7; STSM7 = STSM6; STSM6 = STSM5; STSM5 = STSM4; STSM4 = STSM3; STSM3 = STSM2; STSM2 = STSM1; STSM1 = STSM0; STSM0 = v;
+  STSI11 = STSI10; STSI10 = STSI9; STSI9 = STSI8; STSI8 = STSI7; STSI7 = STSI6; STSI6 = STSI5; STSI5 = STSI4; STSI4 = STSI3; STSI3 = STSI2; STSI2 = STSI1; STSI1 = STSI0; STSI0 = IMASK;
+  STSP = STSP + 1;
+}
+macro stspop() {
+  local v:2 = STSA0;
+  setastat(v);
+  v = STSM0;
+  setmstat(v);
+  IMASK = STSI0;
+  STSA0 = STSA1; STSA1 = STSA2; STSA2 = STSA3; STSA3 = STSA4; STSA4 = STSA5; STSA5 = STSA6; STSA6 = STSA7; STSA7 = STSA8; STSA8 = STSA9; STSA9 = STSA10; STSA10 = STSA11;
+  STSM0 = STSM1; STSM1 = STSM2; STSM2 = STSM3; STSM3 = STSM4; STSM4 = STSM5; STSM5 = STSM6; STSM6 = STSM7; STSM7 = STSM8; STSM8 = STSM9; STSM9 = STSM10; STSM10 = STSM11;
+  STSI0 = STSI1; STSI1 = STSI2; STSI2 = STSI3; STSI3 = STSI4; STSI4 = STSI5; STSI5 = STSI6; STSI6 = STSI7; STSI7 = STSI8; STSI8 = STSI9; STSI9 = STSI10; STSI10 = STSI11;
+  STSP = STSP - 1;
+}
+
+# ------------------------------------------------------------------ data address generators
+# Post-modify with the modulus logic (manual 4.2.3): I = (I + M - B) mod L + B when L != 0,
+# B = I with the low ceil(log2 L) bits cleared; I = I + M otherwise.  14-bit addresses.
+macro dagmod(I, M, L) {
+  local n:4 = zext(I) + sext(M);
+  local lin:2 = n:2 & 0x3fff;
+  local lm1:2 = L - 1;
+  local lz:4 = lzcount(lm1);
+  local mask:4 = (1 << (16 - lz)) - 1;
+  local base:4 = zext(I) & ~mask;
+  local l4:4 = zext(L);
+  local circ:4 = n - l4 * zext(n s>= base + l4) + l4 * zext(n s< base);
+  local isl:2 = zext(L == 0);
+  I = lin * isl + (circ:2 & 0x3fff) * (1 - isl);
+}
+
+# DAG1 bit-reverse mode (MSTAT BIT_REV): the 14-bit output address is reversed
+macro bitrev(a) {
+  local r:2 = ((a & 1) << 13) | ((a & 2) << 11) | ((a & 4) << 9) | ((a & 8) << 7) |
+              ((a & 0x10) << 5) | ((a & 0x20) << 3) | ((a & 0x40) << 1) | ((a & 0x80) >> 1) |
+              ((a & 0x100) >> 3) | ((a & 0x200) >> 5) | ((a & 0x400) >> 7) | ((a & 0x800) >> 9) |
+              ((a & 0x1000) >> 11) | ((a & 0x2000) >> 13);
+  local br:2 = zext(BIT_REV);
+  a = a * (1 - br) + r * br;
+}
+
+# type 9 constants (Appendix A, YY/CC/BO): bit (YY*4 + CC), BO = 01 set, 11 inverted
+kval: k is yy & cc6 & bo=1 [ k = 1 << (yy * 4 + cc6); ] { export *[const]:2 k; }
+kval: k is yy & cc6 & bo=3 [ k = (~(1 << (yy * 4 + cc6))) & 0xffff; ] { export *[const]:2 k; }
+kp1: k is yy & cc6 & bo=1 [ k = ((1 << (yy * 4 + cc6)) + 1) & 0xffff; ] { export *[const]:2 k; }
+kp1: k is yy & cc6 & bo=3 [ k = ((~(1 << (yy * 4 + cc6))) + 1) & 0xffff; ] { export *[const]:2 k; }
+km1: k is yy & cc6 & bo=1 [ k = ((1 << (yy * 4 + cc6)) - 1) & 0xffff; ] { export *[const]:2 k; }
+km1: k is yy & cc6 & bo=3 [ k = ((~(1 << (yy * 4 + cc6))) - 1) & 0xffff; ] { export *[const]:2 k; }
+
+@include "adsp218x_gen.sinc"
+
+# ------------------------------------------------------------------ operands
+
+dmdir: "DM("^addr14^")" is addr14 { export *[dm]:2 addr14; }
+iodir: "IO("^ioaddr^")" is ioaddr { export *[io]:2 ioaddr; }
+jaddr: addr14 is addr14 { export *[pm]:3 addr14; }
+faddr: a is fa12 & fa2 [ a = (fa2 << 12) | fa12; ] { export *[pm]:3 a; }
+Ij: "I4" is ij=0 { export I4; }
+Ij: "I5" is ij=1 { export I5; }
+Ij: "I6" is ij=2 { export I6; }
+Ij: "I7" is ij=3 { export I7; }
+
+# Status conditions (Table 3.9).  NOT CE does not decrement the counter except on JUMP (jcc).
+cc: "IF EQ" is cond=0 { local t:1 = AZ; export t; }
+cc: "IF NE" is cond=1 { local t:1 = !AZ; export t; }
+cc: "IF GT" is cond=2 { local t:1 = !((AN ^ AV) | AZ); export t; }
+cc: "IF LE" is cond=3 { local t:1 = (AN ^ AV) | AZ; export t; }
+cc: "IF LT" is cond=4 { local t:1 = AN ^ AV; export t; }
+cc: "IF GE" is cond=5 { local t:1 = !(AN ^ AV); export t; }
+cc: "IF AV" is cond=6 { local t:1 = AV; export t; }
+cc: "IF NOT AV" is cond=7 { local t:1 = !AV; export t; }
+cc: "IF AC" is cond=8 { local t:1 = AC; export t; }
+cc: "IF NOT AC" is cond=9 { local t:1 = !AC; export t; }
+cc: "IF NEG" is cond=10 { local t:1 = AS; export t; }
+cc: "IF POS" is cond=11 { local t:1 = !AS; export t; }
+cc: "IF MV" is cond=12 { local t:1 = MV; export t; }
+cc: "IF NOT MV" is cond=13 { local t:1 = !MV; export t; }
+cc: "IF NOT CE" is cond=14 { local t:1 = CNTR != 1; export t; }
+
+# JUMP: IF NOT CE tests and decrements the counter; when the count expires the count stack pops
+jcc: cc is cc & cond!=14 { build cc; export cc; }
+jcc: "IF NOT CE" is cond=14 {
+  local t:1 = CNTR != 1;
+  if (t) goto <dec>;
+  cntpop();
+  goto <out>;
+<dec>
+  CNTR = CNTR - 1;
+<out>
+  export t;
+}
+
+# DO UNTIL termination codes (TERM field), display and test
+term_d: "NE" is term=0 { }
+term_d: "EQ" is term=1 { }
+term_d: "LE" is term=2 { }
+term_d: "GT" is term=3 { }
+term_d: "GE" is term=4 { }
+term_d: "LT" is term=5 { }
+term_d: "NOT AV" is term=6 { }
+term_d: "AV" is term=7 { }
+term_d: "NOT AC" is term=8 { }
+term_d: "AC" is term=9 { }
+term_d: "POS" is term=10 { }
+term_d: "NEG" is term=11 { }
+term_d: "NOT MV" is term=12 { }
+term_d: "MV" is term=13 { }
+term_d: "CE" is term=14 { }
+term_d: "FOREVER" is term=15 { }
+
+lpt: is lpterm=0 { local t:1 = !AZ; export t; }
+lpt: is lpterm=1 { local t:1 = AZ; export t; }
+lpt: is lpterm=2 { local t:1 = (AN ^ AV) | AZ; export t; }
+lpt: is lpterm=3 { local t:1 = !((AN ^ AV) | AZ); export t; }
+lpt: is lpterm=4 { local t:1 = !(AN ^ AV); export t; }
+lpt: is lpterm=5 { local t:1 = AN ^ AV; export t; }
+lpt: is lpterm=6 { local t:1 = !AV; export t; }
+lpt: is lpterm=7 { local t:1 = AV; export t; }
+lpt: is lpterm=8 { local t:1 = !AC; export t; }
+lpt: is lpterm=9 { local t:1 = AC; export t; }
+lpt: is lpterm=10 { local t:1 = !AS; export t; }
+lpt: is lpterm=11 { local t:1 = AS; export t; }
+lpt: is lpterm=12 { local t:1 = !MV; export t; }
+lpt: is lpterm=13 { local t:1 = MV; export t; }
+lpt: is lpterm=15 { local t:1 = 0; export t; }
+
+# word address of the next instruction (inst_next in p-code is a byte offset in pm)
+retaddr: ra is epsilon [ ra = inst_start + 1; ] { export *[const]:2 ra; }
+
+LPTOP: is lpstart { export *[pm]:3 lpstart; }
+
+# ------------------------------------------------------------------ computations with destinations
+
+# Types 4, 5, 8, 9: Z selects the result (AR/MR) or feedback (AF/MF) register
+compz: "AR" "=" aluop is amf>15 & z18=0 & aluop { build aluop; AR = aluop; arsat(); }
+compz: "AF" "=" aluop is amf>15 & z18=1 & aluop { build aluop; AF = aluop; }
+compz: "MR" "=" macop is amf>0 & amf<16 & z18=0 & macop { build macop; MR = macop:6; }
+compz: "MF" "=" macop is amf>0 & amf<16 & z18=1 & macop { build macop; MF = macop(2); }
+
+# Type 1: results always go to AR or MR
+comp1: "AR" "=" aluop is amf>15 & aluop { build aluop; AR = aluop; arsat(); }
+comp1: "MR" "=" macop is amf>0 & amf<16 & macop { build macop; MR = macop:6; }
+
+# Type 9: also the ALU constants and xop * xop
+comp9: compz is b7_4=0 & compz { build compz; }
+comp9: "AR" "=" aluk is amf>15 & z18=0 & b4=1 & aluk { build aluk; AR = aluk; arsat(); }
+comp9: "AF" "=" aluk is amf>15 & z18=1 & b4=1 & aluk { build aluk; AF = aluk; }
+comp9: "MR" "=" macsq is amf>0 & amf<16 & z18=0 & b7_4=1 & yop=0 & macsq { build macsq; MR = macsq:6; }
+comp9: "MF" "=" macsq is amf>0 & amf<16 & z18=1 & b7_4=1 & yop=0 & macsq { build macsq; MF = macsq(2); }
+
+# ------------------------------------------------------------------ mode control and flags (types 18, 28, 26)
+msr_d: is msr<2 { }
+msr_d: "DIS SEC_REG " is msr=2 { SEC_REG = 0; }
+msr_d: "ENA SEC_REG " is msr=3 { SEC_REG = 1; }
+mbr_d: is mbr<2 { }
+mbr_d: "DIS BIT_REV " is mbr=2 { BIT_REV = 0; }
+mbr_d: "ENA BIT_REV " is mbr=3 { BIT_REV = 1; }
+mol_d: is mol<2 { }
+mol_d: "DIS AV_LATCH " is mol=2 { AV_LATCH = 0; }
+mol_d: "ENA AV_LATCH " is mol=3 { AV_LATCH = 1; }
+mas_d: is mas<2 { }
+mas_d: "DIS AR_SAT " is mas=2 { AR_SAT = 0; }
+mas_d: "ENA AR_SAT " is mas=3 { AR_SAT = 1; }
+mmm_d: is mmm<2 { }
+mmm_d: "DIS M_MODE " is mmm=2 { M_MODE = 0; }
+mmm_d: "ENA M_MODE " is mmm=3 { M_MODE = 1; }
+mti_d: is mti<2 { }
+mti_d: "DIS TIMER " is mti=2 { TIMER = 0; }
+mti_d: "ENA TIMER " is mti=3 { TIMER = 1; }
+mgm_d: is mgm<2 { }
+mgm_d: "DIS G_MODE " is mgm=2 { G_MODE = 0; }
+mgm_d: "ENA G_MODE " is mgm=3 { G_MODE = 1; }
+
+ffo_d: is ffo=0 { }
+ffo_d: "TOGGLE FLAG_OUT " is ffo=1 { FO = FO ^ 1; }
+ffo_d: "RESET FLAG_OUT " is ffo=2 { FO = 0; }
+ffo_d: "SET FLAG_OUT " is ffo=3 { FO = 1; }
+ffl0_d: is ffl0=0 { }
+ffl0_d: "TOGGLE FL0 " is ffl0=1 { FL0 = FL0 ^ 1; }
+ffl0_d: "RESET FL0 " is ffl0=2 { FL0 = 0; }
+ffl0_d: "SET FL0 " is ffl0=3 { FL0 = 1; }
+ffl1_d: is ffl1=0 { }
+ffl1_d: "TOGGLE FL1 " is ffl1=1 { FL1 = FL1 ^ 1; }
+ffl1_d: "RESET FL1 " is ffl1=2 { FL1 = 0; }
+ffl1_d: "SET FL1 " is ffl1=3 { FL1 = 1; }
+ffl2_d: is ffl2=0 { }
+ffl2_d: "TOGGLE FL2 " is ffl2=1 { FL2 = FL2 ^ 1; }
+ffl2_d: "RESET FL2 " is ffl2=2 { FL2 = 0; }
+ffl2_d: "SET FL2 " is ffl2=3 { FL2 = 1; }
+
+spp_d: is spp<2 { }
+spp_d: "PUSH STS " is spp=2 { stspush(); }
+spp_d: "POP STS " is spp=3 { stspop(); }
+cp_d: is cp=0 { }
+cp_d: "POP CNTR " is cp=1 { cntpop(); }
+pp_d: is pp=0 { }
+pp_d: "POP PC " is pp=1 { local t:2 = 0; pcpop(t); }
+lp_d: is lp=0 { }
+lp_d: "POP LOOP " is lp=1 { lppop(); }
+
+# ------------------------------------------------------------------ instructions
+# INSN constructors never branch to inst_next directly, so that the loop-end wrapper below
+# still runs after an instruction whose condition is false.
+
+# Type 1: ALU/MAC with data and program memory read
+INSN: comp1^"," dd "=" DMt1^"," pd "=" PMt1 is b23_22=3 & amf!=0 & comp1 & dd & DMt1 & pd & PMt1 {
+  build DMt1; build PMt1;
+  local dmv:2 = DMt1; local pv:3 = PMt1;
+  build comp1;
+  dd = dmv; pd = pv(1); PX = zext(pv:1);
+}
+INSN: dd "=" DMt1^"," pd "=" PMt1 is b23_22=3 & amf=0 & dd & DMt1 & pd & PMt1 {
+  build DMt1; build PMt1;
+  local pv:3 = PMt1;
+  dd = DMt1; pd = pv(1); PX = zext(pv:1);
+}
+
+# Type 2: data memory write, immediate data
+INSN: DMg20 "=" data16 is b23_21=5 & DMg20 & data16 { build DMg20; DMg20 = data16; }
+
+# Type 3: register read/write, direct data memory address
+INSN: regW3 "=" dmdir is b23_21=4 & d20=0 & regW3 & regF3 & dmdir { regW3 = dmdir; build regF3; }
+INSN: dmdir "=" regR3 is b23_21=4 & d20=1 & regR3 & dmdir { build regR3; dmdir = regR3; }
+
+# Type 4: ALU/MAC with data memory read/write
+INSN: compz^"," dreg4 "=" DMg20 is b23_21=3 & d19=0 & amf!=0 & compz & dreg4 & DMg20 & dfix4 {
+  build DMg20; local v:2 = DMg20; build compz; dreg4 = v; build dfix4;
+}
+INSN: dreg4 "=" DMg20 is b23_21=3 & d19=0 & amf=0 & dreg4 & DMg20 & dfix4 { build DMg20; dreg4 = DMg20; build dfix4; }
+INSN: DMg20 "=" dreg4^"," compz is b23_21=3 & d19=1 & amf!=0 & compz & dreg4 & DMg20 {
+  build DMg20; DMg20 = dreg4; build compz;
+}
+INSN: DMg20 "=" dreg4 is b23_21=3 & d19=1 & amf=0 & dreg4 & DMg20 { build DMg20; DMg20 = dreg4; }
+
+# Type 5: ALU/MAC with program memory read/write (PM bits 23-8 <-> register, 7-0 <-> PX)
+INSN: compz^"," dreg4 "=" PMd is b23_20=5 & d19=0 & amf!=0 & compz & dreg4 & PMd & dfix4 {
+  build PMd; local pv:3 = PMd; build compz; dreg4 = pv(1); PX = zext(pv:1); build dfix4;
+}
+INSN: dreg4 "=" PMd is b23_20=5 & d19=0 & amf=0 & dreg4 & PMd & dfix4 {
+  build PMd; local pv:3 = PMd; dreg4 = pv(1); PX = zext(pv:1); build dfix4;
+}
+INSN: PMd "=" dreg4^"," compz is b23_20=5 & d19=1 & amf!=0 & compz & dreg4 & PMd {
+  build PMd; PMd = (zext(dreg4) << 8) | zext(PX:1); build compz;
+}
+INSN: PMd "=" dreg4 is b23_20=5 & d19=1 & amf=0 & dreg4 & PMd { build PMd; PMd = (zext(dreg4) << 8) | zext(PX:1); }
+
+# Type 6: load data register immediate
+INSN: dreg0 "=" data16 is b23_20=4 & dreg0 & data16 & dfix0 { dreg0 = data16; build dfix0; }
+
+# Type 7: load non-data register immediate (14 bits, sign-extended)
+INSN: regW3 "=" data14 is b23_20=3 & regW3 & regF3 & data14 {
+  local t:2 = data14; regW3 = (t << 2) s>> 2; build regF3;
+}
+
+# Type 8: ALU/MAC with data register move; NONE = <ALU> generates status only
+INSN: compz^"," dreg4 "=" dreg0 is b23_19=5 & amf!=0 & (b7_0!=0xaa | z18=1 | amf<16) & compz & dreg4 & dreg0 & dfix4 {
+  local v:2 = dreg0; build compz; dreg4 = v; build dfix4;
+}
+INSN: dreg4 "=" dreg0 is b23_19=5 & amf=0 & dreg4 & dreg0 & dfix4 { dreg4 = dreg0; build dfix4; }
+INSN: "NONE" "=" aluop is b23_19=5 & amf>15 & z18=0 & b7_0=0xaa & aluop { build aluop; }
+
+# Type 9: conditional ALU/MAC
+INSN: cc comp9 is b23_19=4 & cc & comp9 { build cc; if (cc == 0) goto <skip>; build comp9; <skip> }
+INSN: comp9 is b23_19=4 & cond=15 & comp9 { build comp9; }
+
+# Type 10: conditional jump/call, direct address
+INSN: "JUMP" jaddr is b23_19=3 & s18=0 & cond=15 & jaddr { goto jaddr; }
+INSN: jcc "JUMP" jaddr is b23_19=3 & s18=0 & jcc & jaddr { build jcc; if (jcc != 0) goto jaddr; }
+INSN: "CALL" jaddr is b23_19=3 & s18=1 & cond=15 & jaddr & retaddr { pcpush(retaddr); call jaddr; }
+INSN: cc "CALL" jaddr is b23_19=3 & s18=1 & cc & jaddr & retaddr {
+  build cc; if (cc == 0) goto <skip>; pcpush(retaddr); call jaddr; <skip>
+}
+
+# Type 11: DO UNTIL.  Marks the last instruction of the loop through the loop context.
+INSN: "DO" jaddr "UNTIL" term_d is b23_18=5 & jaddr & term_d & term & addr14 & retaddr
+    [ lpend = 1; lpterm = term; lpstart = inst_start + 1; globalset(jaddr, lpend); globalset(jaddr, lpterm);
+      globalset(jaddr, lpstart); ] {
+  pcpush(retaddr);
+  local e:4 = (zext(term:1) << 16) | addr14;
+  lppush(e);
+}
+
+# Type 12: shift with data memory read/write (G bit 16)
+INSN: shop^"," dreg4 "=" DMg16 is b23_17=9 & d15=0 & shop & dreg4 & DMg16 & dfix4 {
+  build DMg16; local v:2 = DMg16; build shop; dreg4 = v; build dfix4;
+}
+INSN: DMg16 "=" dreg4^"," shop is b23_17=9 & d15=1 & shop & dreg4 & DMg16 { build DMg16; DMg16 = dreg4; build shop; }
+
+# Type 13: shift with program memory read/write
+INSN: shop^"," dreg4 "=" PMd is b23_16=0x11 & d15=0 & shop & dreg4 & PMd & dfix4 {
+  build PMd; local pv:3 = PMd; build shop; dreg4 = pv(1); PX = zext(pv:1); build dfix4;
+}
+INSN: PMd "=" dreg4^"," shop is b23_16=0x11 & d15=1 & shop & dreg4 & PMd {
+  build PMd; PMd = (zext(dreg4) << 8) | zext(PX:1); build shop;
+}
+
+# Type 14: shift with data register move
+INSN: shop^"," dreg4 "=" dreg0 is b23_15=0x20 & shop & dreg4 & dreg0 & dfix4 { local v:2 = dreg0; build shop; dreg4 = v; build dfix4; }
+
+# Type 15: shift immediate
+INSN: shimm is b23_15=0x1e & shimm { build shimm; }
+
+# Type 16: conditional shift
+INSN: cc shop is b23_15=0x1c & b7_4=0 & cc & shop { build cc; if (cc == 0) goto <skip>; build shop; <skip> }
+INSN: shop is b23_15=0x1c & b7_4=0 & cond=15 & shop { build shop; }
+
+# Type 17: internal data move; group 11 code 1111 is TOPPCSTACK (pop on read, push on write)
+INSN: regWd "=" regRs is b23_12=0x0d0 & regWd & regRs & regFd { build regRs; local v:2 = regRs; regWd = v; build regFd; }
+INSN: regWd "=" "TOPPCSTACK" is b23_12=0x0d0 & srgp=3 & sregf=15 & regWd & regFd { local v:2 = 0; pcpop(v); regWd = v; build regFd; }
+INSN: "TOPPCSTACK" "=" regRs is b23_12=0x0d0 & drgp=3 & dregf=15 & regRs { build regRs; local v:2 = regRs & 0x3fff; pcpush(v); }
+
+# Type 18: mode control
+INSN: msr_d^mbr_d^mol_d^mas_d^mmm_d^mti_d^mgm_d is b23_16=0x0c & b1_0=0 & (msr>1 | mbr>1 | mol>1 | mas>1 | mmm>1 | mti>1 | mgm>1)
+    & msr_d & mbr_d & mol_d & mas_d & mmm_d & mti_d & mgm_d {
+  build msr_d; build mbr_d; build mol_d; build mas_d; build mmm_d; build mti_d; build mgm_d;
+  local v:2 = 0; getmstatm(v); MSTAT = v;
+}
+INSN: "ENA/DIS" "NONE" is b23_16=0x0c & b1_0=0 & msr<2 & mbr<2 & mol<2 & mas<2 & mmm<2 & mti<2 & mgm<2 { }
+
+# Type 19: conditional jump/call, indirect (DAG2 I register, not modified)
+INSN: "JUMP" "("^Ij^")" is b23_8=0x0b00 & b5=0 & s4=0 & cond=15 & Ij { goto [Ij]; }
+INSN: jcc "JUMP" "("^Ij^")" is b23_8=0x0b00 & b5=0 & s4=0 & jcc & Ij { build jcc; local t:2 = Ij; if (jcc == 0) goto <skip>; goto [t]; <skip> }
+INSN: "CALL" "("^Ij^")" is b23_8=0x0b00 & b5=0 & s4=1 & cond=15 & Ij & retaddr { local t:2 = Ij; pcpush(retaddr); call [t]; }
+INSN: cc "CALL" "("^Ij^")" is b23_8=0x0b00 & b5=0 & s4=1 & cc & Ij & retaddr {
+  build cc; local t:2 = Ij; if (cc == 0) goto <skip>; pcpush(retaddr); call [t]; <skip>
+}
+
+# Type 20: conditional return
+INSN: "RTS" is b23_5=0x5000 & b4=0 & cond=15 { local t:2 = 0; pcpop(t); return [t]; }
+INSN: cc "RTS" is b23_5=0x5000 & b4=0 & cc { build cc; if (cc == 0) goto <skip>; local t:2 = 0; pcpop(t); return [t]; <skip> }
+INSN: "RTI" is b23_5=0x5000 & b4=1 & cond=15 { local t:2 = 0; pcpop(t); stspop(); return [t]; }
+INSN: cc "RTI" is b23_5=0x5000 & b4=1 & cc { build cc; if (cc == 0) goto <skip>; local t:2 = 0; pcpop(t); stspop(); return [t]; <skip> }
+
+# Type 21: modify address register
+INSN: "MODIFY" MODg4 is b23_5=0x4800 & MODg4 { build MODg4; }
+
+# Type 23: DIVQ; type 24: DIVS (non-restoring divide primitives, manual 2.2.7)
+INSN: "DIVQ" xa is b23_11=0xe2 & b7_0=0 & xa {
+  local r:2 = AF - xa;
+  if (AQ == 0) goto <sub>;
+  r = AF + xa;
+<sub>
+  AQ = ((xa ^ r) & 0x8000) != 0;
+  AF = (r << 1) | (AY0 >> 15);
+  AY0 = (AY0 << 1) | zext(!AQ);
+}
+INSN: "DIVS" ydv^"," xa is b23_13=0x30 & b7_0=0 & ydv & xa {
+  AQ = ((ydv ^ xa) & 0x8000) != 0;
+  AF = (ydv << 1) | (AY0 >> 15);
+  AY0 = (AY0 << 1) | zext(AQ);
+}
+
+# Type 25: saturate MR on overflow
+INSN: "IF" "MV" "SAT" "MR" is w=0x050000 {
+  if (MV == 0) goto <done>;
+  local neg:1 = MR2 s< 0;
+  MR = 0x007fffffff;
+  if (neg == 0) goto <done>;
+  MR = 0xffff80000000;
+<done>
+}
+
+# Type 26: stack control; ENA/DIS INTS
+INSN: spp_d^cp_d^pp_d^lp_d is b23_5=0x2000 & (spp>1 | cp=1 | pp=1 | lp=1) & spp_d & cp_d & pp_d & lp_d {
+  build spp_d; build cp_d; build pp_d; build lp_d;
+}
+INSN: "ENA" "INTS" is w=0x040060 { INTENA = 1; }
+INSN: "DIS" "INTS" is w=0x040020 { INTENA = 0; }
+
+# Type 27: call or jump on flag in
+INSN: "IF FLAG_IN" "JUMP" faddr is b23_16=3 & fic=1 & fs=0 & faddr { if (FI != 0) goto faddr; }
+INSN: "IF NOT FLAG_IN" "JUMP" faddr is b23_16=3 & fic=0 & fs=0 & faddr { if (FI == 0) goto faddr; }
+INSN: "IF FLAG_IN" "CALL" faddr is b23_16=3 & fic=1 & fs=1 & faddr & retaddr { if (FI == 0) goto <skip>; pcpush(retaddr); call faddr; <skip> }
+INSN: "IF NOT FLAG_IN" "CALL" faddr is b23_16=3 & fic=0 & fs=1 & faddr & retaddr { if (FI != 0) goto <skip>; pcpush(retaddr); call faddr; <skip> }
+
+# Type 28: modify flag out
+INSN: cc ffo_d^ffl0_d^ffl1_d^ffl2_d is b23_12=0x020 & (ffo!=0 | ffl0!=0 | ffl1!=0 | ffl2!=0) & cc & ffo_d & ffl0_d & ffl1_d & ffl2_d {
+  build cc; if (cc == 0) goto <skip>; build ffo_d; build ffl0_d; build ffl1_d; build ffl2_d; <skip>
+}
+INSN: ffo_d^ffl0_d^ffl1_d^ffl2_d is b23_12=0x020 & cond=15 & (ffo!=0 | ffl0!=0 | ffl1!=0 | ffl2!=0) & ffo_d & ffl0_d & ffl1_d & ffl2_d {
+  build ffo_d; build ffl0_d; build ffl1_d; build ffl2_d;
+}
+
+# Type 29: I/O memory space read/write (ADSP-218x)
+INSN: dreg0 "=" iodir is b23_16=1 & iod=0 & dreg0 & iodir & dfix0 { dreg0 = iodir; build dfix0; }
+INSN: iodir "=" dreg0 is b23_16=1 & iod=1 & dreg0 & iodir { iodir = dreg0; }
+
+# Type 30: NOP; type 31: IDLE, IDLE (n)
+INSN: "NOP" is w=0 { }
+INSN: "IDLE" is w=0x028000 { idle(0:1); }
+INSN: "IDLE" "(" "16" ")" is w=0x028001 { idle(16:1); }
+INSN: "IDLE" "(" "32" ")" is w=0x028002 { idle(32:1); }
+INSN: "IDLE" "(" "64" ")" is w=0x028004 { idle(64:1); }
+INSN: "IDLE" "(" "128" ")" is w=0x028008 { idle(128:1); }
+
+# ------------------------------------------------------------------ root: zero-overhead loops
+# At the last instruction of a DO UNTIL loop the termination condition (from the status of the
+# previous instruction) is tested.  False: return to the top of the loop (CE: decrement the
+# counter).  True: fall out and pop the loop and PC stacks (CE: and the count stack).  An
+# instruction that branches itself takes precedence (manual 3.2.4, case 2).
+:^INSN is lpend=0 & INSN { build INSN; }
+:^INSN is lpend=1 & lpterm!=14 & lpt & LPTOP & INSN {
+  build lpt;
+  local done:1 = lpt;
+  build INSN;
+  if (done) goto <exit>;
+  goto LPTOP;
+<exit>
+  lppop();
+  local t:2 = 0;
+  pcpop(t);
+}
+:^INSN is lpend=1 & lpterm=14 & LPTOP & INSN {
+  local done:1 = CNTR == 1;
+  build INSN;
+  if (done) goto <exit>;
+  CNTR = CNTR - 1;
+  goto LPTOP;
+<exit>
+  cntpop();
+  lppop();
+  local t:2 = 0;
+  pcpop(t);
+}

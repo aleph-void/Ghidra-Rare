@@ -1,0 +1,709 @@
+case load_dreg_immediate
+code 412340
+main 1
+expect AX0 0x1234
+end
+case MR1_load_sign-extends_into_MR2
+code 48000c
+main 1
+set MR2 0x0
+expect MR1 0x8000
+expect MR2 0xffff
+end
+case I/M/L_are_14_bits:_I3=AX0,_M3=AX0,_L3=AX0
+code 0d04300d04700d04b0
+main 3
+set AX0 0xffff
+expect I3 0x3fff
+expect M3 0xffff
+expect L3 0x3fff
+end
+case load_non-data_register_14-bit_immediate
+code 39234137ffe6
+main 2
+expect I5 0x1234
+expect M2 0xfffe
+end
+case register_move_from_MR2_(sign-extended)
+code 0d000d
+main 1
+set MR2 0xff80
+expect AX0 0xff80
+end
+case direct_DM_write_and_read_into_I1
+code 901230841231
+main 2
+set AX0 0xc005
+expect dm:0123 0xc005
+expect I1 0x5
+end
+case ASTAT_write_sets_flags,_read_rebuilds_it
+code 3c00900d0300
+main 2
+expect AZ 0x1
+expect AC 0x1
+expect AN 0x0
+expect AX0 0x9
+end
+case add_overflow_7fff+1
+code 22600f
+main 1
+set AX0 0x7fff
+set AY0 0x1
+expect AR 0x8000
+expect AV 0x1
+expect AN 0x1
+expect AC 0x0
+expect AZ 0x0
+end
+case subtract_with_borrow_5-7
+code 22e00f
+main 1
+set AX0 0x5
+set AY0 0x7
+expect AR 0xfffe
+expect AC 0x0
+expect AN 0x1
+expect AV 0x0
+end
+case X-Y+C-1_with_C=1
+code 22c00f
+main 1
+set AX0 0x10
+set AY0 0x1
+set AC 0x1
+expect AR 0xf
+expect AC 0x1
+end
+case Y-X_into_AF
+code 27200f
+main 1
+set AX0 0x5
+set AY0 0x3
+expect AF 0xfffe
+expect AC 0x0
+expect AN 0x1
+end
+case AND_constant_0x0010
+code 23881f
+main 1
+set AX0 0xff
+set AC 0x1
+expect AR 0x10
+expect AZ 0x0
+expect AC 0x0
+expect AV 0x0
+end
+case PASS_constant_3_via_Y+1_(constant_2)
+code 22205f
+main 1
+expect AR 0x3
+end
+case X_+_constant_0x1000_(YY=11)
+code 22781f
+main 1
+set AX0 0x234
+expect AR 0x1234
+end
+case ABS_0x8000
+code 23e00f
+main 1
+set AX0 0x8000
+expect AR 0x8000
+expect AV 0x1
+expect AN 0x1
+expect AS 0x1
+expect AC 0x0
+end
+case NOT_AY0_into_AF
+code 26800f
+main 1
+set AY0 0xf0
+expect AF 0xff0f
+end
+case IF_EQ_taken,_then_IF_EQ_skipped_(the_add_cleared_AZ)
+code 226000262800
+main 2
+set AZ 0x1
+set AX0 0x2
+set AY0 0x3
+set AY1 0x7
+set AF 0x55
+expect AR 0x5
+expect AF 0x55
+end
+case AR_SAT_positive_overflow_saturates
+code 22600f
+main 1
+set AR_SAT 0x1
+set AX0 0x7fff
+set AY0 0x1
+expect AR 0x7fff
+expect AV 0x1
+end
+case AR_SAT_negative_overflow_saturates
+code 22600f
+main 1
+set AR_SAT 0x1
+set AX0 0x8000
+set AY0 0x8000
+expect AR 0x8000
+expect AV 0x1
+expect AC 0x1
+end
+case AV_LATCH_keeps_AV
+code 22600f
+main 1
+set AV_LATCH 0x1
+set AV 0x1
+set AX0 0x1
+set AY0 0x1
+expect AR 0x2
+expect AV 0x1
+end
+case NONE_=_AX0_-_AY0_sets_flags_only
+code 2ae0aa
+main 1
+set AR 0x77
+set AX0 0x4
+set AY0 0x4
+expect AR 0x77
+expect AZ 0x1
+expect AC 0x1
+end
+case MAC_SS_fractional_0.5*0.5
+code 20800f
+main 1
+set MX0 0x4000
+set MY0 0x4000
+expect MR2 0x0
+expect MR1 0x2000
+expect MR0 0x0
+expect MV 0x0
+end
+case MAC_integer_mode_3*5
+code 20800f
+main 1
+set M_MODE 0x1
+set MX0 0x3
+set MY0 0x5
+expect MR0 0xf
+expect MR1 0x0
+expect MR2 0x0
+end
+case MR_+_(-1)*3_integer
+code 21000f
+main 1
+set M_MODE 0x1
+set MR0 0xa
+set MR1 0x0
+set MR2 0x0
+set MX0 0xffff
+set MY0 0x3
+expect MR0 0x7
+expect MR1 0x0
+expect MR2 0x0
+end
+case UU_ffff*ffff_sets_MV
+code 20e00f
+main 1
+set M_MODE 0x1
+set MX0 0xffff
+set MY0 0xffff
+expect MR0 0x1
+expect MR1 0xfffe
+expect MR2 0x0
+expect MV 0x1
+end
+case MR_-_(SU)_-2_*_65535
+code 21a00f
+main 1
+set M_MODE 0x1
+set MR0 0x0
+set MR1 0x0
+set MR2 0x0
+set MX0 0xfffe
+set MY0 0xffff
+expect MR0 0xfffe
+expect MR1 0x1
+expect MR2 0x0
+expect MV 0x0
+end
+case MR_=_MR_(RND)_midpoint_rounds_to_even
+code 20580f
+main 1
+set MR2 0x0
+set MR1 0x1234
+set MR0 0x8000
+expect MR1 0x1234
+expect MR0 0x0
+end
+case MR_=_MR_(RND)_above_midpoint
+code 20580f
+main 1
+set MR2 0x0
+set MR1 0x1234
+set MR0 0x8001
+expect MR1 0x1235
+expect MR0 0x1
+end
+case MF_=_MX0*MY0_integer
+code 24800f
+main 1
+set M_MODE 0x1
+set MX0 0x100
+set MY0 0x100
+expect MF 0x1
+end
+case SAT_MR_positive
+code 050000
+main 1
+set MV 0x1
+set MR2 0x0
+set MR1 0x8000
+set MR0 0x0
+expect MR2 0x0
+expect MR1 0x7fff
+expect MR0 0xffff
+end
+case SAT_MR_negative
+code 050000
+main 1
+set MV 0x1
+set MR2 0xfffe
+set MR1 0x1234
+set MR0 0x0
+expect MR2 0xffff
+expect MR1 0x8000
+expect MR0 0x0
+end
+case xop*xop_-3_squared
+code 20801f
+main 1
+set M_MODE 0x1
+set MX0 0xfffd
+expect MR0 0x9
+expect MR1 0x0
+expect MR2 0x0
+end
+case fractional_0x8000*0x8000_overflows_(MV)
+code 20800f
+main 1
+set MX0 0x8000
+set MY0 0x8000
+expect MR2 0x0
+expect MR1 0x8000
+expect MR0 0x0
+expect MV 0x1
+end
+case ASHIFT_SI_(HI)_by_SE=-1
+code 0e200f
+main 1
+set SI 0x8001
+set SE 0xffff
+expect SR1 0xc000
+expect SR0 0x8000
+end
+case SR_OR_LSHIFT_SI_(LO)_by_4
+code 0e180f
+main 1
+set SR1 0x1234
+set SR0 0x0
+set SI 0xf0
+set SE 0x4
+expect SR1 0x1234
+expect SR0 0xf00
+end
+case LSHIFT_BY_-4_(HI)
+code 0f00fc
+main 1
+set SI 0xf000
+expect SR1 0xf00
+expect SR0 0x0
+end
+case ASHIFT_BY_-4_(LO)
+code 0f30fc
+main 1
+set SI 0x8000
+expect SR1 0xffff
+expect SR0 0xf800
+end
+case EXP_0x0100_(HI)
+code 0e600f
+main 1
+set SI 0x100
+set SS 0x1
+expect SE 0xfffa
+expect SS 0x0
+end
+case EXP_0xff00_(HI)
+code 0e600f
+main 1
+set SI 0xff00
+expect SE 0xfff9
+expect SS 0x1
+end
+case NORM_0x0100_(HI)_with_SE=-6
+code 0e400f
+main 1
+set SI 0x100
+set SE 0xfffa
+expect SR1 0x4000
+expect SR0 0x0
+end
+case EXP_(HIX)_with_AV_set
+code 0e6a0f
+main 1
+set AR 0x8000
+set AV 0x1
+expect SE 0x1
+expect SS 0x0
+end
+case EXP_(LO)_after_all-sign_upper_half
+code 0e700f
+main 1
+set SE 0xfff1
+set SS 0x0
+set SI 0xff
+expect SE 0xffe9
+end
+case EXPADJ_updates_SB
+code 0e780f
+main 1
+set SB 0xfff0
+set SI 0xfff
+expect SB 0xfffd
+end
+case DIVS_AY1,AX0
+code 060800
+main 1
+set AY1 0x0
+set AY0 0x8001
+set AX0 0x8000
+expect AQ 0x1
+expect AF 0x1
+expect AY0 0x3
+end
+case DIVQ_AX0_(AQ=0_subtracts)
+code 071000
+main 1
+set AQ 0x0
+set AF 0x10
+set AX0 0x3
+set AY0 0x8000
+expect AQ 0x0
+expect AF 0x1b
+expect AY0 0x1
+end
+case unsigned_100/7_with_16_DIVQ_in_a_DO_loop
+code 3c010514102e071000
+main 3
+set AF 0x0
+set AY0 0xc8
+set AX0 0x7
+set AQ 0x0
+expect AY0 0xe
+end
+case DM_read_with_post-modify
+code 600000
+main 1
+set I0 0x10
+set M0 0x2
+set L0 0x0
+set dm:0010 0xbeef
+expect AX0 0xbeef
+expect I0 0x12
+end
+case circular_buffer_5,6,4_(manual_4.2.4.3)
+code 090000090000
+main 2
+set I0 0x5
+set M0 0x1
+set L0 0x3
+expect I0 0x4
+end
+case circular_buffer_9,12,10,8_(manual_4.2.4.4)
+code 090000090000090000
+main 3
+set I0 0x9
+set M0 0x3
+set L0 0x5
+expect I0 0x8
+end
+case circular_buffer_M=-1:_5,4,6
+code 090000090000
+main 2
+set I0 0x5
+set M0 0xffff
+set L0 0x3
+expect I0 0x6
+end
+case bit-reversed_DAG1_address
+code 600000
+main 1
+set BIT_REV 0x1
+set I0 0x1
+set M0 0x0
+set L0 0x0
+set dm:2000 0x5555
+expect AX0 0x5555
+expect I0 0x1
+end
+case DAG2_not_bit-reversed
+code 700000
+main 1
+set BIT_REV 0x1
+set I4 0x1
+set M4 0x0
+set L4 0x0
+set dm:0001 0x6666
+expect AX0 0x6666
+end
+case DM(I4,M4)_=_immediate
+code b12340
+main 1
+set I4 0x20
+set M4 0x1
+set L4 0x0
+expect dm:0020 0x1234
+expect I4 0x21
+end
+case PM_read:_upper_16_bits_to_dreg,_low_8_to_PX
+code 500000
+main 1
+set I4 0x50
+set M4 0x0
+set L4 0x0
+set pm:0050 0xabcdef
+expect AX0 0xabcd
+expect PX 0xef
+end
+case PM_write_from_MY0_and_PX
+code 580065
+main 1
+set I5 0x60
+set M5 0x1
+set L5 0x0
+set PX 0x12
+set MY0 0x3456
+expect pm:0060 0x345612
+expect I5 0x61
+end
+case ALU_with_DM_read_reads_AX0_before_the_load
+code 626000
+main 1
+set AX0 0x1
+set AY0 0x2
+set I0 0x30
+set M0 0x0
+set L0 0x0
+set dm:0030 0x7
+expect AR 0x3
+expect AX0 0x7
+end
+case DM_write_of_old_AR,_then_AR_=_AX0_+_AY0
+code 6a60a0
+main 1
+set AR 0x9
+set AX0 0x1
+set AY0 0x2
+set I0 0x31
+set M0 0x0
+set L0 0x0
+expect dm:0031 0x9
+expect AR 0x3
+end
+case MAC_with_dual_memory_read
+code e90000
+main 1
+set M_MODE 0x1
+set MX0 0x2
+set MY0 0x3
+set MR0 0x1
+set MR1 0x0
+set MR2 0x0
+set I0 0x40
+set M0 0x1
+set L0 0x0
+set I4 0x70
+set M4 0x1
+set L4 0x0
+set dm:0040 0x5
+set pm:0070 0x700
+expect MR0 0x7
+expect MX0 0x5
+expect MY0 0x7
+expect PX 0x0
+expect I0 0x41
+expect I4 0x71
+end
+case ALU_with_register_move
+code 2a600b
+main 1
+set AX0 0x1
+set AY0 0x2
+set MR0 0x44
+expect AR 0x3
+expect AX0 0x44
+end
+case shift_with_DM_read_uses_the_old_SI
+code 121080
+main 1
+set SI 0x3
+set SE 0x1
+set I0 0x50
+set M0 0x0
+set L0 0x0
+set dm:0050 0x100
+expect SR0 0x6
+expect SR1 0x0
+expect SI 0x100
+end
+case CNTR_load_pushes,_POP_CNTR_restores
+code 3c00553c0075040004
+main 3
+set CNTR 0x0
+set CNTSP 0x0
+expect CNTR 0x5
+expect CNTSP 0x1
+end
+case DO_UNTIL_CE:_3_passes
+code 3c003514102e22620f
+main 3
+set AR 0x0
+set AY0 0x1
+set CNTR 0x0
+expect AR 0x3
+expect CNTR 0x0
+expect LPSP 0x0
+expect PCSP 0x0
+expect CNTSP 0x0
+end
+case nested_DO_loops_2_x_3
+code 3c002514105e3c003514104e22620f26300f
+main 6
+set AR 0x0
+set AF 0x0
+set AY0 0x1
+expect AR 0x6
+expect AF 0x2
+expect LPSP 0x0
+expect PCSP 0x0
+end
+case DO_UNTIL_EQ_tests_the_status_of_the_previous_pass
+code 14101122e20f
+main 2
+set AR 0x3
+set AY0 0x1
+set AZ 0x0
+expect AR 0xffff
+expect LPSP 0x0
+expect PCSP 0x0
+end
+case CALL_/_RTS
+code 1c103f40022118105f4001100a000f
+main 5
+expect AX0 0x11
+expect AX1 0x22
+expect PCSP 0x0
+end
+case conditional_jump_not_taken,_then_taken
+code 1810311810304dead0400011
+main 4
+set AZ 0x1
+set AX0 0x0
+expect AX0 0x0
+expect AX1 0x1
+end
+case IF_NOT_CE_JUMP_counts_down
+code 3c003522620f18101e
+main 3
+set AR 0x0
+set AY0 0x1
+set CNTR 0x0
+expect AR 0x3
+expect CNTR 0x0
+end
+case indirect_JUMP_(I4)
+code 0b000f4dead0400021
+main 3
+set I4 0x102
+set AX0 0x0
+expect AX0 0x0
+expect AX1 0x2
+end
+case indirect_CALL_(I5)_and_RTS
+code 0b005f18104f4003300a000f
+main 4
+set I5 0x102
+expect AX0 0x33
+expect PCSP 0x0
+end
+case IF_FLAG_IN_JUMP
+code 0310224dead0400031
+main 3
+set FI 0x1
+set AX0 0x0
+expect AX0 0x0
+expect AX1 0x3
+end
+case IF_NOT_FLAG_IN_JUMP_falls_through_when_FI=1
+code 031020400040
+main 2
+set FI 0x1
+expect AX0 0x4
+end
+case RTS_IF_NE_not_taken
+code 0a0001400050
+main 2
+set AZ 0x1
+expect AX0 0x5
+end
+case SET_FL1,_TOGGLE_FLAG_OUT
+code 02031f
+main 1
+set FO 0x0
+set FL1 0x0
+expect FO 0x1
+expect FL1 0x1
+end
+case ENA_AR_SAT,_DIS_M_MODE;_MSTAT_reads_back
+code 0c2c000d0301
+main 2
+set M_MODE 0x1
+expect AR_SAT 0x1
+expect M_MODE 0x0
+expect AX0 0x8
+end
+case PUSH_STS_/_POP_STS_restores_ASTAT
+code 04000222200f040003
+main 3
+set AZ 0x1
+set AN 0x0
+set AY0 0x5
+expect AZ 0x1
+expect AR 0x6
+expect STSP 0x0
+end
+case TOPPCSTACK_push_and_pop
+code 0d0cf00d034f
+main 2
+set AX0 0xffff
+expect AY0 0x3fff
+expect PCSP 0x0
+end
+case I/O_space_write_and_read
+code 018050010054
+main 2
+set AX0 0x7777
+expect io:0005 0x7777
+expect AY0 0x7777
+end
+case RTI_restores_the_status_stack
+code 1c102f18105f0400020c0c000a001f
+main 5
+set AR_SAT 0x0
+expect AR_SAT 0x0
+expect PCSP 0x0
+expect STSP 0x0
+end

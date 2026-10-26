@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ADSP-218x.  There is no data stack in hardware: CALL/RTS use the 16-deep PC stack (a
+     register file in this module, PCS0 = top).  Programs usually keep a software stack in data memory
+     through a DAG2 index register; I4 is assumed here.  The default prototype is
+     assembly-oriented: arguments may arrive in the ALU/MAC/shifter input registers, results come
+     back in AR, MR or SR.
+     The decompiler assumes the L registers are 0 (linear addressing) and the MSTAT modes
+     BIT_REV, AR_SAT, AV_LATCH and M_MODE are off (their reset state) at function entry, so the
+     circular-buffer, bit-reverse and saturation logic in the p-code folds away unless the code
+     sets them. -->
+<compiler_spec>
+  <data_organization>
+    <absolute_max_alignment value="0"/>
+    <machine_alignment value="1"/>
+    <default_alignment value="1"/>
+    <default_pointer_alignment value="1"/>
+    <pointer_size value="2"/>
+    <wchar_size value="2"/>
+    <short_size value="2"/>
+    <integer_size value="2"/>
+    <long_size value="4"/>
+    <long_long_size value="4"/>
+    <float_size value="4"/>
+    <double_size value="4"/>
+    <long_double_size value="4"/>
+  </data_organization>
+  <global>
+    <range space="pm"/>
+    <range space="dm"/>
+    <range space="io"/>
+  </global>
+  <stackpointer register="I4" space="dm" growth="negative"/>
+  <returnaddress>
+    <register name="PCS0"/>
+  </returnaddress>
+  <context_data>
+    <tracked_set space="pm">
+      <set name="L0" val="0"/>
+      <set name="L1" val="0"/>
+      <set name="L2" val="0"/>
+      <set name="L3" val="0"/>
+      <set name="L4" val="0"/>
+      <set name="L5" val="0"/>
+      <set name="L6" val="0"/>
+      <set name="L7" val="0"/>
+      <set name="BIT_REV" val="0"/>
+      <set name="AR_SAT" val="0"/>
+      <set name="AV_LATCH" val="0"/>
+      <set name="M_MODE" val="0"/>
+    </tracked_set>
+  </context_data>
+  <default_proto>
+    <prototype name="__asm" extrapop="0" stackshift="0">
+      <input>
+        <pentry minsize="1" maxsize="2"><register name="AR"/></pentry>
+        <pentry minsize="1" maxsize="2"><register name="AX0"/></pentry>
+        <pentry minsize="1" maxsize="2"><register name="AX1"/></pentry>
+        <pentry minsize="1" maxsize="2"><register name="AY0"/></pentry>
+        <pentry minsize="1" maxsize="2"><register name="AY1"/></pentry>
+        <pentry minsize="1" maxsize="2"><register name="MX0"/></pentry>
+        <pentry minsize="1" maxsize="2"><register name="MY0"/></pentry>
+        <pentry minsize="1" maxsize="2"><register name="SI"/></pentry>
+      </input>
+      <output>
+        <pentry minsize="1" maxsize="2"><register name="AR"/></pentry>
+        <pentry minsize="3" maxsize="4"><register name="SR"/></pentry>
+      </output>
+      <unaffected>
+        <register name="I4"/>
+        <register name="L0"/><register name="L1"/><register name="L2"/><register name="L3"/>
+        <register name="L4"/><register name="L5"/><register name="L6"/><register name="L7"/>
+        <register name="BIT_REV"/><register name="AR_SAT"/><register name="AV_LATCH"/><register name="M_MODE"/>
+      </unaffected>
+      <killedbycall>
+        <register name="AZ"/><register name="AN"/><register name="AV"/><register name="AC"/>
+        <register name="AS"/><register name="AQ"/><register name="MV"/><register name="SS"/>
+        <register name="AVN"/>
+      </killedbycall>
+    </prototype>
+  </default_proto>
+</compiler_spec>

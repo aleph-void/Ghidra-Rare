@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<language_definitions>
+  <language processor="ADSP218x"
+            endian="big"
+            size="16"
+            variant="default"
+            version="1.0"
+            slafile="adsp218x.sla"
+            processorspec="adsp218x.pspec"
+            id="ADSP218x:BE:16:default">
+    <description>Analog Devices ADSP-218x (ADSP-2181 family) DSP: 24-bit instruction words in word-addressed program memory (pm), 16-bit data memory (dm) and I/O space (io)</description>
+    <compiler name="default" spec="adsp218x.cspec" id="default"/>
+  </language>
+</language_definitions>

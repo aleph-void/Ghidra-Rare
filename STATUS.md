@@ -134,6 +134,18 @@ objdump bugs confirmed against the manual: BFMOV slsb/width, MVTDC field order (
 
 MAME i860 bugs confirmed against the manual: control-register codes shown as code & 7; core-escape opcodes decoded by bits 1-0 (stio→lock, ldint→calli); intovr and unlock not decoded; pfeq.dd printed as pfeq.ds; reserved PFMAM data-path code 1111 printed as mm12tpm; spellings ppfld, pstd.d, pfmul3.ddss. GNU as sets flush bit 2, which the manual says must be zero, so the module ignores those bits.
 
+### ADSP-218x: done
+
+| Area | State |
+|---|---|
+| Decode | All 16,777,216 instruction words vs MAME `adsp21xx`: 0 unexplained. 14,726,146 agree, 793,587 invalid on both sides. 1,257,483 differ: 996,863 manual-reserved encodings MAME decodes, 261,120 from 2 confirmed MAME bugs, 244 MAME omissions (TOPPCSTACK, IDLE, ENA/DIS INTS, empty mode control). 800/800 constructors reached |
+| Semantics | ALU/MAC/shifter with flags and MSTAT modes, unbiased MR rounding, SAT MR, DIVS/DIVQ, read-before-write multifunction instructions, circular-buffer and bit-reverse addressing, DO UNTIL zero-overhead loops, PC/loop/count/status stacks as register files. Emulator 78/78, broken expectation detected |
+| Real code | Two MIT-licensed VisualDSP++ ADSP-2181 executables (pinned URL + SHA-256) through the DXE loader: 620/620 analysed instructions identical to the assembler source, 612 identical to MAME plus 8 MAME omissions, 58/58 functions decompile, 0 error bookmarks |
+| Doesn't work | Secondary register bank (one register set); interrupts, timers, SPORT/DMA and flag pins are plain registers or user ops; PMOVLAY/DMOVLAY overlays and BIASRND not modelled; decompiler assumes L = 0 and reset MSTAT modes at function entry; DWARF in DXE files not imported; DXE layout comes from reading linked files |
+| Unverified | Hardware or simulator behaviour; MR rounding at the exact midpoint (the manual's two descriptions disagree); whether `IF NOT CE CALL` decrements CNTR; 218x variants other than the 2181 |
+
+MAME `adsp21xx` bugs confirmed against the manual: AMF 01101 (`MR − xop·yop (SU)`) printed as `(SS)`; type 9 constants with YY = 11 decoded as Y = 0.
+
 ## Planned: clean-room modules for CPUs IDA Pro supports and Ghidra doesn't
 
 From a comparison with IDA Pro 9.1's supported-processor list (2026-10-25). Written here from vendor
@@ -146,7 +158,7 @@ manuals, verified against a free reference disassembler run as a black box:
 | ST9 / ST9+ | MAME `st9`, `st9p` | initial support complete (see above) |
 | TI TMS320C2x (C25) and TMS320C5x | MAME `tms320c2x`, `tms320c5x` | initial support complete (see above) |
 | Intel i860 | MAME `i860` | done (see above) |
-| Analog Devices ADSP-218x | MAME `adsp21xx` | planned |
+| Analog Devices ADSP-218x | MAME `adsp21xx` | done (see above) |
 | Motorola DSP56000 and DSP561xx | MAME `dsp56000`, `dsp56156` | planned |
 | Renesas RX (v1, v2, v3) | binutils `rx`, `rx:v2`, `rx:v3` | done (see above) |
 | Intel IA-64 (Itanium) | binutils `ia64` | planned |
