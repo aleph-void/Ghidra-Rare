@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<language_definitions>
+  <language processor="RX"
+            endian="little"
+            size="32"
+            variant="RXv1"
+            version="1.0"
+            slafile="rx_v1.sla"
+            processorspec="rx.pspec"
+            id="RX:LE:32:RXv1">
+    <description>Renesas RX, RXv1 instruction set (RX600, RX200, RX100 series): single-precision FPU, 64-bit accumulator DSP instructions</description>
+    <compiler name="default" spec="rx.cspec" id="default"/>
+    <compiler name="GCC, 64-bit doubles" spec="rx_d64.cspec" id="d64"/>
+    <external_name tool="gnu" name="rx"/>
+    <external_name tool="DWARF.register.mapping.file" name="rx.dwarf"/>
+  </language>
+  <language processor="RX"
+            endian="little"
+            size="32"
+            variant="RXv2"
+            version="1.0"
+            slafile="rx_v2.sla"
+            processorspec="rx.pspec"
+            id="RX:LE:32:RXv2">
+    <description>Renesas RX, RXv2 instruction set (RX64M, RX71M, RX230...): RXv1 plus FSQRT/FTOU/UTOF, 3-operand FADD/FSUB/FMUL, MOVLI/MOVCO, two 72-bit accumulators and the extended DSP instructions</description>
+    <compiler name="default" spec="rx.cspec" id="default"/>
+    <compiler name="GCC, 64-bit doubles" spec="rx_d64.cspec" id="d64"/>
+    <external_name tool="gnu" name="rx:v2"/>
+    <external_name tool="DWARF.register.mapping.file" name="rx.dwarf"/>
+  </language>
+  <language processor="RX"
+            endian="little"
+            size="32"
+            variant="RXv3"
+            version="1.0"
+            slafile="rx_v3.sla"
+            processorspec="rx.pspec"
+            id="RX:LE:32:RXv3">
+    <description>Renesas RX, RXv3 instruction set (RX72M, RX66T...): RXv2 plus BFMOV/BFMOVZ, 3-operand XOR, SAVE/RSTR register banks and the double-precision floating-point coprocessor</description>
+    <compiler name="default" spec="rx.cspec" id="default"/>
+    <compiler name="GCC, 64-bit doubles" spec="rx_d64.cspec" id="d64"/>
+    <external_name tool="gnu" name="rx:v3"/>
+    <external_name tool="DWARF.register.mapping.file" name="rx.dwarf"/>
+  </language>
+</language_definitions>

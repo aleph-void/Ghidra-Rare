@@ -1,0 +1,10 @@
+<dwarf>
+  <!-- GCC/binutils RX DWARF numbering: 0..15 are r0..r15 (r0 is the stack pointer). At function
+       entry the CFA is r0 + 4 (the CIE holds "DW_CFA_def_cfa: r0 ofs 4"; the return address,
+       column 17, is at CFA - 4). -->
+  <register_mappings>
+    <register_mapping dwarf="0" ghidra="R0" stackpointer="true"/>
+    <register_mapping dwarf="1" ghidra="R1" auto_count="15"/> <!-- R1..R15 -->
+  </register_mappings>
+  <call_frame_cfa value="4"/>
+</dwarf>

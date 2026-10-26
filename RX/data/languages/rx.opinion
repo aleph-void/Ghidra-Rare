@@ -1,0 +1,23 @@
+<opinions>
+  <!-- EM_RX = 173. e_flags (gas/gcc): bit 0 = 64-bit doubles, bit 8 = RXv2, bit 9 = RXv3. No
+       version bit means "not marked", not RXv1: GCC's start files carry no version bit, and ld
+       drops the bit of RXv2/RXv3 objects when it links them with those. Unmarked files therefore
+       get RXv3, which decodes every RXv1/RXv2 instruction identically; choose RXv1/RXv2 by hand
+       to reject the later instructions. Big-endian-data images (elf32-rx-be) are not supported. -->
+  <constraint loader="Executable and Linking Format (ELF)" compilerSpecID="default">
+    <constraint primary="173" processor="RX" endian="little" size="32" variant="RXv3"
+        secondary="0b .... .... .... .... .... ..00 .... ...0"/>
+    <constraint primary="173" processor="RX" endian="little" size="32" variant="RXv2"
+        secondary="0b .... .... .... .... .... ..01 .... ...0"/>
+    <constraint primary="173" processor="RX" endian="little" size="32" variant="RXv3"
+        secondary="0b .... .... .... .... .... ..1. .... ...0"/>
+  </constraint>
+  <constraint loader="Executable and Linking Format (ELF)" compilerSpecID="d64">
+    <constraint primary="173" processor="RX" endian="little" size="32" variant="RXv3"
+        secondary="0b .... .... .... .... .... ..00 .... ...1"/>
+    <constraint primary="173" processor="RX" endian="little" size="32" variant="RXv2"
+        secondary="0b .... .... .... .... .... ..01 .... ...1"/>
+    <constraint primary="173" processor="RX" endian="little" size="32" variant="RXv3"
+        secondary="0b .... .... .... .... .... ..1. .... ...1"/>
+  </constraint>
+</opinions>

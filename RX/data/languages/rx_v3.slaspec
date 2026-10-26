@@ -1,0 +1,5 @@
+# Renesas RXv3 (little endian). See rx.sinc.
+@define RXV2 ""
+@define RXV3 ""
+@include "rx.sinc"
+@include "rx_gen.sinc"

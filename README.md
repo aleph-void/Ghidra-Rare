@@ -28,6 +28,7 @@ The project has two parts:
 | [ST9](ST9/README.md) | STMicroelectronics ST9 and ST9+ | `ST9:BE:16:default`, `ST9:BE:24:ST9+` | Added for IDA built-in CPU parity |
 | [XA](XA/README.md) | Philips/NXP XA (51XA), native 24-bit and page-0 16-bit modes | `XA:LE:24:default`, `XA:LE:24:page0` | Added for IDA built-in CPU parity |
 | [TMS320C2x](TMS320C2x/README.md) | TI TMS320C2x (C25/C26) and TMS320C5x DSP, big and little endian, with TI COFF support | `TMS320C2x:{BE,LE}:16:default`, `TMS320C5x:{BE,LE}:16:default` | Added for IDA built-in CPU parity |
+| [RX](RX/README.md) | Renesas RX, RXv1, RXv2 and RXv3 (FPU, DSP and double-precision FPU) | `RX:LE:32:RXv1`, `RXv2`, `RXv3` (each with `default` and `d64` compiler specs) | Added for IDA built-in CPU parity |
 
 Each module's README lists its language variants, how closely it matches the reference
 disassembler, what the p-code models, known gaps and how to run its tests. [STATUS.md](STATUS.md)

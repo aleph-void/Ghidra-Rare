@@ -110,6 +110,18 @@ MAME `xa` bugs confirmed against the manual: RR/RRC count field, ASR #imm and RL
 | Doesn't work | Peripherals, interrupts, pipeline effects, CNF/OVLY RAM remap; C2x COFF must be picked manually (opinion offers C5x); COFF data sections are not moved to the data space |
 | Unverified | No hardware or TI firmware check; C26 CONF and C2xx-only encodings are tested only against MAME and AS |
 
+### Renesas RX (RXv1/RXv2/RXv3): done
+
+| Area | State |
+|---|---|
+| Decode | 1,048,576 slot records per language (16 corpora) vs objdump -m rx/rx:v2/rx:v3: 0 unexplained. RXv3: 485,991 agree, 516,298 both invalid, 46,287 explained (about 45,800 reserved encodings objdump accepts, 413 BFMOV and 60 MVTDC objdump bugs). 1,246 / 1,346 / 1,681 constructors reached (all) |
+| Semantics | Full p-code incl. flags, all addressing modes, string ops/RMPA as loops, 72-bit accumulators with RACW/RACL/RDAC* saturation, FPU with ROUND modes, MOVLI/MOVCO, BFMOV, DFPU. INT/BRK/WAIT/SAVE/RSTR are user ops. Emulator 59/59 (v1), 68/68 (v2), 72/72 (v3); broken expectation detected |
+| Real code | Own builds of public source (GCC 14 rx-elf + newlib: tour.c ×4 configs, zlib 1.3.1 example/minigzip) and assembled RXv2/RXv3 routines: 199,166 instructions identical to objdump, 1,760/1,760 functions decompile, 0 bad-instruction/relocation bookmarks; relocatable objects import with 0 relocation errors |
+| Doesn't work | USP/ISP switch by PSW.U, user-mode write protection, FPSW/DPSW exception flags, register banks, big-endian data mode. ELF without an RXv2/RXv3 flag loads as RXv3 (GNU ld drops the bit). Ghidra's DWARF reader gives ~100-130 error bookmarks per -g image (gas line_range 242) |
+| Unverified | No freely licensed third-party RX firmware; GCC 14 can't target RXv2/RXv3, so those are checked only with assembled code and the corpora; no hardware comparison |
+
+objdump bugs confirmed against the manual: BFMOV slsb/width, MVTDC field order (gas encodes it the same wrong way). Encodings the manual doesn't list decode as invalid even where objdump accepts them.
+
 ## Planned: clean-room modules for CPUs IDA Pro supports and Ghidra doesn't
 
 From a comparison with IDA Pro 9.1's supported-processor list (2026-10-25). Written here from vendor
@@ -124,7 +136,7 @@ manuals, verified against a free reference disassembler run as a black box:
 | Intel i860 | MAME `i860` | planned |
 | Analog Devices ADSP-218x | MAME `adsp21xx` | planned |
 | Motorola DSP56000 and DSP561xx | MAME `dsp56000`, `dsp56156` | planned |
-| Renesas RX (v1, v2, v3) | binutils `rx`, `rx:v2`, `rx:v3` | planned |
+| Renesas RX (v1, v2, v3) | binutils `rx`, `rx:v2`, `rx:v3` | done (see above) |
 | Intel IA-64 (Itanium) | binutils `ia64` | planned |
 
 Extensions of community modules: V850E1/E1F/ES into RH850 (binutils `v850e1`), H8SX into the H8

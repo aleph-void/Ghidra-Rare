@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Renesas RX. The fixed vector table (RXv1) / exception vector table (RXv2/RXv3, EXTB after
+     reset) occupies FFFFFF80h-FFFFFFFFh; the reset vector is the last entry (manual 1.7.1).
+     The labels below apply when an image is loaded at the top of the address space. -->
+<processor_spec>
+  <programcounter register="PC"/>
+  <default_symbols>
+    <symbol name="VECT_PRIVILEGED"   address="ram:ffffffd0" type="code_ptr"/>
+    <symbol name="VECT_ACCESS"       address="ram:ffffffd4" type="code_ptr"/>
+    <symbol name="VECT_UNDEFINED"    address="ram:ffffffdc" type="code_ptr"/>
+    <symbol name="VECT_FPU"          address="ram:ffffffe4" type="code_ptr"/>
+    <symbol name="VECT_NMI"          address="ram:fffffff8" type="code_ptr"/>
+    <symbol name="VECT_RESET"        address="ram:fffffffc" type="code_ptr" entry="true"/>
+  </default_symbols>
+</processor_spec>
