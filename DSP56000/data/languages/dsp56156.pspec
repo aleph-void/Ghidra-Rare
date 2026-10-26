@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Motorola DSP56156. Interrupt vectors (two words each) per the DSP56156 User's Manual Table
+     C-1; on-chip peripheral registers in X:FFC0-FFFF per its X peripheral memory map. -->
+<processor_spec>
+  <programcounter register="PC"/>
+  <volatile outputop="write_volatile" inputop="read_volatile">
+    <range space="x" first="0xffc0" last="0xffff"/>
+  </volatile>
+  <default_symbols>
+    <symbol name="RESET" address="p:0000" entry="true"/>
+    <symbol name="ILLEGAL" address="p:0002" entry="true"/>
+    <symbol name="STACK_ERROR" address="p:0004" entry="true"/>
+    <symbol name="SWI" address="p:0008" entry="true"/>
+    <symbol name="IRQA" address="p:000a" entry="true"/>
+    <symbol name="IRQB" address="p:000c" entry="true"/>
+    <symbol name="SSI0_RX_EXC" address="p:0010" entry="true"/>
+    <symbol name="SSI0_RX" address="p:0012" entry="true"/>
+    <symbol name="SSI0_TX_EXC" address="p:0014" entry="true"/>
+    <symbol name="SSI0_TX" address="p:0016" entry="true"/>
+    <symbol name="SSI1_RX_EXC" address="p:0018" entry="true"/>
+    <symbol name="SSI1_RX" address="p:001a" entry="true"/>
+    <symbol name="SSI1_TX_EXC" address="p:001c" entry="true"/>
+    <symbol name="SSI1_TX" address="p:001e" entry="true"/>
+    <symbol name="TIMER_OVERFLOW" address="p:0020" entry="true"/>
+    <symbol name="TIMER_COMPARE" address="p:0022" entry="true"/>
+    <symbol name="HOST_DMA_RX" address="p:0024" entry="true"/>
+    <symbol name="HOST_DMA_TX" address="p:0026" entry="true"/>
+    <symbol name="HOST_RX" address="p:0028" entry="true"/>
+    <symbol name="HOST_TX" address="p:002a" entry="true"/>
+    <symbol name="HOST_COMMAND" address="p:002c" entry="true"/>
+    <symbol name="CODEC_TX_RX" address="p:002e" entry="true"/>
+    <symbol name="PBC" address="x:ffc0"/>
+    <symbol name="PCC" address="x:ffc1"/>
+    <symbol name="PBDDR" address="x:ffc2"/>
+    <symbol name="PCDDR" address="x:ffc3"/>
+    <symbol name="HCR" address="x:ffc4"/>
+    <symbol name="COCR" address="x:ffc8"/>
+    <symbol name="CRA0" address="x:ffd0"/>
+    <symbol name="CRB0" address="x:ffd1"/>
+    <symbol name="CRA1" address="x:ffd8"/>
+    <symbol name="CRB1" address="x:ffd9"/>
+    <symbol name="PLCR" address="x:ffdc"/>
+    <symbol name="BCR" address="x:ffde"/>
+    <symbol name="IPR" address="x:ffdf"/>
+    <symbol name="PBD" address="x:ffe2"/>
+    <symbol name="PCD" address="x:ffe3"/>
+    <symbol name="HSR" address="x:ffe4"/>
+    <symbol name="HTX_HRX" address="x:ffe5"/>
+    <symbol name="COSR" address="x:ffe8"/>
+    <symbol name="CRX_CTX" address="x:ffe9"/>
+    <symbol name="TCR" address="x:ffec"/>
+    <symbol name="TCTR" address="x:ffed"/>
+    <symbol name="TCPR" address="x:ffee"/>
+    <symbol name="TPR" address="x:ffef"/>
+    <symbol name="SSISR0" address="x:fff0"/>
+    <symbol name="SSI0_TX_RX" address="x:fff1"/>
+    <symbol name="RSMA0" address="x:fff2"/>
+    <symbol name="RSMB0" address="x:fff3"/>
+    <symbol name="TSMA0" address="x:fff4"/>
+    <symbol name="TSMB0" address="x:fff5"/>
+    <symbol name="SSISR1" address="x:fff8"/>
+    <symbol name="SSI1_TX_RX" address="x:fff9"/>
+    <symbol name="RSMA1" address="x:fffa"/>
+    <symbol name="RSMB1" address="x:fffb"/>
+    <symbol name="TSMA1" address="x:fffc"/>
+    <symbol name="TSMB1" address="x:fffd"/>
+  </default_symbols>
+  <default_memory_blocks>
+    <memory_block name="X" start_address="x:0000" length="0x10000" initialized="false"/>
+    <memory_block name="SS" start_address="ss:00" length="0x40" initialized="false"/>
+  </default_memory_blocks>
+</processor_spec>

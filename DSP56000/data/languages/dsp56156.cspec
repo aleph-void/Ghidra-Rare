@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- DSP56156 code is mostly hand-written assembly: calls push the return address and SR on
+     the hardware system stack (SSH:SSL, space 'ss', indexed by SP), so the default model is an
+     assembly convention with data ALU and AGU registers as possible inputs and A as the result.
+     The decompiler assumes linear addressing (M0-M3 = 0FFFFh, the reset value) and MR = 0 (no
+     scaling, no loop active) at function entry. -->
+<compiler_spec>
+  <data_organization>
+    <absolute_max_alignment value="0"/>
+    <machine_alignment value="1"/>
+    <default_alignment value="1"/>
+    <default_pointer_alignment value="1"/>
+    <pointer_size value="2"/>
+    <char_size value="2"/>
+    <short_size value="2"/>
+    <integer_size value="2"/>
+    <long_size value="4"/>
+    <float_size value="4"/>
+    <double_size value="4"/>
+  </data_organization>
+  <global>
+    <range space="p"/>
+    <range space="x"/>
+  </global>
+  <stackpointer register="SP" space="ss" growth="positive"/>
+  <returnaddress>
+    <varnode space="stack" offset="0" size="4"/>
+  </returnaddress>
+  <context_data>
+    <tracked_set space="p">
+      <set name="M0" val="0xffff"/>
+      <set name="M1" val="0xffff"/>
+      <set name="M2" val="0xffff"/>
+      <set name="M3" val="0xffff"/>
+      <set name="MR" val="0"/>
+    </tracked_set>
+  </context_data>
+  <default_proto>
+    <prototype name="__asm" extrapop="0" stackshift="0">
+      <input>
+        <pentry minsize="1" maxsize="5"><register name="A"/></pentry>
+        <pentry minsize="1" maxsize="5"><register name="B"/></pentry>
+        <pentry minsize="1" maxsize="2"><register name="X0"/></pentry>
+        <pentry minsize="1" maxsize="2"><register name="X1"/></pentry>
+        <pentry minsize="1" maxsize="2"><register name="Y0"/></pentry>
+        <pentry minsize="1" maxsize="2"><register name="Y1"/></pentry>
+        <pentry minsize="1" maxsize="2"><register name="R0"/></pentry>
+        <pentry minsize="1" maxsize="2"><register name="R1"/></pentry>
+        <pentry minsize="1" maxsize="2"><register name="R2"/></pentry>
+        <pentry minsize="1" maxsize="2"><register name="R3"/></pentry>
+      </input>
+      <output>
+        <pentry minsize="1" maxsize="5"><register name="A"/></pentry>
+      </output>
+      <unaffected>
+        <register name="SP"/>
+        <register name="M0"/><register name="M1"/><register name="M2"/><register name="M3"/>
+      </unaffected>
+      <killedbycall>
+        <register name="C"/><register name="V"/><register name="Z"/><register name="N"/>
+        <register name="U"/><register name="E"/>
+      </killedbycall>
+    </prototype>
+  </default_proto>
+</compiler_spec>

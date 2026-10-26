@@ -146,6 +146,18 @@ MAME i860 bugs confirmed against the manual: control-register codes shown as cod
 
 MAME `adsp21xx` bugs confirmed against the manual: AMF 01101 (`MR − xop·yop (SU)`) printed as `(SS)`; type 9 constants with YY = 11 decoded as Y = 0.
 
+### DSP56000 / DSP56156: done
+
+| Area | State |
+|---|---|
+| Decode | DSP56000: 1,243,248 two-word slots vs MAME (every non-parallel word, every parallel-move field, every ALU opcode, 65,536 random), 0 unexplained: 394,967 agree, 336,125 both invalid, 344,626 encodings the manual leaves undefined (MAME accepts them), 164,850 confirmed MAME bugs, 2,080 DSP56002 instructions MAME lacks. An independent manual-derived validity table agrees on every slot. DSP56156: 261,285 slots, 0 unexplained. Constructors reached: 1,030/1,030 and 1,589/1,589 |
+| Semantics | Data ALU with real flags, scaling, data-shifter limiting and convergent rounding (plus DSP56156 saturation and rounding modes); three-phase parallel moves; linear/modulo/bit-reverse AGU; system stack; REP/REPcc and DO/DO FOREVER loops. Emulator 79/79 (DSP56000; 77 hand encodings confirmed with asl) and 54/54 (DSP56156); broken expectation detected |
+| Real code | DSP56000: Motorola BBS software, 10 shipped LODs plus 65 programs assembled with Motorola's ASM56000 (run as a black box): 5,179/5,179 listing statements identical to the assembler source; MAME at 5,446 listed addresses 0 unexplained; 135/135 functions decompile; 51 bad-instruction bookmarks (48 flow off the end of test programs, 3 data tables at P:0). DSP56156: the 34 DSP56100-manual benchmarks via ASM56100: 549/549 statements identical, 749/749 functions decompile |
+| Doesn't work | Interrupts, peripherals, STOP/WAIT/RESET/SWI/DEBUG (user ops), stack-overflow flags, the DSP56002 double-precision mode; nested DO loops ending on the same LA; "unpredictable" modulo offsets wrap once; no .cld (COFF) loader (convert with cldlod); DSP56156 IMPY/IMAC special flags approximated, DO SP/SSL counts not modelled |
+| Unverified | Hardware behaviour; DSP56002-only instructions (MAME and asl lack them); third-party DSP561xx binaries (none found) |
+
+MAME bugs confirmed against the manuals and the assemblers: dsp56000: XY-move Y mode/register taken from the X fields; MOVEP pp address bits; Tcc S1,D1 table; accumulator source of ADD/SUB/TFR/CMP omitted; absolute-address extension word ignored in class I/II moves, bit ops and REP; reserved bits/codes accepted. dsp56156: no BF* instructions or (R2+xx) forms; dual-read multiply sources printed reversed; don't-care bits must be zero; SHFL/SHFR decoded at 15Dx/15Fx (in neither manual).
+
 ## Planned: clean-room modules for CPUs IDA Pro supports and Ghidra doesn't
 
 From a comparison with IDA Pro 9.1's supported-processor list (2026-10-25). Written here from vendor
@@ -159,7 +171,7 @@ manuals, verified against a free reference disassembler run as a black box:
 | TI TMS320C2x (C25) and TMS320C5x | MAME `tms320c2x`, `tms320c5x` | initial support complete (see above) |
 | Intel i860 | MAME `i860` | done (see above) |
 | Analog Devices ADSP-218x | MAME `adsp21xx` | done (see above) |
-| Motorola DSP56000 and DSP561xx | MAME `dsp56000`, `dsp56156` | planned |
+| Motorola DSP56000 and DSP561xx | MAME `dsp56000`, `dsp56156` | done (see above) |
 | Renesas RX (v1, v2, v3) | binutils `rx`, `rx:v2`, `rx:v3` | done (see above) |
 | Intel IA-64 (Itanium) | binutils `ia64` | planned |
 

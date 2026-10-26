@@ -31,6 +31,7 @@ The project has two parts:
 | [RX](RX/README.md) | Renesas RX, RXv1, RXv2 and RXv3 (FPU, DSP and double-precision FPU) | `RX:LE:32:RXv1`, `RXv2`, `RXv3` (each with `default` and `d64` compiler specs) | Added for IDA built-in CPU parity |
 | [i860](i860/README.md) | Intel i860 XR and XP, dual-instruction mode, delay slots, FP pipeline and graphics instructions | `i860:LE:32:XR`, `i860:LE:32:XP` | Added for IDA built-in CPU parity |
 | [ADSP218x](ADSP218x/README.md) | Analog Devices ADSP-218x (ADSP-2181 family), with a VisualDSP++ DXE loader | `ADSP218x:BE:16:default` | Added for IDA built-in CPU parity |
+| [DSP56000](DSP56000/README.md) | Motorola DSP56000/56001/56002 and DSP56156 (DSP561xx), with a Motorola LOD loader | `DSP56000:BE:16:default`, `DSP56000:BE:16:DSP56156` | Added for IDA built-in CPU parity |
 
 Each module's README lists its language variants, how closely it matches the reference
 disassembler, what the p-code models, known gaps and how to run its tests. [STATUS.md](STATUS.md)
