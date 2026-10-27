@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### ARC32 (ARCtangent-A4/A5): done (community: @cyrozap, Ghidra PR #3233)
+
+| Area | State |
+|---|---|
+| Decode | vs libopcodes 2.25.1 (built here; 2.45 dropped the A4/A5 disassembler), both byte orders: 276,480 field-enumerated, 258,240 low-word and 50,000 random slots, 0 unexplained (explained: extension majors, optional instructions, extension conditions, reserved encodings). 600/600 constructors reached per language |
+| Semantics | 42/42 hand-computed emulator sequences per byte order; broken expectation detected. Fixed here: MAX/MIN/NORM, `.jd` delay slots, `lp` loops and the other upstream TODO/FIXMEs; cspec, pspec and DWARF map from GCC 4.5.4 output |
+| Real code | zlib 1.3.1 and crypto-algorithms built with GCC 4.5.4 (pinned URLs + SHA-256), LE and BE: 157 functions, 52,712 instructions, 0 bad instructions, 0 error bookmarks, every function decompiles, disassembly 100% semantically equal to objdump, switch tables recovered. Analyzers for `sr`-initialised loops and GCC's `j.d [r]` / `add blink,blink,2` indirect calls |
+| Doesn't work | Extension instructions/conditions and brk/sleep/swi are pcodeops (customer or system hardware); libgcc routines returning through a copy of blink decompile with "treating indirect jump as call" (C is correct); `lp` loops need EmulatorHelper, because PcodeEmulator ignores globalset (Ghidra #9337) |
+| Unverified | Real A4 firmware (none freely licensed); optional instructions checked only against the manual |
+
+PR #6344 (@dgenin), listed as ARCv2, is the same ARCtangent-A4 ISA; it is credited for the `sr [lp_end]` loop set-up idea, and no code was copied. binutils 2.25.1's ARC disassembler reads uninitialised locals (the oracle was built with `-ftrivial-auto-var-init=zero`) and drops the delay suffix of `j`/`jl limm` when the condition has no name; GCC 4.5.4 built as a 64-bit host program ICEs in extract_insn.
+
 ### PS2 Emotion Engine (R5900): done (community: @chaoticgd, @beardypig)
 
 | Area | State |

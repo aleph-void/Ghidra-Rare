@@ -130,3 +130,7 @@
 	path = community/EmotionEngine
 	url = https://github.com/aleph-void/ghidra-emotionengine-reloaded.git
 	branch = ghidra-rare
+[submodule "community/ARC32"]
+	path = community/ARC32
+	url = https://github.com/aleph-void/ghidra-arc32.git
+	branch = ghidra-rare
