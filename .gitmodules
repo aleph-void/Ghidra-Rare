@@ -226,3 +226,7 @@
 	path = community/V30MZ
 	url = https://github.com/aleph-void/ghidra-wonderswan.git
 	branch = ghidra-rare
+[submodule "community/TMS320C54x"]
+	path = community/TMS320C54x
+	url = https://github.com/aleph-void/ghidra-tms320c54x.git
+	branch = ghidra-rare

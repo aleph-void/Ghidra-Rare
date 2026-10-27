@@ -582,6 +582,18 @@ Upstream's loader did not compile on Ghidra 12, opened a GUI file chooser (break
 | Doesn't work | Interrupts, timers, serial, Maple, HALT, LCD/VRAM auto-increment and the flash unlock sequence are hardware state; the default language follows bank bits only through SET1/CLR1 PSW; instructions straddling the end of the 64K space; no loader for .vmu flash images (extract the .vms); PSW and the stack show as RAM variables in the decompiler |
 | Unverified | Hardware and the Sanyo manual (semantics from Comstedt, Grinberg and DreamPotato): ADDC/SUBC overflow, parity polarity, R0-R3 pointer cells following RAMBK0, DIV by zero; no BIOS or commercial images used |
 
+### TI TMS320C54x: done (community: @gabtremblay; encodings re-derived here)
+
+| Area | State |
+|---|---|
+| Decode | Upstream took its encodings from binutils' GPL opcode table. They were re-derived clean-room from TI's SPRU172C opcode boxes and SPRU131G (tools/c54x_encodings.py, 193 forms with page references, checked against an automatic extraction of the PDF opcode boxes: 193/193), and the SLEIGH patterns are generated from that table. Module = table on all 418,592 test slots. vs objdump `-m tms320c54x` (black box): 0 unexplained (12,641 differences: reserved encodings objdump accepts, an objdump display bug, ESTOP). 661/663 constructors + 2 via the emulator |
+| Semantics | Fixed: IDLE 2/3 encoding, BIO polarity, MAX/MIN/SUBC carry, flags with OVM/SXM, rounding, the dual-16 DADD family, ST\|\| parallel ops, circular and bit-reversed addressing, RPT loops, far call XPC, ST0/ST1, return addresses in words, indirect MMR forms, MVMM accepting registers 9-15, 0x6Fxx long-offset forms. 93 emulator cases from SPRU172C examples; broken expectation detected |
+| Real code | Two gas-assembled programs: 115 instructions identical to objdump, 0 decompile failures; gas round trip 0 different (no third-party binaries and no TI toolchain used) |
+| Doesn't work | RPTB loop-back (hardware comparator); data 0x00-0x1F not aliased to the memory-mapped registers; ST1 writes do not update the CPL context; compatibility mode (CMPT); XPC pages beyond 64K words; no COFF loader; ESTOP (undocumented) is not decoded |
+| Unverified | Semantics rest on the manuals (no simulator, TI toolchain or third-party binaries); the pspec peripheral map and cspec are upstream's |
+
+objdump shows MMR-instruction operands with I=1 as an MMR address (SPRU131G and gas both say indirect). The fork's earlier history still carries upstream's binutils-derived generator; the current tree does not.
+
 ### TI TMS320C28x: done (community: @outlandnish, @abedegno)
 
 | Area | State |
