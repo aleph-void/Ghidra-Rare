@@ -25,7 +25,7 @@ Pull requests are covered by Ghidra's contribution terms (Apache-2.0).
 | C-SKY v1 (CK610) | [nnonickreal/ghidra-csky-ISAv1](https://github.com/nnonickreal/ghidra-csky-ISAv1) | none (blocked) | 1/1 | 157 | @nnonickreal | Only one that compiles; NO LICENSE Alternatives: selar2025/Ghidra_CK610_Processor. |
 | Casio HCD62121 | [qufb/HCD62121](https://github.com/qufb/HCD62121) | none (blocked) | 0/1 | 210 | @qufb | Only implementation found |
 | Cell SPU | [aerosoul94/GhidraSPU](https://github.com/aerosoul94/GhidraSPU) | Apache-2.0 (ok) | 1/1 | 208 | @balika011, @aerosoul94, @elad335, @VelocityRa | Only implementation found |
-| Chip Command CCPU | [cyrozap/ghidra-ccpu](https://github.com/cyrozap/ghidra-ccpu) | Apache-2.0 (ok) | 1/1 | 40 | @cyrozap | Only implementation found |
+| MediaTek GCPU control CPU (CCPU; listed as Chip Command CCPU) | [cyrozap/ghidra-ccpu](https://github.com/cyrozap/ghidra-ccpu) | Apache-2.0 (ok) | 1/1 | 40 | @cyrozap | Only implementation found |
 | cr816 | [pelrun/ghidra-cr816](https://github.com/pelrun/ghidra-cr816) | Apache-2.0 (ok) | 1/1 | 88 | @pelrun | Only implementation found |
 | CSR XAP | [Thaelz/ghidra-xap](https://github.com/Thaelz/ghidra-xap) | LGPL-3.0 (copyleft) | 1/1 | 89 | @Thaelz | XAP (LGPL-3); XAP2 (SamL98, Apache) is a different ISA Alternatives: SamL98/xap2. |
 | CSR XAP2 | [SamL98/xap2](https://github.com/SamL98/xap2) | Apache-2.0 (ok) | 1/1 | 68 | @SamL98, @unusual-thoughts | Only implementation found |
@@ -88,7 +88,7 @@ Pull requests are covered by Ghidra's contribution terms (Apache-2.0).
 | PS2 Emotion Engine (R5900) | [chaoticgd/ghidra-emotionengine-reloaded](https://github.com/chaoticgd/ghidra-emotionengine-reloaded) | Apache-2.0 (ok) | 1/1 | 378 | @chaoticgd, @beardypig, @VelocityRa, @WI-Lee, @Tupelov, @abelbriggs1; also @beardypig, @chaoticgd, @WI-Lee, @Tupelov, @PFedak, @GregoryMorse (beardypig/ghidra-emotionengine) | Maintained successor of beardypig (credit); VU and COP2 semantics Alternatives: beardypig/ghidra-emotionengine, bigianb/ghidra-emotionengine, astrelsky/ghidra_MIPSR5900. |
 | PSP Allegrex | [kotcrab/ghidra-allegrex](https://github.com/kotcrab/ghidra-allegrex) | Apache-2.0 (ok) | 1/1 | 996 | @kotcrab, @KieronJ, @antoniovazquezblanco, @CB9001, @Sakimotor, @artart78 | Only implementation found |
 | RCA CDP1802/1806 | [inbarraz/payphone](https://github.com/inbarraz/payphone) | GPL-3.0 (copyleft) | 1/1 | 122 | @inbarraz | Only implementation found |
-| Realtek PCM | [cyrozap/ghidra-pcm](https://github.com/cyrozap/ghidra-pcm) | Apache-2.0 (ok) | 1/1 | 143 | @cyrozap | Only implementation found |
+| MediaTek SPM PCM (listed as Realtek PCM) | [cyrozap/ghidra-pcm](https://github.com/cyrozap/ghidra-pcm) | Apache-2.0 (ok) | 1/1 | 143 | @cyrozap | Only implementation found |
 | Realtek r8169 | [cyrozap/realtek-nic-re](https://github.com/cyrozap/realtek-nic-re) | 0BSD (ok) | 1/1 | 17 | @cyrozap | Only implementation found |
 | Renesas M32R | [ripnet/ghidra-m32r](https://github.com/ripnet/ghidra-m32r) | none (blocked) | 1/1 | 112 | @ripnet, @verasativa | All three are copies of one spec; NO LICENSE Alternatives: GhidrAuto/ghidra_m32r_working, TheFlashBold/ghidra-m32r. |
 | Renesas RL78 | [CUB3D/ghidra-rl78](https://github.com/CUB3D/ghidra-rl78) | Apache-2.0 (ok) | 1/1 | 577 | @CUB3D | Apache, compiles, 577 constructors; zecoxao 1,601 unlicensed, half compiles Alternatives: hedgeberg/RL78_sleigh, zecoxao/yarl78s. Also found later: xyzz/ghidra-rl78 (MIT), 97.6% vs objdump. |
