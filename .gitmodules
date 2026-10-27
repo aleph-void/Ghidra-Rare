@@ -106,3 +106,7 @@
 	path = community/MN10300
 	url = https://github.com/aleph-void/ghidra-mn103-extension.git
 	branch = ghidra-rare
+[submodule "community/M740"]
+	path = community/M740
+	url = https://github.com/aleph-void/ghidra-m740.git
+	branch = ghidra-rare

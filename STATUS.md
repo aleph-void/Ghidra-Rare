@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### MELPS-740: done (community: @philpem, Ghidra PR #5012)
+
+| Area | State |
+|---|---|
+| Decode | 506,365 records per language (all opcode × operand bytes, 3-byte forms × 22 high bytes, 120k random) vs MAME `unidasm m740`: 0 unexplained (451,998 exact; about 53k reserved opcodes where MAME decodes 6502 leftovers; 1,200 FST/SLW forms MAME lacks). Vs asl `-cpu MELPS740`: 275/273/276 accepted forms agree and 148k records re-assemble to the original bytes. Every constructor reached (115/114/116) |
+| Semantics | Emulator 64/64/66 hand-computed from the 1989 Series 740 manual (binary and decimal ADC/SBC, T flag, addressing incl. zero-page wrap, bit ops, branches, JSR/BRK/RTI stack bytes, MUL/DIV, both stack pages); broken expectation detected. Fixed: T flag ignored, MUL/DIV missing, special-page JSR, ADC V flag, STA #imm at 0x89, stack in page 1 (the 740 stack is zero page), JSR pushing the next address, BRK vector, zero-page pointer wrap |
+| Real code | SBC740 OSI/MS BASIC assembled with ca65: 3,667/3,667 instructions identical to the assembler and MAME in all 3 languages; 109 functions, 108/108 decompile; L-chika 18/18; 21 bad-instruction bookmarks, all explained |
+| Doesn't work | FST/SLW/WIT/STP are pcodeops (clock state); peripherals and interrupts; BRK vector fixed at FFF4; vector targets disassembled but not made functions; 16-bit SP (deliberate); no ELF/DWARF (no toolchain) |
+| Unverified | Decimal-mode N/V/Z; DIV by zero (no-op); zero-page pointer wrap at FF; SFR names (from the PR); hardware |
+
+MAME m740 lacks FST/SLW/MUL/DIV. asl 1.42 b315 encodes `LDA ($zz)` as the 65C02 form (JMP ($zz) on the 740), accepts all of FST/SLW/WIT/MUL/DIV for any device, and aborts after about 40 errors in one run.
+
 ### M-CORE: done (community: @CUB3D, Ghidra PR #9270)
 
 | Area | State |
