@@ -273,7 +273,7 @@ objdump 2.45: ignores reserved bits, accepts invalid register lists, wrong @@vec
 | Doesn't work | pcodeops where no non-GPL source establishes the behaviour: mac/macu/macb/macbu/mach/machu/dmach/dmachu, dmulh(u), sat16/24, mcste, swap/swaph/swhw, bsch (except from 0), EPSW moves, exreg0/exother save/restore, FPU conversions/sqrt/FPCR moves, dcpf; also udf/udfu, mcst9/mcst48/getchx/getclx, trap/syscall/rtm/break (trap goes to the fixed vector 0x40000010) |
 | Unverified | AM33 forms the C runs don't execute; flags of 3/4-operand forms; D10 parallel read rules; double-precision ops by analogy; FMA double rounding; MN103S-only additions; AM34; real MN10300 firmware |
 
-Provenance: an earlier revision (fork at `ghidra-rare-v1.0.0`) wrote the AM33 semantics from the GPL GNU simulator's descriptions and was replaced by a rework from non-GPL sources only (`ghidra-rare-v1.0.1`); details in the fork's CREDITS.md. Reference-tool bugs: binutils omits UDF20-35 imm forms and rejects bset/bclr/btst imm8,(abs16) unless am33-2; MAME has F4 movbu/movhu length, FC (d32,Am) load register swap, FA 9x d97 and bset (d8,An) unsigned d8 bugs.
+Provenance: an earlier revision, published briefly and since removed from the fork's history, wrote the AM33 semantics from the GPL GNU simulator's descriptions; it was replaced by a rework from non-GPL sources only. Details in the fork's CREDITS.md. Reference-tool bugs: binutils omits UDF20-35 imm forms and rejects bset/bclr/btst imm8,(abs16) unless am33-2; MAME has F4 movbu/movhu length, FC (d32,Am) load register swap, FA 9x d97 and bset (d8,An) unsigned d8 bugs.
 
 ### MN10200: done (community: @Pokechu22)
 
