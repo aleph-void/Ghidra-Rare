@@ -582,6 +582,16 @@ Upstream's loader did not compile on Ghidra 12, opened a GUI file chooser (break
 | Doesn't work | Interrupts, timers, serial, Maple, HALT, LCD/VRAM auto-increment and the flash unlock sequence are hardware state; the default language follows bank bits only through SET1/CLR1 PSW; instructions straddling the end of the 64K space; no loader for .vmu flash images (extract the .vms); PSW and the stack show as RAM variables in the decompiler |
 | Unverified | Hardware and the Sanyo manual (semantics from Comstedt, Grinberg and DreamPotato): ADDC/SUBC overflow, parity polarity, R0-R3 pointer cells following RAMBK0, DIV by zero; no BIOS or commercial images used |
 
+### HP NMOS-II hybrid processor: done (community: @kkaempf)
+
+| Area | State |
+|---|---|
+| Decode | All 65,536 words vs MAME `unidasm hp_5061_3001` (BPC+IOC+EMC), `hp_5061_3011` (BPC+IOC) and `hp_09825_67907` (15-bit BPC+EMC): 0 unexplained against each (words only the module decodes are the EMC ops, the 16-bit IOC ops and CIM/SIM). 159/159 (hybrid) and 94/94 (BPC) constructors reached across absolute and relative variants |
+| Semantics | Rewritten from the CPD N-MOS II Reference Manual (1976): every instruction implemented (upstream had all IOC/EMC ops but CLR/XFR unimplemented), CMX/CMY encodings, CLR/XFR word counts, rotate counts, SOC/SOS and SEC/SES masks, E/OV flags, the stack group, I/O cycles, RET n,P, registers 0-31 aliased with memory, relative-addressing languages (as on the HP 9845), stack direction. 113 (hybrid) and 77 (BPC) hand-computed emulator cases per language including digit-level BCD expectations and the manual's MPY -32768 bug; broken expectation detected on every language |
+| Real code | F. Ulivi's DUMP9825 and CLONE9825 (BSD-3-Clause, HP 9845 assembly with listings, pinned): 669/669 instructions identical to MAME, 455/455 to the assembler listing, 22 functions, 0 bad or error bookmarks, 0 decompile failures |
+| Doesn't work | The 15-bit HP 9825 processor (32K space, multi-level indirection, byte selector) is decode-verified only and needs its own language; I/O cycles, EXE, RET n,P and CIM/SIM are user ops; interrupts, DMA and pulse-count mode are plain flags; R4-R7 start I/O only when named directly; auto-analysis reaches few instructions (indirect dispatch, no HP tape/ROM loader); hex rather than octal display |
+| Unverified | C/CB as a 17-bit counter for word place/withdraw; choices the manual leaves open (MRX/MRY with a zero count, E/OV through shifts and skips, invalid BCD) |
+
 ### STMicroelectronics STM8: done (community: @esaulenka, @abliss, @Megatokio)
 
 | Area | State |

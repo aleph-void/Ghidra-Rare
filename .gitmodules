@@ -234,3 +234,7 @@
 	path = community/STM8
 	url = https://github.com/aleph-void/ghidra_STM8.git
 	branch = ghidra-rare
+[submodule "community/NMOSII"]
+	path = community/NMOSII
+	url = https://github.com/aleph-void/ghidra-nmos-ii.git
+	branch = ghidra-rare
