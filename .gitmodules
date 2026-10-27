@@ -190,3 +190,7 @@
 	path = community/PIC16F153xx
 	url = https://github.com/aleph-void/ghidra-pic16f153xx.git
 	branch = ghidra-rare
+[submodule "community/unSP"]
+	path = community/unSP
+	url = https://github.com/aleph-void/ghidra-unSP.git
+	branch = ghidra-rare

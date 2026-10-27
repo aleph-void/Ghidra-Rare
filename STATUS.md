@@ -422,6 +422,16 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### Sunplus u'nSP: done (community: @SamuelWAnderson45, @GMMan)
+
+| Area | State |
+|---|---|
+| Decode | Every first word × 2 second words (131,072 records) vs MAME `unidasm unsp20`: 97,420 agree, 33,646 invalid in both, 6 explained, 0 unexplained; 2.0 extended group (0xff80 prefix × every second word × 2 third words): 76,288 agree, 0 differences; vs unsp12 and unsp10 0 differences beyond newer-version and reassigned encodings. naken_asm round trip of 219 forms: 0 differ. 914/914 constructors reached in both SECBANK states |
+| Semantics | Regenerated from tools/gen_unsp.py: extended registers, SECBANK (sr1-sr4) as context, push/pop/retf/reti/break/call/goto/mul/ds/fr/int implemented; fixed FIR-move on/off inverted, sub/cmp carry with a zero subtrahend, PC-destination ops not branching. 133 hand-computed emulator cases (expectations from veesem, ISC, and the V.Smile hardware notes); broken expectation detected |
+| Real code | No freely licensed compiled u'nSP binary exists (V.Smile ROMs are commercial; homebrew repos are unlicensed). Programs assembled with naken_asm (memcpy, checksum, strlen, jump-table dispatch, dot product): 84 instructions, 7/7 functions decompile, switch recovered, identical to MAME |
+| Doesn't work | divs, divq, exp and the register-count shifts are pcodeops (semantics documented only inside the vendor IDE); interrupt entry; SB is one register (banked per mode in hardware); fraction mode; CS writes to SR do not redirect later jumps; call/push stores show as byte-stack arithmetic (16-bit word-addressed SP); the cspec is upstream's |
+| Unverified | TSTB polarity and bit-index masking; v1.3 SS/MDS registers; encodings the oracles call invalid; compiled code |
+
 ### Microchip PIC16F153xx: done (community: @mh-, Ghidra PR #667)
 
 | Area | State |
