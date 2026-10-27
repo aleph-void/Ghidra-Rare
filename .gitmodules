@@ -206,3 +206,7 @@
 	path = community/Allegrex
 	url = https://github.com/aleph-void/ghidra-allegrex.git
 	branch = ghidra-rare
+[submodule "community/ARCv2"]
+	path = community/ARCv2
+	url = https://github.com/aleph-void/ARCv2_Ghidra.git
+	branch = ghidra-rare

@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### Synopsys ARCv2 (ARC EM/HS): done (community: Roman Korkikian, Sony)
+
+| Area | State |
+|---|---|
+| Decode | Instruction set regenerated (tools/gen_arcv2.py) from black-box surveys of objdump 2.45's output (no binutils or GCC source read). vs objdump (cpu=hs/em, with and without DSP), both byte orders: every 16-bit halfword, 1,048,576 32-bit slots and 50,000 random, 0 unexplained (21,182 explained per order, mostly odd 64-bit register pairs objdump decodes with a warning). Every mnemonic objdump knows for HS and EM is decoded. 2,205/2,205 constructors reached per language. Upstream: 62% of the 32-bit space |
+| Semantics | ALU flags, saturation, multiply/divide, bit fields, every load/store mode, ldd/std, delay slots (calls returned to 0 before), lp loops, enter_s/leave_s (frame layout confirmed from GCC 15.3 unwind tables), atomics, FPU arithmetic, FMA with the accumulator, compares and conversions, mpyd. 45 hand-computed emulator cases per byte order; broken expectation detected |
+| Real code | Bootlin arcle-hs38 uClibc (LE: libuClibc 100,821 instructions, libgcc_s, ld-uClibc, libatomic, 3 programs) and Synopsys 2024.12 HS big-endian uClibc (libstdc++ 271,510 instructions, libuClibc, and more): 100% agreement with objdump, 0 bad instructions in libraries (upstream: 13,464 instructions and 1,433 bad on the same libuClibc), every function decompiles except 12 libstdc++ functions (DWARF register overlap for empty C++ class parameters). ELF opinion is now e_machine 195 (upstream claimed ARCompact's 93) |
+| Doesn't work | About 280 DSP/SIMD/complex/accumulator/QuarkSE/FPX-assist operations are pcodeops (their arithmetic is in no public source); fcvt codes other than 0/2/4/9/11; FMA rounds twice; privileged and hardware instructions are pcodeops; TLS GOT relocations and R_ARC_COPY; register tail calls warn "could not recover jumptable" |
+| Unverified | 64-bit register-pair order on big-endian; lp with lp_count 0; EM-only encodings on real code (no freely licensed EM firmware); QuarkSE, FPX-assist and SecureShield decode only |
+
+Ghidra's SleighLanguage caches instruction prototypes by a 32-bit hash and returns the wrong prototype on a collision (1 corpus slot per byte order; the test harness parses uncached). objdump 2.45 prints u6 as a register in "0,limm,u6" forms of sub-opcodes 0x20-0x2e of majors 5-7.
+
 ### Sony PSP Allegrex: done (community: @kotcrab and contributors)
 
 | Area | State |
