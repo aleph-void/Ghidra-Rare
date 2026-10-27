@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### Padauk PDK13/14/15/16: done (community: @CUB3D)
+
+| Area | State |
+|---|---|
+| Decode | Every opcode word of PDK13/14/15/16 (8,192/16,384/32,768/65,536) vs the MIT fppa-pdk-tools dispdk and SDCC's ucsim_pdk: 0 unexplained against either; Ghidra's text re-assembled with sdaspdk13/14/15: 0 differ (PDK15 NMOV not accepted by sdas). Every constructor reached in all five languages (87/87 to 112/112). Upstream's five specs did not compile |
+| Semantics | Fixed: word-addressed code space and return addresses, the program counter colliding with the I/O port `pc`, borrow-based CF/AC on subtraction, PCADD base, RETI, device register tables (the PMS150C table was PMS134's), stack pointer in data memory. 68 hand-computed emulator sequences plus a broken expectation per ISA; 13,774 random single-instruction states vs ucsim agree (deviations are confirmed ucsim bugs) |
+| Real code | 13 SDCC-built free-pdk showcase images (GPL-3.0, pinned URL + SHA-256, not committed) for PMS150C, PFS154, PFS172 and PFS173: 4,003 instructions, 129 functions, 0 bad or error bookmarks, 0 decompile failures, every instruction agrees with ucsim (243 in ucsim gaps); Intel Hex and flat binaries import |
+| Doesn't work | Peripherals, timers, watchdog, interrupt dispatch and clock (WDRESET/STOPSYS/STOPEXE/PMODE/PUSHWPC/POPWPC are pcodeops); no .pdk loader; register tables for five devices only; no ELF/DWARF (SDCC emits neither) |
+| Unverified | LDSPTL/LDSPTH pointer source (data memory at SP vs ROM); NADD flags; PDK16 behaviour ucsim cannot run (hand cases only, no PDK16 compiler or free firmware); the PMC884 register table; TRAP |
+
+ucsim_pdk does not update ZF on MOV A,M/IO, returns the low byte from LDSPTH, swaps LDTABL/LDTABH and mis-executes several PDK16 instructions; dispdk swaps PDK16 GOTO/CALL and the A,M/M,A forms of NMOV/NADD/CEQSN/COMP; the Free PDK PDK16 table has a shifted hex column.
+
 ### Sunplus u'nSP: done (community: @SamuelWAnderson45, @GMMan)
 
 | Area | State |

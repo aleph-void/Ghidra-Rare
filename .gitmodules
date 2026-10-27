@@ -194,3 +194,7 @@
 	path = community/unSP
 	url = https://github.com/aleph-void/ghidra-unSP.git
 	branch = ghidra-rare
+[submodule "community/PDK"]
+	path = community/PDK
+	url = https://github.com/aleph-void/ghidra-pdk.git
+	branch = ghidra-rare
