@@ -270,3 +270,7 @@
 	path = community/MediaTekPCM
 	url = https://github.com/aleph-void/ghidra-pcm.git
 	branch = ghidra-rare
+[submodule "community/TeakLite"]
+	path = community/TeakLite
+	url = https://github.com/aleph-void/TeakLite-SLEIGH.git
+	branch = ghidra-rare

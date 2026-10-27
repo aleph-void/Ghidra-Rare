@@ -422,6 +422,16 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### TeakLite DSP: done (community: @SachinVin; Teakra by @wwylele)
+
+| Area | State |
+|---|---|
+| Decode | Spec regenerated (tools/gen_teak.py) from Teakra's encoding table (MIT, pinned): all 443 encodings, upstream's 363 unimplemented constructors gone. All 65,536 words identical to Teakra in validity and length. Every constructor reached |
+| Semantics | New `modulo` language models modulo, bit-reversed and step-2 addressing (AMOD context). 30 + 3 hand-computed emulator cases; broken expectation detected. Per-opcode p-code vs Teakra: default 129,075/129,083, modulo 128,104/128,108, bit-reversed 64,326/64,331 identical; the rest explained (undefined shift in Teakra's tstb, a test-window artefact, cbs mixp in bit-reversed mode) |
+| Real code | Teakra's four MIT DSP1 test programs through the new DSP1 loader (no forced language): 230 instructions, 21 functions, 0 bad or error bookmarks, 0 decompile failures, all agree with Teakra |
+| Doesn't work | bkrep loop-back at the end address; interrupts, DMA and MMIO; trap/retd/retid/retidc/mov dvm (undefined in Teakra, approximated); program addresses above 18 bits; the default language ignores modulo modes |
+| Unverified | Hardware (Teakra is the only reference; MAME has no Teak core); the cspec |
+
 ### MediaTek SPM PCM: done, partly verifiable (community: @cyrozap; ISA by Paul Kocialkowski)
 
 | Area | State |
