@@ -214,3 +214,7 @@
 	path = community/PicoBlaze
 	url = https://github.com/aleph-void/ghidra-picoblaze-kcpsm.git
 	branch = ghidra-rare
+[submodule "community/D11"]
+	path = community/D11
+	url = https://github.com/aleph-void/ghidra-d11.git
+	branch = ghidra-rare

@@ -30,7 +30,7 @@ Pull requests are covered by Ghidra's contribution terms (Apache-2.0).
 | CSR XAP | [Thaelz/ghidra-xap](https://github.com/Thaelz/ghidra-xap) | LGPL-3.0 (copyleft) | 1/1 | 89 | @Thaelz | XAP (LGPL-3); XAP2 (SamL98, Apache) is a different ISA Alternatives: SamL98/xap2. |
 | CSR XAP2 | [SamL98/xap2](https://github.com/SamL98/xap2) | Apache-2.0 (ok) | 1/1 | 68 | @SamL98, @unusual-thoughts | Only implementation found |
 | DEC Alpha | [kkaempf/ghidra-alpha](https://github.com/kkaempf/ghidra-alpha) | Apache-2.0 (ok) | 15/15 | 367 | @mattst88, @kkaempf | 367 constructors and OS-specific variants vs 242 (and claesmnyberg has no license) Alternatives: claesmnyberg/ghidra-cpu-alpha. |
-| DEC D-11 | [CUB3D/ghidra-d11](https://github.com/CUB3D/ghidra-d11) | Apache-2.0 (ok) | 1/1 | 65 | @CUB3D | Only implementation found |
+| Broadcom D11 (listed as DEC D-11) | [CUB3D/ghidra-d11](https://github.com/CUB3D/ghidra-d11) | Apache-2.0 (ok) | 1/1 | 65 | @CUB3D | Only implementation found |
 | DEC PDP-11 | [kaunomedis/PDP11](https://github.com/kaunomedis/PDP11) | GPL-3.0 (copyleft) | 1/1 | 250 | @kaunomedis | Only implementation found |
 | DEC VAX | [kkaempf/ghidra-vax](https://github.com/kkaempf/ghidra-vax) | Apache-2.0 (ok) | 0/1 | 439 | @kkaempf | Only implementation found |
 | Epson E0C6S46 | [Veryyes/E0C6S46-Ghidra-Processor](https://github.com/Veryyes/E0C6S46-Ghidra-Processor) | none (blocked) | 1/1 | 385 | @Veryyes, @atribecalledqst | Only implementation found |

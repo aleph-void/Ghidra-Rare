@@ -422,6 +422,16 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### Broadcom D11 (802.11 MAC PSM): done (community: @CUB3D)
+
+| Area | State |
+|---|---|
+| Decode | 65,536 words (every 12-bit opcode × 8 random operand fills, 2 seeds) vs b43-tools b43-dasm `-a 15` (GPL, black box), with the b43 reverse-engineering wiki's "802.11/Microcode" page as the written specification: 0 unexplained (39,952 undefined in both, about 25,175 identical, the rest display classes). 65/65 constructors reached |
+| Semantics | Fixed: signed 11-bit immediates decoded as the accumulator, offset-register operands read from the wrong bits and adding the register number, SPR operands dereferenced, srx/orx/jzx/jnzx mask and shift swapped, code and shared memory in one address space (jump targets × 8), mul writing only the high half, jmp a pcodeop condition, every function failing to decompile. 65 hand-computed emulator cases (assembled with b43-asm); broken expectation detected; three self-written programs (checksum, CRC-16, bubble sort) match Python on 6 vectors each |
+| Real code | Self-written programs only (Broadcom microcode is not redistributable): 52 instructions, 5 functions, 0 bad or error bookmarks, 0 decompile failures, identical to b43-dasm |
+| Doesn't work | TKIP S-box lookup, external conditions (jext/jnext) and nap are pcodeops (hardware); shift counts ≥ 16 and carry after subtraction follow the wiki formulas; call-stack pushes show as memory writes |
+| Unverified | Real firmware; core revisions below 15; extra opcodes upstream decodes that neither b43 nor the wiki lists (0x090-0x09d, 0x180-0x183, 0x190-0x193; kept, flagged) |
+
 ### Xilinx PicoBlaze (KCPSM3/KCPSM6): done (community: @CUB3D, Ghidra PR #7511)
 
 | Area | State |
