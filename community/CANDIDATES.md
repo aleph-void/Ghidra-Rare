@@ -157,6 +157,7 @@ Opened 2026-10-25 for every blocked pick. A module moves into the verification q
 |---|---|---|
 | C-SKY v1 (CK610) | https://github.com/nnonickreal/ghidra-csky-ISAv1/issues/1 | open |
 | Casio HCD62121 | https://github.com/qufb/HCD62121/issues/1 | open |
+| CoolRISC 816 (cr816) | https://github.com/pelrun/ghidra-cr816/issues/2 | open; only Ghidra's template LICENSE.txt; verified, held until confirmed (asked 2026-10-27) |
 | Epson E0C6S46 | https://github.com/Veryyes/E0C6S46-Ghidra-Processor/issues/2 | open |
 | Epson S1C33 | https://github.com/GMMan/s1c33_sleigh/issues/1 | open |
 | Epson S1C88 | https://github.com/xtla/s1c88/issues/1 | open |
