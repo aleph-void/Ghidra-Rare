@@ -154,3 +154,7 @@
 	path = community/SCORE7
 	url = https://github.com/aleph-void/ghidra-score7.git
 	branch = ghidra-rare
+[submodule "community/Am29000"]
+	path = community/Am29000
+	url = https://github.com/aleph-void/ghidra_a29k.git
+	branch = ghidra-rare

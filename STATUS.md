@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### AMD Am29000/Am29050: done (community: @mumbel)
+
+| Area | State |
+|---|---|
+| Decode | 307,464 words (exhaustive field corpus + 250,000 random) vs GNU objdump 2.14 (a29k, built from source) and MAME `unidasm am29000`: 0 unexplained against either (vs objdump: 120,721 identical, 118,608 equivalent, 67,351 both invalid, 784 explained: binutils lacks mtacc/mfacc). The LE language decodes the byte-swapped corpora exactly as BE. 257/257 constructors reached. Upstream agreed with objdump on 50.7% |
+| Semantics | Reworked from AMD's manuals: local registers lr0-lr127 are the stack-cache words at gr1+4*N, so calls decompile with parameters and frames; 14 TODO-empty and 4 disabled instructions implemented. 58 hand-computed emulator cases (flags, traps in delay slots, register-stack calls, loadm/storem, byte/half ops, multiply/divide steps, special registers, TLB, FP single/double in all rounding modes, accumulators, FPS flags); broken expectation detected |
+| Real code | GCC 2.95.3 + binutils 2.14 (pinned sources) builds of public-domain crypto code: COFF auto-detected, 72/72 functions found (uncalled ones by the trace-back-tag pattern) and decompile, 8,444 instructions agree with objdump, 0 bad or error bookmarks; Am29050 FP program 26/26, 337 instructions agree |
+| Doesn't work | Indirect gr0 access to local registers reaches a separate register bank, not the stack words (only spill/fill/context-switch code does this); the memory stack (gr125) shows as pointer arithmetic (one stack pointer per function); unmasked FP exception and multiply/divide overflow traps are not raised (FPS bits are set; they made decompiled arithmetic unreadable), XS/US never set; some double-returning functions get a 4-byte or void return until the signature is set; iret/halt/inv/coprocessor/trap vectoring are approximations or pcodeops |
+| Unverified | Silicon or a simulator trace; LE emulator behaviour (decode only); CR after loadm/storem; real 29K firmware (none freely licensed) |
+
+Upstream's a29k.sinc carried the GPL binutils opcode-table legend and 201 table lines as comments; they are removed in their own commit. MAME am29000 shows the emulate RB as an immediate, prints clz and div0 operands as bare or unprefixed numbers, and has no Am29050 instructions.
+
 ### Sunplus SCORE7: done (community: @ArthurKoba, Ghidra PR #9671)
 
 | Area | State |
