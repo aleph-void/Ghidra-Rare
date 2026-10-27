@@ -254,3 +254,7 @@
 	path = community/TopSM
 	url = https://github.com/aleph-void/GhidraTopSM.git
 	branch = ghidra-rare
+[submodule "community/MOS6510"]
+	path = community/MOS6510
+	url = https://github.com/aleph-void/deity-informant.git
+	branch = ghidra-rare

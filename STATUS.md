@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### MOS 6510 (Commodore 64): done (community: @anarkiwi, @CBongo)
+
+| Area | State |
+|---|---|
+| Decode | 28,854 distinct encodings (256 opcodes × 8 operand pairs + 40,000 random) vs MAME `unidasm m6510` and cc65's da65: 28,838 identical to both, 16 explained (da65 prints nothing for a branch into itself), 0 unexplained. 207/207 constructors reached in the default and the four self-modifying-code contexts. What it adds over Ghidra's 6502: the 105 undocumented opcodes, NMOS behaviour the stock module gets wrong (it passes 88.9% of SingleStepTests on the documented opcodes), the self-modifying-code overlay, C64 names and a PRG loader |
+| Semantics | Upstream's slaspec did not compile on its own (needed generated files); 24 overlapping constructor pairs fixed. Hardware-accurate NMOS ADC/SBC (V and decimal mode), zero-page pointer wrap, JMP (abs) page bug, PHP/BRK B bit and BRK return address, stack wrap in page 1, SHA/SHX/SHY/TAS page-cross corruption. 51 hand-computed emulator cases; broken expectation detected. 6,900 random single instructions vs sim65 `--cpu 6502X` (× 3 contexts): 0 differences. SingleStepTests 65x02 (186,529 tests incl. decimal mode and undocumented opcodes): 179,744 pass, the rest JAM (data expects PC+1) and instructions straddling $FFFF. Klaus Dormann's 6502 functional test reaches its success trap after 30.6 million emulated instructions |
+| Real code | 7 cc65 sample programs built as C64 PRGs and auto-imported with the PRG loader: 12,162 instructions, 719 functions, 0 decompile failures, every instruction identical to MAME and da65; Open ROMs KERNAL and BASIC (LGPL-3.0, pinned): 4,058 instructions, 275 functions, 0 decompile failures. 33 bad-instruction bookmarks, all explained (calls into absent KERNAL internals, overlapping-instruction idioms) |
+| Doesn't work | Banking through $01 (the address map is static; port bits are only named and volatile); ANE/LXA use the constant $EE; RDY/DMA instability of SHA/SHX/SHY/TAS; JAM leaves PC on the opcode; IRQ/NMI entry and cycle timing; SMC context bits are set by hand; overlapping-instruction idioms; instructions straddling $FFFF; upstream's Python build path still produces the old spec |
+| Unverified | Undocumented opcodes in real third-party software (none freely licensed found); real-chip values of the unstable opcodes; VICE as an oracle |
+
+The fork is the whole deity-informant repository (a Python p-code lifter with this SLEIGH); the Ghidra module is in `MOS6510/`. Its PyPI publish workflow is disabled on the fork.
+
 ### TI TopSM (BLE radio sequencer): done (community: @antoniovazquezblanco, @rjp5th)
 
 | Area | State |
