@@ -178,3 +178,7 @@
 	path = community/GCDSP
 	url = https://github.com/aleph-void/ghidra-gcdsp-lang.git
 	branch = ghidra-rare
+[submodule "community/DSP56300"]
+	path = community/DSP56300
+	url = https://github.com/aleph-void/ghidra-dsp56300.git
+	branch = ghidra-rare

@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### Motorola DSP56300: done (community: @roblg)
+
+| Area | State |
+|---|---|
+| Decode | All 2^24 words vs MAME `dsp563xx`: 5,036,139 agree, 983,726 both invalid, 10,757,351 explained, 0 unexplained; 200,000 random words 0 unexplained; 0 decoded words outside the manual's formats. asl round trip on every 10th decoded word (1,579,314): 0 unexplained. 1,023/1,023 constructors reached |
+| Semantics | Fixed: reserved bits, shift-count and S,#n ranges, BRCLR-class absolute ea, NN/NR condition codes swapped, system stack pushing byte addresses (RTS returned to three times the address) and part of SR, DO not setting LF, MAC/MPY changing C, CMP saturating. Added: limiter, rounding, scaling and SM saturation, DIV/NORM/NORMF/CLB, 48-bit CMPU, AGU modifiers in the modulo variant, cspec reset SR mode bits. 40 hand-computed emulator cases (33 default, 7 modulo); broken expectation detected in both; loop-end analyzer checked |
+| Real code | 23 DSP56300 modules from sambanks/octabam (MIT, pinned commit + SHA-256, assembled with asl): 13,548 instructions, 68/68 functions decompile, 0 bad or error bookmarks; every instruction re-assembles to the listing's words |
+| Doesn't work | SA/SC (16-bit) and DM (double-precision multiply) modes are not modelled: such code decodes but computes as 24-bit; BRKcc jumps through a computed LA+1; STOP/WAIT/RESET/cache/DEBUG/TRAP/ILLEGAL are pcodeops |
+| Unverified | Hardware; Motorola-toolchain COFF binaries (none freely licensed); the 16-bit modes |
+
+MAME's dsp563xx disassembler shifts X:Y move address modes by one, decodes R:Y class I moves with the X:R layout, has a wrong QQQQ table, decodes MPYI qq with the QQ table, mishandles INSERT/EXTRACT destinations, rejects LSR #17-23, decodes CLB at the wrong encoding and accepts two forms the manual does not define. asl 1.42 stores DOR's absolute LA instead of a displacement, encodes CMP A,B as MAX and ASL S1,S2,D as NORMF.
+
 ### GameCube/Wii DSP: done (community: @Pokechu22, @Tilka)
 
 | Area | State |
