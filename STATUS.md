@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### SuperFX (GSU): done (community: @ChekeEdd)
+
+| Area | State |
+|---|---|
+| Decode | 1,043 statements assembled by bass (which writes the ALT/TO/FROM/WITH prefixes itself): all agree; wla-superfx assembles the 966 non-branch forms to identical bytes. vs MAME `unidasm superfx` on 40,000 random strings: 274,091 prefix-free instructions agree, 1,961 explained (BGE/BLT names), 0 unexplained (MAME ignores prefixes, so 60,094 post-prefix instructions are not comparable). All 1,536 ALT1/2/3 × opcode slots agree with bass or the hardware fall-back rule. 132/132 constructors reached |
+| Semantics | Rewritten: prefix state through context, Sreg/Dreg, flags, RAM/ROM banks, delay slots, LOOP/LJMP, PLOT/RPIX and COLOR/GETC options in p-code. 106 hand-computed emulator cases (all 11 branches taken and not taken with delay slot, PLOT/RPIX in every colour mode, dither, transparency); broken expectation detected. Upstream's decompiler never started, its p-code always used R0 and branch conditions 06/07 were inverted |
+| Real code | DiscoC v0.2.0 SNES demo payloads (GPL-3.0 compiler output, pinned URL + SHA-256, not committed), 9 images: 61,742 listing lines identical to the compiler's own listing, 64/64 functions decompile |
+| Doesn't work | A prefix in the delay slot of a taken branch does not reach the target (decode-time context); multi-byte instructions in a delay slot; pipeline, cache and bus timing; jump tables through JMP Rn; calls recognised only as LINK + jump; the exact odd-address word swap prints as `*(a ^ 1)` |
+| Unverified | Hardware: PLOT/RPIX bit-plane layout and dither orientation, FMULT/LMULT carry, LJMP/CACHE and CBR, GSU-1 vs GSU-2 differences; commercial ROMs not used |
+
+MAME names opcode 06 BLT and 07 BGE; on hardware 06 branches when S = V (BGE), and bass and WLA assemble bge as 06. bass does not range-check `link #n`.
+
 ### AMD Am29000/Am29050: done (community: @mumbel)
 
 | Area | State |
