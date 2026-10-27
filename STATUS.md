@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### Xilinx PicoBlaze (KCPSM3/KCPSM6): done (community: @CUB3D, Ghidra PR #7511)
+
+| Area | State |
+|---|---|
+| Decode | All 262,144 18-bit words round-tripped through opbasm (Open PicoBlaze Assembler, MIT): every word Ghidra accepts re-assembles to itself (65,193 KCPSM3, 119,739 KCPSM6) and every instruction opbasm can produce decodes identically. 59/59 and 77/77 constructors reached |
+| Semantics | Specs rewritten: instruction-addressed ROM (addresses were byte offsets × 3), PC register, separate input/output port spaces, register banks as context, interrupt enable and RETURNI flag restore. Fixed: KCPSM6 STAR encoding, SUB/SUBCY/COMPARE carry from signed borrow, wrong or duplicated KCPSM3 register-form opcodes, ADD flags computed after the result, conditional RETURN fields, KCPSM6 using KCPSM3's cspec, no stack pointer in the cspec (empty decompiles). 58 + 69 hand-computed emulator cases; broken expectation detected; 1,000 random programs end with identical state in the Open PicoBlaze Simulator (opbsim, MIT) and the p-code emulator |
+| Real code | opbasm's own test programs (arithmetic, 16-bit arithmetic, shifts, stack, conditionals, memory ops) for both cores run identically in opbsim and Ghidra; 0 bad or error bookmarks, 0 decompile failures, disassembly re-assembles to the image (no freely licensed product firmware found) |
+| Doesn't work | PC wrap at 10/12 bits and the KCPSM6 stack-overflow reset; interrupt entry; the register bank across calls or an ISR entered in bank B (static context); HWBUILD is a pcodeop; the KCPSM6 scratchpad size option (256 bytes assumed) |
+| Unverified | Silicon and Xilinx's own tools; STAR sX,kk (opbasm assembles it, opbsim and the KCPSM6 documentation do not have it: not decoded) |
+
+opbsim 1.3.10 chains Z through ADDCY/SUBCY in KCPSM3 mode as well (the data sheet says KCPSM3 does not; a patch is applied to the simulator copy built for the tests); opbasm limits KCPSM3 STORE/FETCH addresses to 3F.
+
 ### Synopsys ARCv2 (ARC EM/HS): done (community: Roman Korkikian, Sony)
 
 | Area | State |
