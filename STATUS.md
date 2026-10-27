@@ -432,18 +432,6 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work | bkrep loop-back at the end address; interrupts, DMA and MMIO; trap/retd/retid/retidc/mov dvm (undefined in Teakra, approximated); program addresses above 18 bits; the default language ignores modulo modes |
 | Unverified | Hardware (Teakra is the only reference; MAME has no Teak core); the cspec |
 
-### MediaTek SPM PCM: done, partly verifiable (community: @cyrozap; ISA by Paul Kocialkowski)
-
-| Area | State |
-|---|---|
-| Decode | vs Paul Kocialkowski's pcm-disasm/pcm-asm (GPL, black box; it knows 10 base and 16 extended instructions) on 101,472 words: 3,963 identical, 4,483 explained (jump-family strictness, the tool masking registers to 4 bits), 0 unexplained; 93,026 words are unknown to the tool and so unverified. 143/143 constructors reached |
-| Semantics | Fixed: calls stored the register number in r11 and returned through it (now a return stack); xori/xora used OR. 28 hand-computed emulator sequences; 2 broken expectations detected; the test encoder agrees with pcm-asm |
-| Real code | Three BSD-3 PCM arrays from ARM Trusted Firmware (pinned): 2,151 instructions, 1,900 identical to pcm-disasm, 251 it cannot decode, 0 different; 31 functions decompile |
-| Doesn't work | A ret followed by a jump in its delay slot (nested delay slot, once in the real images) is rejected by Ghidra; storei/storeai multi-value forms; call's rd operand |
-| Unverified | The add/sub/shift/compare/xor/anor families (no tool knows them) |
-
-The candidate list called this "Realtek PCM"; the extension is named MediaTekPCM.
-
 ### MediaTek MD32: done (community: @cyrozap)
 
 | Area | State |
@@ -477,16 +465,6 @@ binutils-vc4 prints addscale-immediate as plain add and gives switch.b and switc
 | Unverified | Undocumented opcodes in real third-party software (none freely licensed found); real-chip values of the unstable opcodes; VICE as an oracle |
 
 The fork is the whole deity-informant repository (a Python p-code lifter with this SLEIGH); the Ghidra module is in `MOS6510/`. Its PyPI publish workflow is disabled on the fork.
-
-### TI TopSM (BLE radio sequencer): done (community: @antoniovazquezblanco, @rjp5th)
-
-| Area | State |
-|---|---|
-| Decode | All 65,536 words vs the reference assembler topsm_assembler.py (MIT, beyond-ble-tools, black box; 2.67 million inputs giving 49,954 distinct words): 49,954 agree, 15,582 both invalid, 0 differences. 52/52 constructors reached |
-| Semantics | Fixed: bmi/bpl inverted (from the mnemonics; not hardware-confirmed), jsr and mov pc,rb pushing and loading twice the address (byte offsets in a word-addressed space), mov pc,rb accepting words the assembler never emits; the modem register script ported to Java (Ghidra 12 has no Jython). 54 hand-computed emulator cases; 2 broken expectations detected |
-| Real code | No freely licensed TopSM code exists: a 64-instruction demo assembled with the reference assembler, 9 functions, 0 bad or error bookmarks, 0 decompile failures; the script creates 222 modem register symbols |
-| Doesn't work | wait is a pcodeop (hardware events); only Z and N flags exist; flat 64K-word code space; the hardware stack is unbounded; handlers reached only through jmp (rb) need seeding |
-| Unverified | All semantics against hardware (no manual): slx, outset, loop details, whether mov pc gives the instruction's own address, shift counts above 15, the 15,582 undecoded words |
 
 ### AMD Radeon F32 microengine: done (community: @cyrozap)
 
@@ -701,6 +679,18 @@ The PR descends from GPL-3.0 plugins; all their contributors agreed to Apache-2.
 | Real code | 7 EBC PE32+ images built from C with ELVM's EBC backend (MIT): auto-detected as EBC:LE:64, every instruction ebcvm prints at the same address and length (lisp: 82,049/82,049); they decompile |
 | Doesn't work | CALLEX is a plain call; BREAK is a pcodeop; ELVM's interpreter-loop code exposes only one function to flow analysis; BREAK 0 padding gives error bookmarks |
 | Unverified | A real 32-bit (PE32) image; vendor EBC drivers; MOVsn and EDK2's R0 stack-address special case (from source only) |
+
+### Silicon Labs Si4440 (EZRadioPRO 8051): done (community: @astuder)
+
+| Area | State |
+|---|---|
+| Decode | 427,680 slots (every opcode × every second byte × 5 third bytes + 100,000 random) vs MAME `unidasm` 8051: 426,021 agree, 1,659 both invalid (A5), 0 differences; sdas8051 re-assembles 399,252 to the original bytes (AJMP/ACALL left to unidasm), 0 differ. 178/178 constructors reached. The instruction set is the standard 8051; the part differs in its memory model (flat code/XDATA space, MOVX @Ri page register `xpage`, register bank 0 only, its SFRs and vectors) |
+| Semantics | Fixed (inherited from an old copy of Ghidra's 8051): AC and OV never set, ADDC losing the carry, logic ops overwriting the F0/F1 user flags, DA unimplemented, MUL/DIV flags, bit operations in a separate space (SETB invisible in its byte), MOV SP,#n writing the wrong byte, NOP stopping the emulator, R0-R7 not aliased with internal RAM; upstream's ldefs repeated Ghidra's stock 8051 language IDs. 60 hand-computed emulator cases; 2 broken expectations detected; 15,262/15,262 random single instructions identical to uCsim |
+| Real code | 19 SDCC 4.5.0 images (tiny-AES-c, B-Con SHA-256, the SDCC library in 12 link groups, a demo in three memory models): 78,971 instructions, 1,289 functions, every listed instruction disassembled with the same length, 0 differences from MAME, 0 bad or error bookmarks, 0 decompile failures |
+| Doesn't work | Register banks other than 0 (upstream's design); peripherals and interrupts; the parity flag is computed when PSW is read; DIV by zero leaves A and B unchanged; the stock 8051 calling convention (SDCC uses its own) |
+| Unverified | Real EZRadioPRO firmware (none freely licensed); the memory map (from the author's documentation); PUSH SP/POP SP order (uCsim disagrees with the usual documentation); the helper scripts that need Silicon Labs tools |
+
+Published as the `ghidra/8051` subtree of astuder/Inside-EZRadioPRO (original authors kept).
 
 ### NVIDIA Falcon: done (community: @marysaka, hthh, @vbe0201, @antoniovazquezblanco)
 

@@ -282,3 +282,7 @@
 	path = community/WebAssembly
 	url = https://github.com/aleph-void/ghidra-wasm.git
 	branch = ghidra-rare
+[submodule "community/Si4440"]
+	path = community/Si4440
+	url = https://github.com/aleph-void/ghidra-si4440.git
+	branch = ghidra-rare
