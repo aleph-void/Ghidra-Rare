@@ -124,10 +124,10 @@ without the DO loop-end context.
 Hand-computed expectations from the manuals. A deliberately broken expectation is reported
 as a failure.
 
-- **DSP56000: 79/79.** Covers ALU flags (E/U/N/Z/V/C/L), MPY/MAC/MACR with convergent
+- **DSP56000: 81/81.** Covers ALU flags (E/U/N/Z/V/C/L), MPY/MAC/MACR with convergent
   rounding, shifts and rotates, logic on A1, ADC/ADDL/ADDR/CMPM/CLR/TST, a 24-step DIV,
   NORM, parallel-move read/write ordering, limiting in both directions, immediate-short
-  justification, L: moves, XY moves in both banks, class I/II moves, all addressing modes,
+  justification, L: moves (also with scaling up and down), XY moves in both banks, class I/II moves, all addressing modes,
   modulo wrap up/down/+N, block jump, multiple wrap-around, bit-reverse FFT order, REP, DO
   loops (one- and two-word last instructions), JSR/RTS, Jcc, JCLR/JSET, bit operations,
   MOVEC/ANDI/ORI on SR/CCR/MR, Tcc with an R move, MOVEP, MOVEM, scaling mode, SSH push/pop,

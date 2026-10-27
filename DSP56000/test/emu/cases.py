@@ -222,6 +222,12 @@ case("movem_p_to_x0", "movem p:(r0),x0", [0x07e084],
      [("R0", 0x0100)], [("X0", 0x07e084)])
 case("scale_down_move", "ori #$04,mr / move a,x0", [0x0004f8, 0x21c400],
      [("A", acc(0, 0x400000, 0))], [("X0", 0x200000), ("MR", 0x04)])
+case("scale_up_long_store", "ori #$08,mr / move a,l:(r0)", [0x0008f8, 0x486000],
+     [("R0", 0x40), ("A", acc(0, 0x123456, 0x789abc))],
+     [("x:0040", 0x2468ac), ("y:0040", 0xf13578), ("L", 0), ("MR", 0x08)])
+case("scale_down_long_store", "ori #$04,mr / move a,l:(r0)", [0x0004f8, 0x486000],
+     [("R0", 0x40), ("A", acc(0, 0x123456, 0x789abc))],
+     [("x:0040", 0x091a2b), ("y:0040", 0x3c4d5e), ("L", 0), ("MR", 0x04)])
 case("ssh_push_pop", "movec x0,ssh / movec ssh,x1", [0x04c4bc, 0x0445bc],
      [("X0", 0x00abcd)], [("X1", 0x00abcd), ("SP", 0)])
 case("inc_56002", "inc a", [0x000008], [("A", acc(0, 0, 0xffffff))], [("A", acc(0, 1, 0))])

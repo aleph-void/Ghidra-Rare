@@ -560,6 +560,24 @@ set A 0x400000000000
 expect X0 0x200000
 expect MR 0x4
 end
+case scale_up_long_store
+code 0008f8 486000
+set R0 0x40
+set A 0x123456789abc
+expect x:0040 0x2468ac
+expect y:0040 0xf13578
+expect L 0x0
+expect MR 0x8
+end
+case scale_down_long_store
+code 0004f8 486000
+set R0 0x40
+set A 0x123456789abc
+expect x:0040 0x91a2b
+expect y:0040 0x3c4d5e
+expect L 0x0
+expect MR 0x4
+end
 case ssh_push_pop
 code 04c4bc 0445bc
 set X0 0xabcd

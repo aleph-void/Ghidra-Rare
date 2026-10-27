@@ -251,7 +251,8 @@ macro busAcc48(acc, out) {
 	local sv:8 = sext(acc);
 	local hi:8 = sv s>> (47 + adj);
 	local ok:1 = (hi == 0) || (hi == -1);
-	local sh:8 = sv s>> adj;
+	# adj is -1 (0xff) when scaling up; shift by adj + 1 so the count stays in 0..2
+	local sh:8 = (sv << 1) s>> (adj + 1);
 	local sat:6 = 0x7fffffffffff + zext(sv s< 0);
 	out = sh:6 * zext(ok) + sat * zext(!ok);
 	L = L || !ok;
