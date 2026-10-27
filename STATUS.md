@@ -796,6 +796,18 @@ objdump shows MMR-instruction operands with I=1 as an MMR address (SPRU131G and 
 
 Chosen over mwdmwd/ghidra-c28x, which was close in decode agreement; everything it decoded that this module did not was added, and it is credited. dis2000 accepts reserved addressing modes (empty operand) and ignores several reserved bits.
 
+### Toshiba TLCS-900/H: done (community: @nevesnunes)
+
+| Area | State |
+|---|---|
+| Decode | Instruction tables regenerated after the Toshiba manual's code maps. vs MAME `unidasm` (black box): 491,520 random/structured + 271,291 enumerated slots (every prefix form × every op byte), 534,701 agree, 171,860 undefined in both, the rest in classes explained by the manual or unidasm bugs, 0 unexplained. asl round trip of 354,693 decoded slots: 350,669 identical bytes, 3,579 equivalent encodings, 445 asl syntax limits, 0 differ. 2,037/2,037 constructors reached |
+| Semantics | Fixed: memory operands of every size handled as 32 bits, JRL/CALR page wrap, LDX length, MUL/DIV register forms, RET cc after prefixes, unsigned index registers, undefined register codes, LDAR, LDI, STCF, CHG, RL/RR through carry and count 0, DIV by 0, MINC/MDEC operand encoding, flags as separate registers (the decompiler could not read SR bits), cc=T branches with a fall-through; bank registers alias the current bank by RFP; cc900 calling convention. 63 hand-computed emulator cases (every addressing mode, flags, shifts, MUL/DIV, BCD, block ops, bank switching); broken expectation detected |
+| Real code | Two MIT Neo Geo Pocket Color games, Stargunner (cc900-built) and Pengu (pinned SHA-256): 4,851 and 4,365 instructions identical to MAME at the same addresses, 109 and 96 functions, 0 decompile failures; one bad-instruction bookmark from Ghidra's jump-table recovery reading past a table |
+| Doesn't work | HALT is a pcodeop; interrupts and micro-DMA; NORMAL/MAX (900 only) decoded like MAME without effect |
+| Unverified | Flags the manual leaves undefined (H after 32-bit operations, S/V after BIT/TSET, H after CCF/ZCF), DAA's H, bank 0's previous bank, INTNEST, DIV overflow results; hardware |
+
+unidasm decodes LDX (F7) as one byte (the manual and asl: six) and accepts many encodings the manual leaves undefined. asl hangs on MINC/MDEC with a non-power-of-two modulus, cannot parse previous-bank names inside memory operands and rejects LDF 4-7 in maximum mode.
+
 ### TI TMS320C24x: done (community: @banksy-git; instruction set regenerated here)
 
 | Area | State |

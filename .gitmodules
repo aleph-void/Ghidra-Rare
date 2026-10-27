@@ -298,3 +298,7 @@
 	path = community/JieLi
 	url = https://github.com/aleph-void/ghidra-jieli.git
 	branch = ghidra-rare
+[submodule "community/TLCS900H"]
+	path = community/TLCS900H
+	url = https://github.com/aleph-void/ghidra-tlcs900h.git
+	branch = ghidra-rare
