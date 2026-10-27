@@ -582,6 +582,16 @@ Upstream's loader did not compile on Ghidra 12, opened a GUI file chooser (break
 | Doesn't work | Interrupts, timers, serial, Maple, HALT, LCD/VRAM auto-increment and the flash unlock sequence are hardware state; the default language follows bank bits only through SET1/CLR1 PSW; instructions straddling the end of the 64K space; no loader for .vmu flash images (extract the .vms); PSW and the stack show as RAM variables in the decompiler |
 | Unverified | Hardware and the Sanyo manual (semantics from Comstedt, Grinberg and DreamPotato): ADDC/SUBC overflow, parity polarity, R0-R3 pointer cells following RAMBK0, DIV by zero; no BIOS or commercial images used |
 
+### Infineon C166/C167 (ST10): done (community: @keyhana and contributors)
+
+| Area | State |
+|---|---|
+| Decode | No C166 disassembler exists (MAME, binutils and LLVM have none), so the reference is the asl assembler (`-cpu 80C167`, black box) and the Infineon Instruction Set Manual: 4 × 65,536 words round-tripped through asl, 0 unexplained (only bits the manual leaves unused differ); 72,066 asl-enumerated forms 72,066/72,066 identical; the manual's opcode table agrees. 382/382 constructors reached |
+| Semantics | Fixed: BFLDL mask and data swapped (confirmed on real code), PUSH/POP/CALL/RET using R0 and RET returning to itself (now SP with real frames, hidden from the decompiler), byte E flag, SHR/ASHR carry for count 1, shift V rules, BMOV/BMOVN/JBC/JNBS flags, PSW/DPP/SP not shared with SFR operands, EXTR/EXTP/EXTS missing their last instruction (upstream issue #55), TRAP operand, ZEROS/ONES bit offsets, divide by zero, DPP use of [Rw]. 719 emulator cases hand-computed from the manual (all addressing modes, DPP/EXT windows, bit ops, stack frames, TRAP/RETI, 16 conditions × 32 flag states); broken expectation detected |
+| Real code | 6 C167BootTool drivers (GPL-3, source and image): 916 instructions, mnemonics equal to the .a66 source, asl re-assembles Ghidra's text to the same bytes, 0 bad or error bookmarks, 0 decompile failures |
+| Doesn't work | The GPR window at CP is not aliased to memory; SGTDIS=1 mode; byte writes to PSW's high byte; MDRIU/MULIP; no automatic disassembly of indirect targets (issue #42, maintainer's decision); large-model far pointers (#41); XC16x instructions |
+| Unverified | Peripheral SFR symbol lists; the ELF opinion (EM_C166); DWARF numbering; real ECU firmware (none freely licensed) |
+
 ### HP NMOS-II hybrid processor: done (community: @kkaempf)
 
 | Area | State |

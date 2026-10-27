@@ -238,3 +238,7 @@
 	path = community/NMOSII
 	url = https://github.com/aleph-void/ghidra-nmos-ii.git
 	branch = ghidra-rare
+[submodule "community/C166"]
+	path = community/C166
+	url = https://github.com/aleph-void/c166-ghidra-module.git
+	branch = ghidra-rare
