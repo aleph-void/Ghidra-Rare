@@ -32,6 +32,10 @@ on:
         description: Space-separated Ghidra versions (default is the three newest releases)
         type: string
         default: ''
+      keep_build:
+        description: Build with the module's own Gradle build files instead of Ghidra-Rare's standard build
+        type: boolean
+        default: false
       check_new:
         description: Only build and release if no release has builds for the newest Ghidra yet
         type: boolean
@@ -109,7 +113,11 @@ jobs:
         env:
           MODULE_DIR: ${{ inputs.module_dir }}
           NAME: ${{ inputs.name }}
-        run: ghidra-rare/tools/build-module.sh --standard --name "$NAME" "$GHIDRA_INSTALL_DIR" "module/$MODULE_DIR" dist
+          KEEP_BUILD: ${{ inputs.keep_build }}
+        run: |
+          flags="--standard"
+          [ "$KEEP_BUILD" = true ] && flags="$flags --keep-build"
+          ghidra-rare/tools/build-module.sh $flags --name "$NAME" "$GHIDRA_INSTALL_DIR" "module/$MODULE_DIR" dist
 
       - uses: actions/upload-artifact@v4
         with:
