@@ -514,6 +514,18 @@ Upstream's loader did not compile on Ghidra 12, opened a GUI file chooser (break
 | Doesn't work | Interrupts, timers, serial, Maple, HALT, LCD/VRAM auto-increment and the flash unlock sequence are hardware state; the default language follows bank bits only through SET1/CLR1 PSW; instructions straddling the end of the 64K space; no loader for .vmu flash images (extract the .vms); PSW and the stack show as RAM variables in the decompiler |
 | Unverified | Hardware and the Sanyo manual (semantics from Comstedt, Grinberg and DreamPotato): ADDC/SUBC overflow, parity polarity, R0-R3 pointer cells following RAMBK0, DIV by zero; no BIOS or commercial images used |
 
+### TI TMS320C28x: done (community: @outlandnish, @abedegno)
+
+| Area | State |
+|---|---|
+| Decode | vs TI C2000 CGT 20.2.6 dis2000 (free download, run as a black box): AMODE=0 1,245,377 instructions (every first word × 4 second words, parallel halves compared), 1,226,842 agree, 0 unexplained; AMODE=1 626,527 instructions, 0 unexplained; CLA language 84,191 instructions, 0 unexplained (the rest is dis2000 accepting reserved modes and bits). 729/729 constructors reached (directed corpus for the rarest forms) |
+| Semantics | Fixed: AMODE=1 and the ARP-implicit C2xLP modes, ARP=n side effect, MOV/MOVH loc16,ACC<<n shift off by one, NORM shadowing SXTB and shifts, missing PUSH/POP pairs, LRETE, RESET, IACK, MOV PM,AX, CLRC CNF/M0M1MAP and several shift forms, reserved bits in about 40 two-word forms, a stub swallowing TMU opcodes, MOVB and MAC flags, real INTR/TRAP/IRET with correct NMI/EMUINT vectors, PM shift, F32TOI16R rounding; ELF opinion (EM 141). 57 hand-computed emulator cases; broken expectation detected |
+| Real code | Public-domain crypto-algorithms plus own code built with cl2000 EABI, auto-detected: 1,530 instructions identical to dis2000, 46 functions, 0 bad or error bookmarks. Nothing from TI is committed |
+| Doesn't work | F2838x FPU64, TMU type-2 conditional forms, FINTDIV and about a dozen VCU-II instructions decode as undefined (6,607 of 1.25M corpus words; outside the F2837xD target); PIE, pipeline and EALLOW enforcement; RESET/IACK are pcodeops |
+| Unverified | SXTB flags; *BR0-- (only *BR0++ has a case); the F2812 pspec (dis2000 has no device option); COFF and relocatable input; no DWARF mapping |
+
+Chosen over mwdmwd/ghidra-c28x, which was close in decode agreement; everything it decoded that this module did not was added, and it is credited. dis2000 accepts reserved addressing modes (empty operand) and ignores several reserved bits.
+
 ### TI TMS320C24x: done (community: @banksy-git; instruction set regenerated here)
 
 | Area | State |

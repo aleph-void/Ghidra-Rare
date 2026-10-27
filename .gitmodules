@@ -198,3 +198,7 @@
 	path = community/PDK
 	url = https://github.com/aleph-void/ghidra-pdk.git
 	branch = ghidra-rare
+[submodule "community/TMS320C28x"]
+	path = community/TMS320C28x
+	url = https://github.com/aleph-void/ghidra-tms320c28x.git
+	branch = ghidra-rare
