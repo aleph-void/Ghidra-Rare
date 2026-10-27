@@ -11,7 +11,8 @@
 #
 # --standard builds a copy of the module with this repository's build.gradle and
 # version=@extversion@. Upstream forks use it: their own build files are missing, pinned to another
-# Ghidra version or include development folders. --name sets the extension name (default: the
+# Ghidra version or include development folders. Vendor manuals (*.pdf) are left out of the zip:
+# processor .idx files still work, and the manuals' own terms rarely allow redistribution. --name sets the extension name (default: the
 # module directory's name).
 set -euo pipefail
 STANDARD=0
@@ -53,7 +54,7 @@ if (!ghidraInstallDir) {
 apply from: new File(ghidraInstallDir).getCanonicalPath() + "/support/buildExtension.gradle"
 copyDependencies.enabled = false
 buildExtension {
-	exclude 'test/**', 'tests/**', 'tools/**', 'docs/**', 'scripts/**'
+	exclude 'test/**', 'tests/**', 'tools/**', 'docs/**', 'scripts/**', '**/*.pdf'
 }
 EOF
 	fi
