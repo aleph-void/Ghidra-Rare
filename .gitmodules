@@ -266,3 +266,7 @@
 	path = community/MD32
 	url = https://github.com/aleph-void/ghidra-md32.git
 	branch = ghidra-rare
+[submodule "community/MediaTekPCM"]
+	path = community/MediaTekPCM
+	url = https://github.com/aleph-void/ghidra-pcm.git
+	branch = ghidra-rare

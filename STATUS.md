@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### MediaTek SPM PCM: done, partly verifiable (community: @cyrozap; ISA by Paul Kocialkowski)
+
+| Area | State |
+|---|---|
+| Decode | vs Paul Kocialkowski's pcm-disasm/pcm-asm (GPL, black box; it knows 10 base and 16 extended instructions) on 101,472 words: 3,963 identical, 4,483 explained (jump-family strictness, the tool masking registers to 4 bits), 0 unexplained; 93,026 words are unknown to the tool and so unverified. 143/143 constructors reached |
+| Semantics | Fixed: calls stored the register number in r11 and returned through it (now a return stack); xori/xora used OR. 28 hand-computed emulator sequences; 2 broken expectations detected; the test encoder agrees with pcm-asm |
+| Real code | Three BSD-3 PCM arrays from ARM Trusted Firmware (pinned): 2,151 instructions, 1,900 identical to pcm-disasm, 251 it cannot decode, 0 different; 31 functions decompile |
+| Doesn't work | A ret followed by a jump in its delay slot (nested delay slot, once in the real images) is rejected by Ghidra; storei/storeai multi-value forms; call's rd operand |
+| Unverified | The add/sub/shift/compare/xor/anor families (no tool knows them) |
+
+The candidate list called this "Realtek PCM"; the extension is named MediaTekPCM.
+
 ### MediaTek MD32: done (community: @cyrozap)
 
 | Area | State |
