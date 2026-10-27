@@ -126,3 +126,7 @@
 	path = community/I960
 	url = https://github.com/aleph-void/ghidra-i960.git
 	branch = ghidra-rare
+[submodule "community/EmotionEngine"]
+	path = community/EmotionEngine
+	url = https://github.com/aleph-void/ghidra-emotionengine-reloaded.git
+	branch = ghidra-rare

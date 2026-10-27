@@ -422,6 +422,19 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### PS2 Emotion Engine (R5900): done (community: @chaoticgd, @beardypig)
+
+| Area | State |
+|---|---|
+| Decode | 153,280 enumerated + 100,000 random words vs GNU objdump 2.45 `-m mips:5900` and rabbitizer 1.16.2: 0 unexplained; 275/275 wasaylor/r5900-opcodes (MIT) entries decode as listed; 667/667 constructors reached |
+| Semantics | Real p-code for the base ISA, all 107 MMI instructions, COP0 Status/EPC, COP1 with FCR31 flags and VU0 macro mode (lane registers, dest masks, vf0/vi0, ACC, Q/I/R, clipping, MAC/Status flags, VU0 memory at 0x11004000); upstream had MMI/VU as pcodeop stubs. 122/122 hand-computed emulator cases; broken expectation detected |
+| Real code | 11 PS2SDK samples built with pinned ps2dev v2.0.0: 380,075 instructions and 4,824 functions, auto-imported as r5900, 0 error bookmarks, 0 decompile failures, 100% agreement with objdump; hardware-register references created |
+| Fixed here | About 30 base-MIPS/COP0/COP1 bugs (DIVU signed, TGE unsigned, shift masks, reserved fields, JALR rd=rs, BGEZAL ra, overflow traps, LQ/SQ alignment, $zero reads, COP0 Count folding, FPU register order and more); opinion by EF_MIPS_MACH; ELF extension claims only PS2 ELFs (it broke Allegrex); hardware registers as default symbols |
+| Doesn't work | EE FPU/VU non-IEEE arithmetic (clamping, denormal flush, round toward zero): p-code float ops are IEEE round-to-nearest (flags are set as hardware does); VRNEXT is a pcodeop (LFSR polynomial in no non-GPL source); VCALLMS/BC2x/Count/Random/TLB/cache/performance counters are hardware state; VU micro mode is a separate processor; overlays, FID, DWARF 1 and IOP modules are outside the processor module |
+| Unverified | Issues reported against commercial games or the BIOS (not reproducible on legal samples); flag behaviour exactly at the clamp boundary |
+
+GNU objdump `mips:5900` decodes JALX, WAIT, CFC0/CTC0 and MIPS III FPU conversions the R5900 lacks, has no VSQRT, decodes SQRT.S with the wrong operand field and rejects VU macro words with non-zero reserved fields that compilers emit. rabbitizer 1.16.2 falls back to generic MIPS III tables for R5900 and rejects SYSCALL with a code.
+
 ### Intel i960: done (community: @mumbel, Ghidra PR #1452)
 
 | Area | State |
