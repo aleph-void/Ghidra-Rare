@@ -182,3 +182,7 @@
 	path = community/DSP56300
 	url = https://github.com/aleph-void/ghidra-dsp56300.git
 	branch = ghidra-rare
+[submodule "community/TMS9900"]
+	path = community/TMS9900
+	url = https://github.com/aleph-void/Ghidra-TMS9900.git
+	branch = ghidra-rare

@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### TI TMS9900: done (community: @gnulnulf, @cvpeck)
+
+| Area | State |
+|---|---|
+| Decode | 231,072 slots (every first word × 2 extension-word sets + 100,000 random) vs MAME `unidasm tms9900`: 225,125 agree, 5,947 both invalid, 0 unexplained; xas99 re-assembles every decodable slot (11 wrapping jumps skipped). 101/101 constructors reached |
+| Semantics | Semantics and addressing rewritten (tools/gen_operands.py). Fixed: byte operations on the low byte, auto-increment never incrementing, B/BL/BLWP/XOP/X using operand contents instead of the address, C/CB operand order, JHE/JLE logic, DIV overflow, XOP vector, R11 and ST6, ABS flags, NEG/INC/DEC carry, shift counts 0 and 16, empty CRU instructions, compile errors. 171 hand-computed emulator sequences pass and 2 wrong ones are detected |
+| Real code | Stevie editor ROM banks (GPL-3, pinned commit + SHA-256, not committed): 11,429 listed instructions agree with the author's xas99 listing, MAME and xas99; 428 functions, 368 decompile with 0 failures |
+| Doesn't work | X is a pcodeop; IDLE/CKON/CKOF/LREX/RSET pulses, interrupts and CRU devices; BLWP/XOP vector targets are not followed statically; inline data after BL is decoded as code (355 instructions in Stevie); no TMS9995 instructions; no loader |
+| Unverified | Flag corner cases (NEG and ABS carry, LDCR/STCR parity, RTWP clearing unused ST bits) are from the 1976 data manual only; no CPU-simulator oracle; no ELF/DWARF |
+
+xas99 3.6.5 assembles `LDCR Rn,16` with the STCR encoding.
+
 ### Motorola DSP56300: done (community: @roblg)
 
 | Area | State |
