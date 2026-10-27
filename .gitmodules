@@ -134,3 +134,7 @@
 	path = community/ARC32
 	url = https://github.com/aleph-void/ghidra-arc32.git
 	branch = ghidra-rare
+[submodule "community/F8"]
+	path = community/F8
+	url = https://github.com/aleph-void/ghidra-f8.git
+	branch = ghidra-rare

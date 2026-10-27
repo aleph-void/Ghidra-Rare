@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### Fairchild F8: done (community: @polartape, Ghidra PR #9087)
+
+| Area | State |
+|---|---|
+| Decode | 115,472 slots vs MAME `unidasm f8`: 108,593 agree, 1,177 both invalid, 5,702 explained MAME gaps, 0 unexplained; asl (`-cpu F3850`) re-assembles all 114,295 decoded slots to the original bytes (13 branch-wrap cases asl cannot encode). 228/228 constructors reached |
+| Semantics | 129 hand-computed emulator cases pass and 2 wrong expectations are detected; 6,570 random single-instruction states vs MAME's F8 core (run as a black box) identical in all registers, the whole scratchpad and PC. The PR as imported differed only in PI/JMP, which leave the target's high byte in A (5/131 hand cases, 59/6,570 states) |
+| Real code | Jim Loos's MK38P70 monitor, MK3850 monitor and Tiny BASIC (MIT, pinned commits + SHA-256, assembled with asl): disassembly identical to the asl listings (747, 763 and 2,481 instructions), 46/46 functions decompile, 0 bad-instruction bookmarks |
+| Doesn't work | 12-bit address wrap of the single-chip parts (16-bit as in MAME); interrupt dispatch and timer (vectors are entry symbols only); the single-level PC1 stack loses nested return addresses, as on the chip; the calling convention is a guess; undefined opcodes 2D-2F; raw binaries only |
+| Unverified | Real hardware; scratchpad register 15 and INS/OUTS 2/3 (asl accepts them, MAME's core executes them, its disassembler prints data); port I/O data (hand cases only); the F8 manuals the PR cites were not available |
+
+MAME `unidasm f8` prints BT 5 / BF 5 as BP / BM and does not know register 15 or ports 2/3.
+
 ### ARC32 (ARCtangent-A4/A5): done (community: @cyrozap, Ghidra PR #3233)
 
 | Area | State |
