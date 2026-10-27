@@ -162,3 +162,7 @@
 	path = community/SuperFX
 	url = https://github.com/aleph-void/ghidra-superfx.git
 	branch = ghidra-rare
+[submodule "community/TMS320C24x"]
+	path = community/TMS320C24x
+	url = https://github.com/aleph-void/ghidra-tms320c24x.git
+	branch = ghidra-rare
