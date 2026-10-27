@@ -162,6 +162,7 @@ Opened 2026-10-25 for every blocked pick. A module moves into the verification q
 | Epson S1C88 | https://github.com/xtla/s1c88/issues/1 | open |
 | Femtium | https://github.com/RobertLarsen/GhidraFemtiumProcessor/issues/1 | open |
 | Fujitsu F2MC-16LX | https://github.com/mehmooda/F2MC-16LX/issues/6 | author agrees; waiting for co-contributors @qufb and @mkrasselt1 |
+| GameCube DSP | https://github.com/Pokechu22/ghidra-gcdsp-lang/issues/2 | open; published while Ghidra's template LICENSE.txt was the only license file; confirmation asked 2026-10-27 |
 | Hitachi (RotorRE) | https://github.com/phaseseeker/RotorRE/issues/1 | open |
 | Hitachi H8/500 | https://github.com/OZVR4/Ghidra-H8-Processor/issues/5 | open |
 | Hudson HuC6280 | https://github.com/TiCoKH/Ghidra_HuC6280/issues/2 | open |
@@ -169,7 +170,9 @@ Opened 2026-10-25 for every blocked pick. A module moves into the verification q
 | Micronova | https://github.com/pkooiman/micronova_ghidra/issues/1 | license added by the author 2026-10-25 |
 | National SC/MP | https://github.com/sigurasg/GhidraSCMP/issues/45 | open |
 | NEC V60 / Fujitsu MB86233 | https://github.com/frangarcj/model1-ghidra/issues/1 | open |
+| NS32016 | https://github.com/raybellis/ghidra-NS32016/issues/1 | open; published while Ghidra's template LICENSE.txt was the only license file; confirmation asked 2026-10-27 |
 | OKI nX-U8 | https://github.com/EwTE-H/nX-U8_for_Ghidra/issues/1 | open |
+| Panasonic MN10200 | https://github.com/Pokechu22/ghidra-mn102-lang/issues/2 | open; published while Ghidra's template LICENSE.txt was the only license file; confirmation asked 2026-10-27 |
 | Renesas M32R | https://github.com/ripnet/ghidra-m32r/issues/7 | open |
 | Renesas RX | https://github.com/redballoonsecurity/rx-proc-ghidra/pull/2#issuecomment-6401502742 | comment on an existing license PR |
 | S5L8702 FMISS | https://github.com/lemonjesus/S5L8702-FMISS-Tools/issues/6 | open |
@@ -181,6 +184,7 @@ Opened 2026-10-25 for every blocked pick. A module moves into the verification q
 | Telink TC32 | https://github.com/rgov/Ghidra_TELink_TC32/issues/5 | open |
 | TI TMS320C3x | https://github.com/gm-stack/tms320-ghidra/issues/1 | open |
 | TI TMS34010 | https://github.com/ZPaul2Fresh8/Ghidra_TMS34010/issues/1 | license added by the author 2026-10-25 |
+| TI TMS9900 | https://github.com/gnulnulf/Ghidra-TMS9900/issues/7 | open; published while Ghidra's template LICENSE.txt was the only license file; confirmation asked 2026-10-27 |
 | Toshiba T8x | https://github.com/DrWhax/SLEIGH-Toshiba-T8x/issues/1 | open |
 | Toshiba TLCS-900/H | https://github.com/nevesnunes/ghidra-tlcs900h/issues/1 | open |
 | WCH (CH32 variants) | not requested | Repository says files keep their original rights; the original author is unknown |
