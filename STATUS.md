@@ -422,6 +422,16 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### Intel 8008: done (community: @spirosekulovski, Ghidra PR #8007)
+
+| Area | State |
+|---|---|
+| Decode | 170,464 slots vs MAME `unidasm i8008`: 0 differences (168,039 agree, 2,425 both invalid); asl (`-cpu 8008new`) re-assembles all 168,039 to the original bytes; 52/52 constructors reached |
+| Semantics | 95 hand-computed emulator cases and 2 wrong expectations detected; 7,410 random single-instruction states vs MAME's i8008 CPU core (run as a black box) identical. The PR as imported failed 30/95 hand cases and 2,344/7,410 states (parity never computed, ADC/SBB used an overwritten carry, 16-bit M and addresses, HALT spelling) |
+| Real code | Jim Loos's monitor and Paul Robson's Tiny BASIC (both MIT, pinned URL + SHA-256): every instruction identical to the assembler listings and MAME, 58/58 functions decompile, 0 bad-instruction bookmarks (error bookmarks only for jumps into RAM stubs) |
+| Doesn't work | Return-stack overflow (more than 7 nested calls; modelled as a normal stack at 0xFFF0-0xFFFF to keep the decompiler working); interrupts and READY; the six undefined opcodes are not decoded; no wrap at 0x4000; raw binaries only |
+| Unverified | Real hardware; IN port data (MAME's mod8 has none) |
+
 ### MELPS-740: done (community: @philpem, Ghidra PR #5012)
 
 | Area | State |
