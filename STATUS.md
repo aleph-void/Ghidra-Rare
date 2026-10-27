@@ -400,6 +400,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | Undocumented extension ops (XMAC dual-16, CRC, Viterbi, FPX double assist, SIMD byte) are pcodeops: no public definition of what they compute. Customer-defined condition codes 16-31 and EXTnn. TLS relocations reported, not applied (Ghidra has no TLS model) |
 | Unverified | Real ARC600 binaries (none freely available) |
 
+### Rockwell L39 / R65C19: done (community: @honx)
+
+| Area | State |
+|---|---|
+| Decode | 16,384 slots vs MAME `unidasm r65c19` (black box): 14,637 identical, 1,747 explained (opcodes empty in the Rockwell R65C19 data sheet's opcode matrix, which MAME shows as NOPs), 0 unexplained; a 20,000-instruction linear sweep 20,000/20,000 identical. 132/132 constructors reached. CLW is at $52 per the data sheet (Table A-1), not $43 as upstream had it; RBA/SBA operand order follows MAME (the data sheet gives no byte layout) |
+| Semantics | Fixed: ADC set V from C and ignored the carry-in, SBC carry, BCD arithmetic (added, 65C02 style), JSR/JSB/RTS return convention, missing JPI $0C and ADD zp/zp,X, LAB flags. 89 hand-computed emulator cases; broken expectation detected |
+| Real code | None freely licensed (the author's ELSA modem firmware is not available); the banked-image loader (never built upstream, ported to Ghidra 12, no longer claims every file) tested on a synthetic 128 KiB image |
+| Doesn't work | MPY/MPA/RND and the W multiplier as pcodeops; the CRC peripheral; the banking scripts are untested |
+| Unverified | RBA/SBA byte order (the author's firmware analysis suggests op, addr16, mask); W/I register semantics, BAR/BAS/STI encodings beyond MAME, decimal-mode V, JSB vectors, cycle counts |
+
+Published as the `ghidra/RockwellL39` subtree of honx/rockwell_l39_ghidra (original authors kept).
+
 ### LM32: done (community: @jevinskie, @cyrozap)
 
 | Area | State |

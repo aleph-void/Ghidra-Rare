@@ -290,3 +290,7 @@
 	path = community/AdrenoSQE
 	url = https://github.com/aleph-void/ida-adreno-qrisc.git
 	branch = ghidra-rare
+[submodule "community/L39"]
+	path = community/L39
+	url = https://github.com/aleph-void/ghidra-rockwell-l39.git
+	branch = ghidra-rare
