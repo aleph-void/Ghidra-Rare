@@ -246,3 +246,7 @@
 	path = community/V810
 	url = https://github.com/aleph-void/ghidra-v810.git
 	branch = ghidra-rare
+[submodule "community/RadeonF32"]
+	path = community/RadeonF32
+	url = https://github.com/aleph-void/ghidra-radeon-f32.git
+	branch = ghidra-rare

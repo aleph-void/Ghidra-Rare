@@ -422,6 +422,16 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### AMD Radeon F32 microengine: done (community: @cyrozap)
+
+| Area | State |
+|---|---|
+| Decode | 673,792 words (every opcode/b/rs/rd/edge-immediate combination, every register-register function code, 100,000 random) vs fail0verflow's f32dis.py (black box): 164,445 identical, 509,347 invalid in both, 0 different, both languages. 124/124 constructors reached |
+| Semantics | Rewritten: push/pop, 32- and 64-bit ALU, the four memory spaces, stm, ldd/std, signed set-compares, writes to r0 discarded; fixed the big-endian language declared little-endian in the ldefs (every 32-bit truncation took the wrong half) and truncated 64-bit masks. 53 hand-computed emulator sequences per language; 2 broken expectations detected |
+| Real code | No freely licensed F32 microcode exists; the new loader (old bare big-endian and new headered little-endian layouts, trailing jump table labelled) is tested on synthetic images and rejects random data |
+| Doesn't work | No calling convention (the microcode is hand-written) |
+| Unverified | Semantics beyond the encodings (no hardware): 32-bit zero extension, signed set-compares, mul as low16 × low16, lsra, word addressing of the memory spaces, push/pop/bl/stm behaviour |
+
 ### NEC V810/V830: done (community: @20Enderdude20, Ghidra PR #6412)
 
 | Area | State |
