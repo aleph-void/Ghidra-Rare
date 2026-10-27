@@ -680,6 +680,16 @@ Upstream's loader did not compile on Ghidra 12, opened a GUI file chooser (break
 | Doesn't work | The GPR window at CP is not aliased to memory; SGTDIS=1 mode; byte writes to PSW's high byte; MDRIU/MULIP; no automatic disassembly of indirect targets (issue #42, maintainer's decision); large-model far pointers (#41); XC16x instructions |
 | Unverified | Peripheral SFR symbol lists; the ELF opinion (EM_C166); DWARF numbering; real ECU firmware (none freely licensed) |
 
+### EFI Byte Code (EBC): done (community: @meromwolff)
+
+| Area | State |
+|---|---|
+| Decode | Instruction set rewritten (tools/gen_ebc.py) from the UEFI specification with EDK2's EbcExecute.c (BSD-2-Clause-Patent) as reference; upstream did not compile on Ghidra 12 and computed 32-bit operations in 64 bits. 362,144 records per variant vs ebcvm (MIT, black box): 268,347 agree, 0 unexplained (the rest are reserved encodings ebcvm accepts and its RET/LOADSP/STORESP length bug). 722/722 constructors reached per variant |
+| Semantics | 69 hand-computed emulator cases per variant on Ghidra 12.1.3, 12.1.4 and 12.2; broken expectation detected. New `EBC:LE:32:default` language; the new PE loader chooses 32 or 64 bits from PE32 or PE32+ |
+| Real code | 7 EBC PE32+ images built from C with ELVM's EBC backend (MIT): auto-detected as EBC:LE:64, every instruction ebcvm prints at the same address and length (lisp: 82,049/82,049); they decompile |
+| Doesn't work | CALLEX is a plain call; BREAK is a pcodeop; ELVM's interpreter-loop code exposes only one function to flow analysis; BREAK 0 padding gives error bookmarks |
+| Unverified | A real 32-bit (PE32) image; vendor EBC drivers; MOVsn and EDK2's R0 stack-address special case (from source only) |
+
 ### NVIDIA Falcon: done (community: @marysaka, hthh, @vbe0201, @antoniovazquezblanco)
 
 | Area | State |

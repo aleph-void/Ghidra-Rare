@@ -282,3 +282,7 @@
 	path = community/Falcon
 	url = https://github.com/aleph-void/ghidra_falcon.git
 	branch = ghidra-rare
+[submodule "community/EBC"]
+	path = community/EBC
+	url = https://github.com/aleph-void/Ghidra-EFI-Byte-Code-Processor.git
+	branch = ghidra-rare
