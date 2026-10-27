@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### GameCube/Wii DSP: done (community: @Pokechu22, @Tilka)
+
+| Area | State |
+|---|---|
+| Decode | All 65,536 first words × 3 second words (196,608 cases) vs Dolphin's DSPTool (built and run as a black box): 130,212 exact, 2,109 both invalid, 68,584 explained (display rules and four manual-vs-DSPTool operand-field disagreements), 0 unexplained; 64,976/65,536 equal to the manual's opcode table, the other 560 documented. 481/481 constructors reached in both languages (MAME has no GC DSP) |
+| Semantics | Fixed: product register unrelated to $prod, AM ignored, ADDR/SUBR unshifted, CLRL not rounding, SBCLR/SBSET swapped, extension ops not parallel, CALLcc clobbering st0, RTI/IF/CALLR TODOs, flag macros on the wrong bytes, saturation never compiled, SUB/CMP/NEG overflow, nested loops hanging. New `exact` language reads $cr at run time and saturates at 40 bits. 58 (default) / 61 (exact) hand-computed emulator cases; 12,000 random instructions per language agree with a model written from Duddie's manual; mutated model detected |
+| Real code | 24 DSPSpy test programs (GPL-2.0-or-later, assembled with DSPTool, not committed) with Dolphin's free ROM, through the new loader: 8,780 instructions, 640 functions, 0 bad or error bookmarks, 0 decompile failures, 0 unexplained vs DSPTool |
+| Doesn't work | Wrap registers $wr, $sr.SU and the $st0-3 hardware-stack behaviour (manual silent); two loops ending on one instruction; interrupts, DMA and the accelerator |
+| Unverified | ADDPAXZ/CLRL/MADDC/MSUBC operand fields where the manual and DSPTool disagree (the module follows the manual); MOVP-family C flag; IFcc before a two-word instruction; hardware |
+
+DSPTool's assembler encodes `clrl $ac0.l` and `$ac1.l` identically and rejects `maddc $ac0.m,$ax1.h`, which its disassembler prints.
+
 ### Nintendo 64 RSP: done (community: @Random06457)
 
 | Area | State |
