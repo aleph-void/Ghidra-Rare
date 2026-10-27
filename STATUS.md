@@ -422,6 +422,16 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### Motorola MC146805E2: done (community: @gareth8118, Ghidra PR #856)
+
+| Area | State |
+|---|---|
+| Decode | 251,936 slots vs MAME `unidasm m146805`: 230,120 agree, 20,841 both invalid, 975 MAME quirks (undefined 6E/7E printed as JMP), 0 unexplained; asl (`-cpu 68HC08`) re-assembles all 230,120 to the original bytes. 98/98 constructors reached |
+| Semantics | 152 hand-computed emulator cases pass and 2 wrong expectations are detected; 5,998 random single-instruction states vs MAME's MC146805E2 core (run as a black box) identical in A, X, SP, flags, a 496-byte data window and PC. The PR as imported failed 16/152 hand cases and 740/5,998 states: BSET had BCLR's body, BRSET/BRCLR left C alone, NEG on memory took Z/N from the operand, ROR shifted arithmetically, CPX compared A, SWI pushed no CC and jumped to the vector address, MUL (a 68HC05 instruction) was decoded, RSP loaded 0xFF |
+| Real code | Five Apache-2.0 programs from tgtakaoka/retro-bionic (pinned commit + SHA-256): 1,391 instructions identical to the author's listings, 55/55 functions decompile, 0 bad-instruction bookmarks |
+| Doesn't work | Stack-pointer wrap within 0x60-0x7F (masking SP would break the decompiler's stack analysis; 201/210 wrap-only cases fail by design); 13-bit address wrap; BIL/BIH (IRQ pin pcodeop); timer, ports and interrupt dispatch. The PR's second language, `6805:BE:16:default`, was dropped because Ghidra ships it |
+| Unverified | Real hardware; the Motorola data sheet (MUL's absence rests on MAME and asl agreeing); stack extent (the PR's pspec says 0x40-0x7F, MAME 0x60-0x7F); the pspec memory map and vectors come from the PR |
+
 ### Fairchild F8: done (community: @polartape, Ghidra PR #9087)
 
 | Area | State |
