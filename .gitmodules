@@ -258,3 +258,7 @@
 	path = community/MOS6510
 	url = https://github.com/aleph-void/deity-informant.git
 	branch = ghidra-rare
+[submodule "community/VideoCoreIV"]
+	path = community/VideoCoreIV
+	url = https://github.com/aleph-void/ghidra-videocore4.git
+	branch = ghidra-rare

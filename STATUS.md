@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### Broadcom VideoCore IV: done (community: Paolo Vagnero, Ghidra PR #1147)
+
+| Area | State |
+|---|---|
+| Decode | 295,760 slots (all 16-bit words, 32-bit first halfwords × 6, 48/80-bit first halfwords × 8, 50,000 random) vs binutils-vc4 (itszor/vc4-toolchain, black box): 0 unexplained (72,244 exact, 124,713 semantic, 85,960 invalid in both, 12,843 explained). 854/854 constructors reached. Vector decode rewritten from Herman Hermitage's VideoCore IV documentation |
+| Semantics | Fixed: the 12-bit displacement sign bit (every negative offset was wrong), reserved bits, signed byte-offset indexed form, flags as sr bit ranges, shifts mod 32, subscale, signext, msb, cmn Z/N, ldm with sp, float6 immediates, float conversions; saturating ops, count and brev in p-code; vector ops are pcodeops instead of unimplemented (decompilation no longer halts). 46 hand-computed emulator cases; broken expectation detected; 1,548 random scalar instructions vs resim: 0 unexplained (122 differences are confirmed resim bugs) |
+| Real code | gcc-vc4 6.2.1 -O2 builds of zlib 1.3.1, Lua 5.4.6 and crypto-algorithms (pinned): 81,462 instructions, 1,243 functions, 0 bad instructions, every function decompiles, 0 unexplained differences from binutils; the ELF opinion picks the language |
+| Doesn't work | Vector operations are pcodeops (no documentation, simulator or hardware reference for the vector register file); flog2/fexp2; version/sleep/ei/di/swi, p-registers and sp banking (system state); Ghidra rejects gcc-vc4's DWARF line tables (framework); ELF relocations |
+| Unverified | Hardware behaviour of some forms (16-bit sp+o*4 sign, stm/ldm special counts, brev form, cmn C, fcmp V); vector operand formats; real VideoCore firmware |
+
+binutils-vc4 prints addscale-immediate as plain add and gives switch.b and switch the same text. resim gets max/min, asr of negatives, msb, signext, float immediates, floor, ldsb, cmn C and stm/ldm with count 15 wrong.
+
 ### MOS 6510 (Commodore 64): done (community: @anarkiwi, @CBongo)
 
 | Area | State |
