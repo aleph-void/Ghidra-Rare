@@ -250,10 +250,6 @@
 	path = community/RadeonF32
 	url = https://github.com/aleph-void/ghidra-radeon-f32.git
 	branch = ghidra-rare
-[submodule "community/TopSM"]
-	path = community/TopSM
-	url = https://github.com/aleph-void/GhidraTopSM.git
-	branch = ghidra-rare
 [submodule "community/MOS6510"]
 	path = community/MOS6510
 	url = https://github.com/aleph-void/deity-informant.git
@@ -265,10 +261,6 @@
 [submodule "community/MD32"]
 	path = community/MD32
 	url = https://github.com/aleph-void/ghidra-md32.git
-	branch = ghidra-rare
-[submodule "community/MediaTekPCM"]
-	path = community/MediaTekPCM
-	url = https://github.com/aleph-void/ghidra-pcm.git
 	branch = ghidra-rare
 [submodule "community/TeakLite"]
 	path = community/TeakLite
