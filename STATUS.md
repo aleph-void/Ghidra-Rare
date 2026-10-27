@@ -680,6 +680,16 @@ Upstream's loader did not compile on Ghidra 12, opened a GUI file chooser (break
 | Doesn't work | The GPR window at CP is not aliased to memory; SGTDIS=1 mode; byte writes to PSW's high byte; MDRIU/MULIP; no automatic disassembly of indirect targets (issue #42, maintainer's decision); large-model far pointers (#41); XC16x instructions |
 | Unverified | Peripheral SFR symbol lists; the ELF opinion (EM_C166); DWARF numbering; real ECU firmware (none freely licensed) |
 
+### NVIDIA Falcon: done (community: @marysaka, hthh, @vbe0201, @antoniovazquezblanco)
+
+| Area | State |
+|---|---|
+| Decode | 312,144 slots per version (every 2-byte prefix × 4 tails + 50,000 random) vs envytools envydis (MIT, black box): 0 differences in v0, v3, v4, v5 and v6. Every constructor reached (v0 198, v3 223, v4 228, v5/v6 323). New languages v0, v3 and v6 alongside upstream's v4 and v5 |
+| Semantics | Fixed: missing reserved-bit checks, wrong div/btgl/ptlb/iords/xdfence/mpopadd decodings, unary destinations, sign-extended lbra/lcall, about 15 missing forms, envydis spelling; flags as csw bit ranges, real adc/sbb/shlc/shrc, carries and overflow, size-masked shifts, pop/ret reading the wrong stack slot, iret, full mpush/mpop register lists, 16-bit mulu/muls, extr/extrs/ins/sext, I/O as a volatile space; the GR bootloader loader ported to Ghidra 12. 42 + 6 hand-computed emulator cases; broken expectation detected |
+| Real code | nouveau's falcon firmware from Linux 6.12 (MIT, pinned, not committed), 6 images (GT215/GF119 PMU, GF100/GK208/GM107 hub, GM107 GPC): linear sweep 0 unexplained vs envydis, 0 bad instructions, 0 error bookmarks, every function decompiles; upstream's faucon.asm 38/38 |
+| Doesn't work | Crypto coprocessor commands, transfers (xcld/xdld/xdst/x*wait/xdfence), TLB ops and sleep/trap/exit are pcodeops (external engines without a public spec); no ELF/DWARF (falcon code is not ELF); per-unit I/O register names |
+| Unverified | mpush/mpop register order; the cspec; semantics against hardware; v6 opcodes fa/7 and fe/5 (unknown to envydis, left undecoded); no freely licensed v0 or v6 binaries |
+
 ### Norsk Data ND-100: done (community: RetroCoreLabs)
 
 | Area | State |

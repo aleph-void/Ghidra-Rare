@@ -278,3 +278,7 @@
 	path = community/ND100
 	url = https://github.com/aleph-void/ghidra-nd100.git
 	branch = ghidra-rare
+[submodule "community/Falcon"]
+	path = community/Falcon
+	url = https://github.com/aleph-void/ghidra_falcon.git
+	branch = ghidra-rare
