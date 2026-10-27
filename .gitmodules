@@ -114,3 +114,7 @@
 	path = community/I8008
 	url = https://github.com/aleph-void/ghidra-8008.git
 	branch = ghidra-rare
+[submodule "community/UPD78XX"]
+	path = community/UPD78XX
+	url = https://github.com/aleph-void/ghidra-upd78xx.git
+	branch = ghidra-rare

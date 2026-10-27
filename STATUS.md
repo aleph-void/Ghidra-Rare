@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### NEC uPD78xx (78C10): done (community: @ajxs, @depili; Ghidra PR #7930)
+
+| Area | State |
+|---|---|
+| Decode | vs MAME `unidasm upd7810`: 196,608 slots + 200,000 random words, 0 unexplained (153,951/160,022 exact, 36,777/33,832 equal after number normalisation, 5,868/6,139 invalid on both, 12/7 explained). vs asl `-cpu 78C10`: all 2,607 operand combinations of the manual's 213 forms decode to the assembler source and nothing outside them decodes. 317/317 constructors reached |
+| Semantics | 2,616 emulator cases: 132 hand-computed (incl. the manual's DAA, RLD/RRD, SOFTI/RETI examples), 2,404 randomised against an independent model of the manual, 80 whole programs against Python references (sum, bubble sort, multiply, BCD add, strcmp, CRC-8, popcount, table lookup + BLOCK); broken expectation detected. Fixed in the PR: ANAX opcode, LDEAX/STEAX, unreadable/unwritable register operands, ZCM,A, OFFI, SKIT flag, SBBW/DSBB spelling; ORI r operated on A, MUL multiplied EA, DIV remainder register, INR/DCR changed CY, GT compare flags, DADC/DSBB carries, DAA was a pcodeop, TABLE address, SKIT/SKNIT flag reset, SOFTI could be skipped |
+| Real code | DiKon (MIT, hand-written 78C10, 1,833 bytes, pinned commit + SHA-256): 682 instructions identical to MAME, 14 functions, 0 decompile failures, 0 bad-instruction bookmarks; 3 error bookmarks are jumps into a ROM not in the image. CALT table calls 3/3 resolved |
+| Doesn't work | EI/DI/HLT/STOP and interrupt-enable state are user ops; peripherals and port pin vs latch; manual stack manipulation returning with RETS; division by zero (undefined in the manual); other cores (7800/7801/7802, 78C05/06, 7807/8/9, NMOS 7810) deliberately not implemented; no ELF/DWARF/loader |
+| Unverified | Real silicon; 16-bit half-carry (uses bit 3 of the low byte) and NEGA flags (manual silent); only one freely licensed real program (1.8 KB) |
+
+MAME decodes SK/SKN flag code 001 as NV (a 7807-series flag) and EADD/ESUB EA,V, which the 78C1x manual and asl reject (the 12/7 explained slots).
+
 ### Intel 8008: done (community: @spirosekulovski, Ghidra PR #8007)
 
 | Area | State |
