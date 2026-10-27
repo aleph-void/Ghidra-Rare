@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### Intel i960: done (community: @mumbel, Ghidra PR #1452)
+
+| Area | State |
+|---|---|
+| Decode | 357,008 slots (exhaustive mode corpus + 250,000 random) vs GNU objdump 2.28 (built with the i960 target) and MAME `unidasm i960`: 0 unexplained against either (vs objdump: 34,781 identical, 23,073 equivalent, 283,000 both invalid, 16,191 explained). 289/289 constructors reached |
+| Semantics | 52 hand-computed emulator cases pass in both languages; broken expectation detected. Reworked here from Intel's manuals: operand encodings (M/S bits, literals, COBR src1), semantics, cspec for the i960 calling convention; the LEBE language now has its own .sla (it pointed at the LE one and could not load) |
+| Real code | GCC 2.95.3 (-mka/-mkb, built from pinned sources) builds of B-Con crypto, FP math and Intel's newlib i960 string routines: crypto.elf 6,623 instructions agree with objdump (66 are binutils display bugs), 108/108 functions decompile, 0 bad bookmarks; fpmath 28/28; 80960Cx routines 7/7; COFF build auto-detected, 40/40 decompile. 28 relocatable objects: 0 bytes differ from GNU ld. Boot Record analyzer marks IBR/PRCB on a test ROM |
+| Doesn't work | Transcendental FP ops (sinr, cosr, tanr, atanr, logr, logepr, expr) and privileged hardware ops (caches, interrupts, DMA, process management, calls, halt) are pcodeops; the decompiler shows the frame-save stores `call` makes (unaff_r4 in 12/108 functions); COFF symbols carry no function type, so only labels |
+| Unverified | Silicon or a cycle-accurate simulator; Cx/Jx/Hx SFR names and the IBR/PRCB layout (manuals only; no freely licensed firmware with a boot record); MC process/debug instructions are decode-only |
+
+Upstream's `scripts/scrape.py` transcribed the GPL binutils 2.30 opcode table and is removed from the fork. Reference-tool bugs: binutils puts the T bit in CTRL targets, has dcinva at 0xAC (manual 0xAD) and movre at 6E1 (manual 6E9), decodes the integer src1 of cvtir/cvtilr/scaler/scalerl as FP, and accepts literal destinations; MAME rejects M=1 S=1 in unused fields and M3=1 SFR operands, lacks ldtime/condrec, and accepts FP literal destinations.
+
 ### STMicroelectronics ST7: done (community: @agatti, Ghidra PR #3631)
 
 | Area | State |

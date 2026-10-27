@@ -122,3 +122,7 @@
 	path = community/ST7
 	url = https://github.com/aleph-void/ghidra-st7.git
 	branch = ghidra-rare
+[submodule "community/I960"]
+	path = community/I960
+	url = https://github.com/aleph-void/ghidra-i960.git
+	branch = ghidra-rare
