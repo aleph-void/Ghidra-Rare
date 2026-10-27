@@ -189,4 +189,5 @@ Opened 2026-10-25 for every blocked pick. A module moves into the verification q
 | Toshiba TLCS-900/H | https://github.com/nevesnunes/ghidra-tlcs900h/issues/1 | open |
 | WCH (CH32 variants) | not requested | Repository says files keep their original rights; the original author is unknown |
 | Wii Starlet | https://github.com/eigenform/gcwii-toolbox/issues/1 | open |
+| XpertTeak | https://github.com/Pokechu22/ghidra-xpertteak-lang/issues/1 | open; only Ghidra's template LICENSE.txt; not imported until confirmed (asked 2026-10-27) |
 | Zilog Z8000 | https://github.com/jpelletier/Z8000/issues/1 | open |
