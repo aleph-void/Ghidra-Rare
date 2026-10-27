@@ -250,3 +250,7 @@
 	path = community/RadeonF32
 	url = https://github.com/aleph-void/ghidra-radeon-f32.git
 	branch = ghidra-rare
+[submodule "community/TopSM"]
+	path = community/TopSM
+	url = https://github.com/aleph-void/GhidraTopSM.git
+	branch = ghidra-rare

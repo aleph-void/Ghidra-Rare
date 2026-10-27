@@ -422,6 +422,16 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### TI TopSM (BLE radio sequencer): done (community: @antoniovazquezblanco, @rjp5th)
+
+| Area | State |
+|---|---|
+| Decode | All 65,536 words vs the reference assembler topsm_assembler.py (MIT, beyond-ble-tools, black box; 2.67 million inputs giving 49,954 distinct words): 49,954 agree, 15,582 both invalid, 0 differences. 52/52 constructors reached |
+| Semantics | Fixed: bmi/bpl inverted (from the mnemonics; not hardware-confirmed), jsr and mov pc,rb pushing and loading twice the address (byte offsets in a word-addressed space), mov pc,rb accepting words the assembler never emits; the modem register script ported to Java (Ghidra 12 has no Jython). 54 hand-computed emulator cases; 2 broken expectations detected |
+| Real code | No freely licensed TopSM code exists: a 64-instruction demo assembled with the reference assembler, 9 functions, 0 bad or error bookmarks, 0 decompile failures; the script creates 222 modem register symbols |
+| Doesn't work | wait is a pcodeop (hardware events); only Z and N flags exist; flat 64K-word code space; the hardware stack is unbounded; handlers reached only through jmp (rb) need seeding |
+| Unverified | All semantics against hardware (no manual): slx, outset, loop details, whether mov pc gives the instruction's own address, shift counts above 15, the 15,582 undecoded words |
+
 ### AMD Radeon F32 microengine: done (community: @cyrozap)
 
 | Area | State |
