@@ -422,6 +422,16 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### NEC V30MZ (WonderSwan): done (community: @JidouGhost-TL)
+
+| Area | State |
+|---|---|
+| Decode | Every opcode × ModRM × {bare, 7 prefixes} (524,288) × 2 operand patterns, strict and with undefined-opcode decoding, plus 2 × 300,000 random streams, vs ndisasm 3.01, MAME `unidasm x86_16` and GNU objdump `-m i8086`: 0 unexplained (386+ and x87 rejected, undefined groups, LOCK on any instruction, display classes). 484/484 constructors reached. What it adds over Ghidra's x86 real mode: only the V30MZ instruction set (no 0F, FS/GS, size prefixes, x87; SALC), hardware flag results, PUSH/POP SP, divide trap, CALLF order, 20-bit wrap, CS not 64K-aligned, an I/O space |
+| Semantics | Upstream's SLEIGH needed no change. 77 hand-computed emulator cases; broken expectation detected |
+| Real code | MiSTer WonderSwan test ROMs (GPL-2.0, rebuilt from source with NASM, byte-identical): 8,549 listed instructions agree with all three references, 0 bad bookmarks, every function decompiles; the WonderSwan loader imports them with 0 bad bookmarks |
+| Doesn't work | Interrupts, divide trap and HLT are user ops left to the emulator; upstream's unresolved points (F1, BOUND mod=3, CALLF mod=11 order, shift /6 flags) stay open because sources conflict |
+| Unverified | Undefined-flag behaviour (follows upstream's WSCpuTest citations); colorsoc=1; cycle timing; the port map. The repository's `wonderswan/` module (loader, emulator, analyzers, debugger) builds on Ghidra 12.2 after a fix here, but its tests were not run and the release workflow builds only the V30MZ language module |
+
 ### SSD XaviX: done (community: @widberg)
 
 | Area | State |

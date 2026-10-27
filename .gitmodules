@@ -222,3 +222,7 @@
 	path = community/XaviX
 	url = https://github.com/aleph-void/ghidra-xavix.git
 	branch = ghidra-rare
+[submodule "community/V30MZ"]
+	path = community/V30MZ
+	url = https://github.com/aleph-void/ghidra-wonderswan.git
+	branch = ghidra-rare
