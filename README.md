@@ -107,6 +107,7 @@ as a git submodule under `community/`, pinned to the verified commit
 | [TILE-Gx](https://github.com/aleph-void/ghidra-tilegx/blob/ghidra-rare/GHIDRA-RARE.md) | Tilera TILE-Gx, little/big-endian data and 32/64-bit ABI | `TILE:{LE,BE}:{32,64}:default` | Idan Freiberg (@speidy, Ghidra PR #9426) | Apache-2.0 |
 | [VAX](https://github.com/aleph-void/ghidra-vax/blob/ghidra-rare/GHIDRA-RARE.md) | DEC VAX: all 306 opcodes with exact VAX floating point, packed decimal and privileged instructions; ELF relocations and an entry-mask analyzer | `VAX:LE:32:default` | Klaus Kämpf (@kkaempf) | Apache-2.0 |
 | [VMU](https://github.com/aleph-void/Ghidra-VMU-Processor/blob/ghidra-rare/GHIDRA-RARE.md) | Sega Dreamcast VMU (Sanyo LC8670) with RAM-bank tracking, flash space and a .vms game loader | `vmu:2:default`, `vmu:2:dynamic` | Ross Meikleham (@RossMeikleham) | MIT |
+| [XaviX](https://github.com/aleph-void/ghidra-xavix/blob/ghidra-rare/GHIDRA-RARE.md) | SSD XaviX (original core: 6502 with NMOS unintended opcodes, CALLF/RETF, bank registers, 22-bit external bus) | `XaviX:LE:24:default` | widberg (@widberg, from rad_sbw) | MIT |
 
 ## Relationship to the IDA modules
 

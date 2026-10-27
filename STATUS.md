@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### SSD XaviX: done (community: @widberg)
+
+| Area | State |
+|---|---|
+| Decode | 995,648 records (every opcode × 256 second × 12 third bytes, × 4 fourth for CALLF, + 200,000 random) vs MAME `unidasm xavix`: 987,461 identical, 8,187 explained (CALLF bank byte masked to the 22-bit bus), 0 unexplained. 155/155 constructors reached |
+| Semantics | Fixed: JSR/CALLF/BRK overwriting the byte above the stack top, PHP not pushing B, far JMP/JSR reading memory at the operand, jumps below $8000 branching into the unique space; banked addresses and RTS/RTI/RETF/JMP (ind)/BRK computed branch-free so p-code runs in Ghidra's emulator; KIL no longer hangs analysis; dummy bus cycles dropped (they broke decompilation). 78 hand-computed emulator cases; broken expectation detected; 40,000 random sequences vs sim65 `--cpu 6502X` identical (5 skipped: bank registers written) |
+| Real code | cc65 test programs (built from a pinned cc65 commit): the self-checking C programs exit 0 in Ghidra's emulator; 6 programs imported, analysed and decompiled, every instruction identical to MAME and every sim65-executed address an instruction (one self-patched `JMP $0000` per program); one function per opcode decompiles (255/255). No XaviX ROM used |
+| Doesn't work | XaviX2000 and XaviX2 cores; relative branches and computed jumps below $8000 target the external bus, not low memory (SLEIGH limit); a lone JMP into memory without code fails to decompile; dummy bus cycles; interrupts |
+| Unverified | XaviX-specific CALLF/RETF, bank stack, BRK vectors and bank arithmetic (no public documentation or independent implementation); ANE/LXA/LAS chip-specific constants |
+
+The module comes from widberg/rad_sbw, a tool kit for one commercial game; aleph-void/ghidra-xavix holds only the module directory's history (`git subtree split`, original authors kept).
+
 ### Broadcom D11 (802.11 MAC PSM): done (community: @CUB3D)
 
 | Area | State |

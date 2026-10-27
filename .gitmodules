@@ -218,3 +218,7 @@
 	path = community/D11
 	url = https://github.com/aleph-void/ghidra-d11.git
 	branch = ghidra-rare
+[submodule "community/XaviX"]
+	path = community/XaviX
+	url = https://github.com/aleph-void/ghidra-xavix.git
+	branch = ghidra-rare
