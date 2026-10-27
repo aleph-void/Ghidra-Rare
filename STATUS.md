@@ -263,6 +263,18 @@ QEMU sh4: rotl/rotr never set T; div1 T differs for a zero divisor and Rm==Rn.
 
 objdump 2.45: ignores reserved bits, accepts invalid register lists, wrong @@vec:7 width in normal mode, decodes E registers in h8300 mode. gas/ld 2.45: out-of-range bsr d:8 truncated silently, a #xx:5 shift after a long-form shift mis-encoded, mova @(d,eN.w),erN encoded as rN.
 
+### MN10300 / AM33 / AM33-2: done with listed gaps (community: @michaelbrandi; instruction set rewritten here)
+
+| Area | State |
+|---|---|
+| Decode | 432,729 slots per machine: 0 unexplained vs objdump (`-m mn10300/am33/am33-2`) and MAME `unidasm`; every row of the MN1030 manual's instruction table (331 rows, 1,344 encodings) decodes to the manual's mnemonic and length except 3 manual errata; constructors reached 354/354, 804/804, 1,223/1,223 |
+| Semantics | MN1030 base instructions per the manual (flags incl. addc/subc Z, div overflow V, movm/call/ret lists, setlb/Lcc loops, D10 pairs). AM33/AM33-2 semantics only where the manual or compiled C establishes them (76 C functions built with GCC 14 for all three machines, 148 calls run in Ghidra's emulator against results derived from C semantics; 132 AM33/AM33-2 constructors established this way). Emulator 44/44; broken expectations detected |
+| Real code | Red Hat GNUPro am33-04r2-5 AM33-2 Linux (bash, ldconfig, libc, libz, libgcc_s) + newlib programs for all three machines + gcc objects: 586,412 instructions identical to objdump, language picked from e_flags, 0 bad/error bookmarks, 0 decompile failures (5,617 functions); relocations applied except bash's 7 COPY |
+| Doesn't work | pcodeops where no non-GPL source establishes the behaviour: mac/macu/macb/macbu/mach/machu/dmach/dmachu, dmulh(u), sat16/24, mcste, swap/swaph/swhw, bsch (except from 0), EPSW moves, exreg0/exother save/restore, FPU conversions/sqrt/FPCR moves, dcpf; also udf/udfu, mcst9/mcst48/getchx/getclx, trap/syscall/rtm/break (trap goes to the fixed vector 0x40000010) |
+| Unverified | AM33 forms the C runs don't execute; flags of 3/4-operand forms; D10 parallel read rules; double-precision ops by analogy; FMA double rounding; MN103S-only additions; AM34; real MN10300 firmware |
+
+Provenance: an earlier revision (fork at `ghidra-rare-v1.0.0`) wrote the AM33 semantics from the GPL GNU simulator's descriptions and was replaced by a rework from non-GPL sources only (`ghidra-rare-v1.0.1`); details in the fork's CREDITS.md. Reference-tool bugs: binutils omits UDF20-35 imm forms and rejects bset/bclr/btst imm8,(abs16) unless am33-2; MAME has F4 movbu/movhu length, FC (d32,Am) load register swap, FA 9x d97 and bset (d8,An) unsigned d8 bugs.
+
 ### MN10200: done (community: @Pokechu22)
 
 | Area | State |
