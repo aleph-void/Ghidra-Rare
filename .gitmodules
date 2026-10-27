@@ -286,3 +286,7 @@
 	path = community/EBC
 	url = https://github.com/aleph-void/Ghidra-EFI-Byte-Code-Processor.git
 	branch = ghidra-rare
+[submodule "community/WebAssembly"]
+	path = community/WebAssembly
+	url = https://github.com/aleph-void/ghidra-wasm.git
+	branch = ghidra-rare

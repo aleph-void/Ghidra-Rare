@@ -123,6 +123,7 @@ as a git submodule under `community/`, pinned to the verified commit
 | [VAX](https://github.com/aleph-void/ghidra-vax/blob/ghidra-rare/GHIDRA-RARE.md) | DEC VAX: all 306 opcodes with exact VAX floating point, packed decimal and privileged instructions; ELF relocations and an entry-mask analyzer | `VAX:LE:32:default` | Klaus Kämpf (@kkaempf) | Apache-2.0 |
 | [VideoCoreIV](https://github.com/aleph-void/ghidra-videocore4/blob/ghidra-rare/GHIDRA-RARE.md) | Broadcom VideoCore IV VPU (Raspberry Pi GPU firmware processor): scalar ISA and FPU in p-code, vector decode, ELF opinion and DWARF map | `vc4:LE:32:default` | Paolo Vagnero (Ghidra PR #1147) | Apache-2.0 |
 | [VMU](https://github.com/aleph-void/Ghidra-VMU-Processor/blob/ghidra-rare/GHIDRA-RARE.md) | Sega Dreamcast VMU (Sanyo LC8670) with RAM-bank tracking, flash space and a .vms game loader | `vmu:2:default`, `vmu:2:dynamic` | Ross Meikleham (@RossMeikleham) | MIT |
+| [WebAssembly](https://github.com/aleph-void/ghidra-wasm/blob/ghidra-rare/GHIDRA-RARE.md) | WebAssembly (MVP, sign extension, saturating truncation, bulk memory, reference types, multi-value, SIMD) with a .wasm loader | `Wasm:LE:32:default` | Robert Xiao (@nneonneo, Ghidra PR #4103), Kristoffer Søholm | Apache-2.0 |
 | [XaviX](https://github.com/aleph-void/ghidra-xavix/blob/ghidra-rare/GHIDRA-RARE.md) | SSD XaviX (original core: 6502 with NMOS unintended opcodes, CALLF/RETF, bank registers, 22-bit external bus) | `XaviX:LE:24:default` | widberg (@widberg, from rad_sbw) | MIT |
 
 ## Relationship to the IDA modules

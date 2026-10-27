@@ -680,6 +680,18 @@ Upstream's loader did not compile on Ghidra 12, opened a GUI file chooser (break
 | Doesn't work | The GPR window at CP is not aliased to memory; SGTDIS=1 mode; byte writes to PSW's high byte; MDRIU/MULIP; no automatic disassembly of indirect targets (issue #42, maintainer's decision); large-model far pointers (#41); XC16x instructions |
 | Unverified | Peripheral SFR symbol lists; the ELF opinion (EM_C166); DWARF numbering; real ECU firmware (none freely licensed) |
 
+### WebAssembly: done (community: @nneonneo, Ghidra PR #4103)
+
+| Area | State |
+|---|---|
+| Decode | vs wabt's wasm-objdump (black box): a generated one-function-per-opcode module (435 opcodes, 2,047 instructions), Lua 5.4.7 (115,543 instructions) and zlib 1.3.1 with SIMD (24,447): all agree. 524/524 constructors reached |
+| Semantics | Ported to the Ghidra 12.1/12.2 APIs (the PR did not compile; its emulator hooks read operands one slot off). Numeric semantics from the specification (division and truncation traps, trunc_sat, min/max, nearest); SIMD, bulk memory, table operations, call_indirect type checks and bounds traps in the emulator. WebAssembly spec test suite (wabt 1.0.37, 1,598 modules) in the emulator: 49,506 assertions pass, 108 fail, all explained (63 need imports or cross-module linking, 45 are Ghidra emulator float quirks: NaN payloads through FLOAT_NEG/ABS and double rounding in INT2FLOAT/FLOAT2FLOAT) |
+| Real code | Lua 5.4.7 at -O2 and -O0 (691 functions) and zlib: 0 bad or error bookmarks, 0 decompile failures |
+| Doesn't work | Trap kinds are not distinguished; SIMD, bulk memory and bounds checks run in the emulator but show as named pcodeops in the decompiler. Absent: exceptions, tail calls, GC and typed function references, threads and atomics, relaxed SIMD, memory64, multi-memory, extended-const, wide arithmetic |
+| Unverified | Programs using the pos-stack convention; the DWARF analyzer; Rust and Go toolchains; the PyGhidra scripts |
+
+The PR descends from GPL-3.0 plugins; all their contributors agreed to Apache-2.0 for the Ghidra merge (nneonneo/ghidra-wasm-plugin issue #12). No GPL code was used here.
+
 ### EFI Byte Code (EBC): done (community: @meromwolff)
 
 | Area | State |
