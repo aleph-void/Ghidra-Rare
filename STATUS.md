@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### Microchip PIC16F153xx: done (community: @mh-, Ghidra PR #667)
+
+| Area | State |
+|---|---|
+| Decode | All 16,384 14-bit words vs gpdasm (gputils 1.5.2): 0 unexplained (4 explained: CLRW don't-care bits, gpdasm's 0x0061 halt); vs MAME `unidasm pic16c62x` on the 14,080 shared encodings: 0 unexplained (90 enhanced-only); 8 assembler pseudo-ops 8/8 vs gpasm. 118/118 constructors reached |
+| Semantics | Fixed: RETLW matching LSLF/LSRF/ASRF, digit carry of subtractions, RLF/RRF/MOVIW flags, CALL/GOTO/BRA/BRW/return targets and return addresses, the skip model, CALL/GOTO decompiled as jump tables (now direct through a PCLATH context set by MOVLP), 32 of 272 SFR symbols, INTCON bit names, SKPC family swapped, PCLATH ranges. 112 emulator cases hand-computed from DS40001865D (gpasm-assembled); broken expectation detected; a self-built program (CRC-16, multiply, XTEA, bubble sort, computed goto) matches Python on 6 vectors |
+| Real code | react66/bootloader-pic16 (MIT) stubs through the Intel Hex loader: 430 instructions identical to gpdasm, 19 functions, 0 bad or error bookmarks, 0 decompile failures |
+| Doesn't work | The FSR linear data (0x2000-0x2FEF) and flash (0x8000+) windows are plain data addresses (a data space cannot alias); TOSL/TOSH/STKPTR, stack depth, interrupt context save, CLRWDT/SLEEP/RESET/OPTION; PCLATH written other than by MOVLP is not tracked; SFR names are the 15325/45 map. Kept as a separate language, not a variant of Ghidra's PIC-16 module |
+| Unverified | XC8/MPLAB output (none freely licensed) and its calling convention; ELF/DWARF; other family members' SFR maps; silicon |
+
+gpdasm prints addfsr with the FSRnL address instead of n and decodes 0x0061 as halt; the data sheet's MOVLB encoding line is garbled (00 0001 01kk kkkk).
+
 ### TI TMS9900: done (community: @gnulnulf, @cvpeck)
 
 | Area | State |

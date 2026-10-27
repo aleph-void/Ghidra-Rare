@@ -186,3 +186,7 @@
 	path = community/TMS9900
 	url = https://github.com/aleph-void/Ghidra-TMS9900.git
 	branch = ghidra-rare
+[submodule "community/PIC16F153xx"]
+	path = community/PIC16F153xx
+	url = https://github.com/aleph-void/ghidra-pic16f153xx.git
+	branch = ghidra-rare
