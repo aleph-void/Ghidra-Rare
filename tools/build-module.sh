@@ -43,7 +43,7 @@ if ((STANDARD)); then
 	trap 'rm -rf "$WORK"' EXIT
 	DIR=$WORK/$NAME
 	mkdir -p "$DIR"
-	tar -C "$SRC" --exclude=.git --exclude=.github --exclude=build --exclude=dist -cf - . | tar -C "$DIR" -xf -
+	tar -C "$SRC" --exclude=.git --exclude=.github --exclude=build --exclude=dist --exclude='*.lock' -cf - . | tar -C "$DIR" -xf -
 	if ((!KEEP_BUILD)); then
 	cat > "$DIR/build.gradle" <<'EOF'
 // Written by Ghidra-Rare's tools/build-module.sh --standard.
@@ -54,7 +54,7 @@ if (!ghidraInstallDir) {
 apply from: new File(ghidraInstallDir).getCanonicalPath() + "/support/buildExtension.gradle"
 copyDependencies.enabled = false
 buildExtension {
-	exclude 'test/**', 'tests/**', 'tools/**', 'docs/**', 'scripts/**', '**/*.pdf'
+	exclude 'test/**', 'tests/**', 'tools/**', 'docs/**', 'scripts/**', '**/*.pdf', '**/*.lock'
 }
 EOF
 	fi
