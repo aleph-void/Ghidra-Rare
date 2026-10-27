@@ -582,6 +582,18 @@ Upstream's loader did not compile on Ghidra 12, opened a GUI file chooser (break
 | Doesn't work | Interrupts, timers, serial, Maple, HALT, LCD/VRAM auto-increment and the flash unlock sequence are hardware state; the default language follows bank bits only through SET1/CLR1 PSW; instructions straddling the end of the 64K space; no loader for .vmu flash images (extract the .vms); PSW and the stack show as RAM variables in the decompiler |
 | Unverified | Hardware and the Sanyo manual (semantics from Comstedt, Grinberg and DreamPotato): ADDC/SUBC overflow, parity polarity, R0-R3 pointer cells following RAMBK0, DIV by zero; no BIOS or commercial images used |
 
+### STMicroelectronics STM8: done (community: @esaulenka, @abliss, @Megatokio)
+
+| Area | State |
+|---|---|
+| Decode | 755,360 slots vs SDCC's uCsim `sstm8` (black box): 394,729 agree, 346,352 both invalid, 14,274 differences that are uCsim errors (asl and sdasstm8 reproduce the module's bytes), 5 uCsim 71xx escapes, 0 unexplained; the module's disassembly re-assembled by asl and sdasstm8. 240/240 constructors reached |
+| Semantics | Fixed: JP/CALL indirect targets (upstream issues #9, #10), SBC, JRH/JRNH, DIV by zero, SUBW H flag, JRF (crashed the decompiler), undefined 72A0/72AB; added JRIL/JRIH; cspec for SDCC (Y:X, __farcall offset, flag returns, #12); ELF opinion and SDCC DWARF map. 95 hand-computed emulator cases and 2 broken expectations detected (both languages); 4,695 random single-instruction states vs uCsim agree |
+| Real code | SDCC 4.5.0 library (15,200 instructions), rksdna/stm8s (MIT) and jukkas examples (Unlicense), medium and large models: all agree with uCsim and the SDCC listings, 0 decompile failures; 672 fuzzed functions, 0 errors |
+| Doesn't work | The medium language truncates 24-bit operands (by design); SDCC's JRF skip trick overlaps instructions; Ghidra's GCC exception analyzer logs an error on SDCC .debug_frame; HALT/WFI/WFE/BREAK/TRAP/JRIL are pcodeops |
+| Unverified | PM0044 could not be downloaded: H of 16-bit ADDW/SUBW, flags after DIV by zero and CC bit 6 rest on uCsim and the authors' tables; Cosmic and IAR output |
+
+uCsim prints only the first address byte for several long-memory forms and misdecodes 72 F9, 72 C3, A7 (LDF) and 92 BD; asl encodes DIVW X,Y as 90 65 and PUSH longmem as PUSH #imm; sdasstm8 truncates the pointer of CPW Y,[longptr].
+
 ### TI TMS320C54x: done (community: @gabtremblay; encodings re-derived here)
 
 | Area | State |

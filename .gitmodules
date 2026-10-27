@@ -230,3 +230,7 @@
 	path = community/TMS320C54x
 	url = https://github.com/aleph-void/ghidra-tms320c54x.git
 	branch = ghidra-rare
+[submodule "community/STM8"]
+	path = community/STM8
+	url = https://github.com/aleph-void/ghidra_STM8.git
+	branch = ghidra-rare
