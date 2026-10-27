@@ -400,6 +400,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | Undocumented extension ops (XMAC dual-16, CRC, Viterbi, FPX double assist, SIMD byte) are pcodeops: no public definition of what they compute. Customer-defined condition codes 16-31 and EXTnn. TLS relocations reported, not applied (Ghidra has no TLS model) |
 | Unverified | Real ARC600 binaries (none freely available) |
 
+### JieLi pi32 / pi32v2 / q32s: done (community: @virtualabs, @kagaimiq)
+
+| Area | State |
+|---|---|
+| Decode | Regenerated: pi32v2 from the CC0 jvitkauskas/pi32v2-isa table, pi32 and q32s from JieLi's own toolchain objdump run as a black box. 986,432 slots per core vs JieLi objdump: pi32 867,215 agree, 119,028 both invalid, 189 explained (an objdump display bug); pi32v2 791,726 agree, 194,706 both invalid, 0 differences; q32s 954,372 agree, 4,659 both invalid, 52 objdump crashes, 27,349 words objdump prints as reserved '??' conditions (not decoded). Every constructor reached (1,905 / 1,208 / 1,014) |
+| Semantics | Per-language cspecs, block (if/rep) context fixes, pc-pop returns, more p-code for pi32. Hand-computed emulator cases: pi32 46, pi32v2 41 (incl. parallel issue), q32s 41; broken expectation detected |
+| Real code | lz4, cJSON, miniz and Lua built with JieLi's clang, 12 ELFs per core, auto-imported through the ELF opinions: 354,555 / 346,392 / 373,083 instructions compared with objdump at the same addresses, 0 differences |
+| Doesn't work | f59/f95/dv10/dv12 (no oracle); pi32v2 forms present only on r4 cores (double-precision FP); q32s reserved conditions; pi32 `macc /= R` is a pcodeop; no relocation handler for .o files; no DWARF map; some analysis bookmarks around pi32 tbb/tbh tables and 6 decompiler timeouts in Lua -O2 |
+| Unverified | pi32 and q32s behaviour (flags, register-list order, shifts, tbb) is carried over from the hardware-tested pi32v2 table; repeat count 0; real JieLi firmware |
+
+pi32 objdump prints the base register twice in `d[++ rY = rZ]` forms; q32s objdump crashes on words starting 0xf34f. JieLi's toolchain is downloaded by the tests (pinned SHA-256) and never redistributed.
+
 ### Rockwell L39 / R65C19: done (community: @honx)
 
 | Area | State |

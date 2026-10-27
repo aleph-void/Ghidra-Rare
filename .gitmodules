@@ -294,3 +294,7 @@
 	path = community/L39
 	url = https://github.com/aleph-void/ghidra-rockwell-l39.git
 	branch = ghidra-rare
+[submodule "community/JieLi"]
+	path = community/JieLi
+	url = https://github.com/aleph-void/ghidra-jieli.git
+	branch = ghidra-rare
