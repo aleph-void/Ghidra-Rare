@@ -170,3 +170,7 @@
 	path = community/VMU
 	url = https://github.com/aleph-void/Ghidra-VMU-Processor.git
 	branch = ghidra-rare
+[submodule "community/RSP"]
+	path = community/RSP
+	url = https://github.com/aleph-void/Ghidra-RSP.git
+	branch = ghidra-rare

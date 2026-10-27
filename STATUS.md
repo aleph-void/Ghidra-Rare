@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### Nintendo 64 RSP: done (community: @Random06457)
+
+| Area | State |
+|---|---|
+| Decode | 5,494/5,494 armips forms round-trip; 200,000 random and 11,700 structured words vs MAME `unidasm rsp`: 0 unexplained; armips re-assembles Ghidra's text with 0 differences. 477/477 constructors reached |
+| Semantics | Upstream copied a MIPS32 spec (FPU, multiply and pattern conflicts) and left most vector ops as pcodeops; replaced by a standalone RSP spec with a generated vector unit (accumulators, flags, reciprocal unit). Fixed: vmudh/vxor wrote vt, vnxor spelled vvxor, element order, jr/jal/branch targets with the 12-bit link, r29 as SP. 58 hand-computed emulator cases; broken expectation detected; 12,688 random single instructions (every vector function × 16 elements, all LWC2/SWC2, COP2 moves) identical to ares' vector unit (ISC, black-box harness) |
+| Real code | 10 Peter Lemon RSP demos (Unlicense, built with bass) through the fixed loader with DMEM: 2,185 instructions, 0 bad or error bookmarks, 10/10 functions decompile, identical to bass output |
+| Doesn't work | Multi-byte accesses crossing the end of DMEM do not wrap; COP0/DMA side effects; break falls through; branches in delay slots; no ELF/DWARF |
+| Unverified | Real hardware (ares is the oracle); reserved function codes as VZERO, VEQ/VNE/VGE clearing VCC high, cfc2 register 3, vrcp-family lane selection for e < 8 |
+
+Upstream's loader did not compile on Ghidra 12, opened a GUI file chooser (breaking headless use) and claimed every file; it now offers DMEM as an option and is not preferred. MAME's RSP disassembler takes the mfc2/mtc2 element from the wrong bits, prints a bogus lui rs and extra vmacq operands, shows vsar as vsaw, lacks lwu and decodes a nonexistent lwv.
+
 ### Sega Dreamcast VMU (Sanyo LC8670): done (community: @RossMeikleham)
 
 | Area | State |
