@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### Sony PSP Allegrex: done (community: @kotcrab and contributors)
+
+| Area | State |
+|---|---|
+| Decode | 1,327,168 enumerated + 100,000 random words vs psp-objdump (pspdev binutils, Allegrex branch) and rabbitizer 1.16.2: 0 unexplained; 2,203/2,203 constructors reached (VFPU prefix lanes under 32 context sets) |
+| Semantics | Upstream had every VFPU op as a pcodeop (through a Kotlin injection library); now generated p-code (tools/gen_vfpu.py) for all VFPU instructions incl. VPFXS/T/D prefixes and the matrix, convert, pack and half-float ops. Fixed: VFPU decode accepting nonexistent sizes and fields, core instructions the Allegrex lacks (traps, SYNCI, RDPGPR/WRPGPR, WAIT, RDHWR, DI/EI), JALR rd=rs, CVT.W.S/ROUND.W.S rounding, 64-bit arguments and results. 47/47 hand-computed emulator cases; broken expectation detected. 4,230 random VFPU cases vs PPSSPP (built locally, black box): 0 different (VRCP/VNRCP within 5 ulp, transcendentals within tolerance) |
+| Real code | 26 PSPSDK samples (pinned pspdev v20261001): 830,172 instructions, 10,989 functions, imported through the PSP loader, 0 unexpected bookmarks, 0 decompile failures, 0 unexplained vs psp-objdump |
+| Doesn't work | VSIN/VCOS/VEXP2/VLOG2/VASIN and the VRND* generator and VWBN are pcodeops (no non-GPL description); VRCP/VNRCP divide exactly where hardware approximates; prefixes set through MTVC/VMTVC or separated from their instruction by non-VFPU code are not applied; vfim immediates shown in hex |
+| Unverified | Real hardware (PPSSPP is the reference); prefixes on SFU ops, VDIV, VCRSP and VQMUL; swizzles outside the operand size; denormal half floats; commercial-game relocation and NID issues |
+
+Built with upstream's Kotlin Gradle build (`build-module.sh --keep-build`, workflow input `keep_build: true`); two changes make it build for Ghidra 12.1.x. psp-objdump decodes JALX and generic coprocessor fallbacks and accepts VMFVC/VMTVC below 128; rabbitizer falls back to R4000 tables for the Allegrex.
+
 ### Padauk PDK13/14/15/16: done (community: @CUB3D)
 
 | Area | State |

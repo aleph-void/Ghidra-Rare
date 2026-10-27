@@ -202,3 +202,7 @@
 	path = community/TMS320C28x
 	url = https://github.com/aleph-void/ghidra-tms320c28x.git
 	branch = ghidra-rare
+[submodule "community/Allegrex"]
+	path = community/Allegrex
+	url = https://github.com/aleph-void/ghidra-allegrex.git
+	branch = ghidra-rare
