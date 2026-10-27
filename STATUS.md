@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### NEC V810/V830: done (community: @20Enderdude20, Ghidra PR #6412)
+
+| Area | State |
+|---|---|
+| Decode | 679,935-slot enumeration (every first halfword × second-halfword sets, all format VII sub-ops) + 2 × 300,000 random vs the V810 GNU binutils 2.27 (black box): 0 unexplained; MAME `unidasm v810` agrees on 414,719 (the rest are NVC-only instructions and undocumented system registers). 116/116 constructors reached |
+| Semantics | Re-derived from the NEC V810 Architecture Manual (U10082) and black-box tools: all 32 system registers, bit 0 masked in Bcond/JR/JAL, SETF/Bcond forms, TRAP vector, CLI/SEI, JMP, TRAP/RETI and duplexed exceptions, CAXI, bit strings, ADD flags, shifts, MUL/MULU/DIV/DIVU with the zero-division exception, IEEE single-precision FP with FRO/FIV/FZD/FOV/FUD/FPR and their exception codes, CVT.SW rounding, the NVC XB/XH/REV/MPYHW (encodings as binutils decodes them). 136 hand-computed emulator cases (the PR as submitted passes 68); broken expectation detected |
+| Real code | newlib and libgcc built with the V810 GCC 4.9.4 (hard FP): 69,832 instructions, 69,826 identical to v810-objdump (6 only in Ghidra: zero padding after non-returning calls and one inline jump table), 1,751/1,751 functions decompile, DWARF import with 0 errors through the new ELF opinion (e_machine 0x9081) and V810.dwarf; cspec measured from GCC output |
+| Doesn't work | Interrupts, HALT, machine faults and the jumps to exception handlers (the pcodeop `__exception`; the state saving is p-code); FUD/FPR raise no trap; inline jump tables (JMP through a register other than lp is a call); no Virtual Boy or PC-FX ROM loader |
+| Unverified | V830 (compiled only); what XB/XH/REV/MPYHW and CLI/SEI do (from their names; no oracle executes them); the search instructions' final registers; the FOV corrected exponent and the sign of zero on underflow; LDSR writes to read-only registers; CHCW/PIR/TKCW |
+
+A later version of this module by the same author (20Enderdude20/Ghidra_v810_v830) has no license; nothing from it is used, and the fixes here were re-derived independently.
+
 ### NEC V30MZ (WonderSwan): done (community: @JidouGhost-TL)
 
 | Area | State |

@@ -242,3 +242,7 @@
 	path = community/C166
 	url = https://github.com/aleph-void/c166-ghidra-module.git
 	branch = ghidra-rare
+[submodule "community/V810"]
+	path = community/V810
+	url = https://github.com/aleph-void/ghidra-v810.git
+	branch = ghidra-rare
