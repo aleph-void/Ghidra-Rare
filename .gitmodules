@@ -262,3 +262,7 @@
 	path = community/VideoCoreIV
 	url = https://github.com/aleph-void/ghidra-videocore4.git
 	branch = ghidra-rare
+[submodule "community/MD32"]
+	path = community/MD32
+	url = https://github.com/aleph-void/ghidra-md32.git
+	branch = ghidra-rare

@@ -422,6 +422,16 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### MediaTek MD32: done (community: @cyrozap)
+
+| Area | State |
+|---|---|
+| Decode | 533,020 units (all 65,536 halfwords, 16 words per 12-bit major opcode, every 32-bit constructor's opcode with register-field subsets, 200,000 random words and 200,000 random bundles) vs MediaTek's own md32-elf-objdump (binutils 2.23, run as a black box): 212,125 identical, 320,895 invalid in both, 0 different. 285/286 constructors reached (the loop-end wrapper through the emulator) |
+| Semantics | Instruction bundles decoded (a 32-bit word holding a full 16-bit instruction and the low 15 bits of a second; upstream's main gap), generated slot tables; fixed data endianness (the spec compiled big-endian under a little-endian language, so byte/halfword stores and comparisons used the wrong bytes), missing ior16/iow16/brk16, fup pattern, too-permissive patterns, rti returning to pc instead of ipc. 37 hand-computed emulator sequences assembled with the vendor assembler; 2 broken expectations detected |
+| Real code | No freely licensed MD32 firmware exists: two self-written programs (86 instructions: branch forms, loops, bundles, delay slots) built with the vendor tools, auto-imported, every instruction identical to objdump, 4/4 functions decompile |
+| Doesn't work | addx/subx carry, sdiv, bset/bclr/btgl/btst, ror/rol, osl, rnds/rndu, fup and xtd are unimplemented (no documentation or simulator); rti does not restore SR; nested hardware loops; delay-slot counting for 32-bit instructions in .d2 slots and bundle slot ordering are undocumented |
+| Unverified | All run-time behaviour on silicon |
+
 ### Broadcom VideoCore IV: done (community: Paolo Vagnero, Ghidra PR #1147)
 
 | Area | State |
