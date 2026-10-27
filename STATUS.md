@@ -680,6 +680,18 @@ Upstream's loader did not compile on Ghidra 12, opened a GUI file chooser (break
 | Doesn't work | The GPR window at CP is not aliased to memory; SGTDIS=1 mode; byte writes to PSW's high byte; MDRIU/MULIP; no automatic disassembly of indirect targets (issue #42, maintainer's decision); large-model far pointers (#41); XC16x instructions |
 | Unverified | Peripheral SFR symbol lists; the ELF opinion (EM_C166); DWARF numbering; real ECU firmware (none freely licensed) |
 
+### Norsk Data ND-100: done (community: RetroCoreLabs)
+
+| Area | State |
+|---|---|
+| Decode | All 65,536 words vs the nd100x emulator (`--cputype=ND110CX`, GPL, black box): 63,530 agree, 546 undefined in both, 1,460 explained, 0 unexplained; the explained classes are words nd100x decodes beyond the project's exact instruction definitions (YAML, the second source): 64-word LBYT/SBYT/GECO/MIX3 blocks, wider MOVEW, TRA/TRR/MCL/MST selectors, SRB/LRB halves, WGLOB, USER0-9, RADD AD=3, 5 words that hang nd100x. 285/285 constructors reached |
+| Semantics | Fixed: STS fields read as one-bit flags (every flag access was wrong), dynamic and static overflow swapped, register 0 as STS instead of zero, P semantics, RAND/REXO/RORA with CLD/CM1, SWAP, JPL link address, shifts (ROT/ZIN/LIN, right variants, 32-bit forms, M flag), RMPY/RDIV flags, the bit operations, JAZ not touching C. 4,912 programs recorded from nd100x with every register compared after each instruction: 4,910 pass, 2 skipped (floating point); broken expectation detected |
+| Real code | None: no freely licensed ND-100 binary exists; the BPUN/PROG/BRF loaders and analyzers are not exercised |
+| Doesn't work | Floating point, normalize/denormalize, SRB and I/O are pcodeops; STS bits 8-15 (program level, register banks); the SLEIGH is generated upstream by a C# tool and the fixes are made in the generated files (regenerating would undo them) |
+| Unverified | REXO with CM1 (nd100x ORs, the YAML says XOR); JPL with B+X addressing (nd100x does not set L, the YAML says P+1); the loaders, analyzers, cspec and pspec |
+
+Published as the `ND-100/` subtree of RetroCoreLabs/ghidra-nd100 (original authors kept); the rest of upstream, including a Norsk Data program binary in its history, is not included.
+
 ### HP NMOS-II hybrid processor: done (community: @kkaempf)
 
 | Area | State |

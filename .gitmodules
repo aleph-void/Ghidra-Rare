@@ -274,3 +274,7 @@
 	path = community/TeakLite
 	url = https://github.com/aleph-void/TeakLite-SLEIGH.git
 	branch = ghidra-rare
+[submodule "community/ND100"]
+	path = community/ND100
+	url = https://github.com/aleph-void/ghidra-nd100.git
+	branch = ghidra-rare
