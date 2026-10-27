@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### Motorola 68HC16 (CPU16): done (community: @HausRummel)
+
+| Area | State |
+|---|---|
+| Decode | vs MAME `cpu16`: 102,400 structured slots and 50,000 random, 0 unexplained (structured: 84,473 exact, 1,050 semantic, 6,657 explained: odd branch offsets, JMP/JSR with a non-zero top nibble, PSHM/PULM bit 7). asl round trip 0 mismatches; Motorola MASM 4.6 encodings 856/856. 1,372/1,372 constructors reached |
+| Semantics | Full p-code with 20-bit bank arithmetic and live EK/ZK, signed offsets, stack/call/RTI/SWI frames, PSHM/PULM, all flags and the 36-bit MAC unit. 37/37 hand-computed emulator cases pass and a broken expectation is detected; 30,240 random-state cases match a model written from the CPU16 Reference Manual |
+| Real code | zlib 1.3.1 built with the GNU hc16 GCC 2.8.1 (steve-m/hc16-toolchain, pinned; runtime library stubbed, its sources are all rights reserved): 21,173 instructions, 89/89 functions decompile, 0 bad-instruction or error bookmarks, every instruction matches MAME. New HC16GccInlineArgs.java script for GCC's inline arguments after library calls |
+| Doesn't work | SK:SP does not wrap at 1 MB (masking breaks the decompiler's stack tracking); WAI, BGND and LPSTOP are opaque (wait for hardware); interrupts other than SWI and divide by zero; JMP/JSR with a non-zero top nibble are rejected |
+| Unverified | Hardware and real HC16 firmware (none freely licensed); Z2/Z3 peripheral maps, the JTEC preset and the calling conventions |
+
+asl requires an operand for LDHI, encodes it in 4 bytes (manual, MAME and MASM: 2) and does not wrap branch distances at 1 MB. MAME prints page-2 ORAA as `ora`, ignores the JMP/JSR top nibble, prints odd branch targets and shows MOVB/MOVW post-increment offsets unsigned. chirpy8/ghidra_68HC16 and rimwall/Ghidra-HC16-Processor were compared only (chirpy8's RTS restores all flags; rimwall has no license and a 16-bit address space).
+
 ### ADI SHARC (ADSP-214xx): done (community: @roblg)
 
 | Area | State |

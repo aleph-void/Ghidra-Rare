@@ -146,3 +146,7 @@
 	path = community/SHARC
 	url = https://github.com/aleph-void/ghidra-sharc.git
 	branch = ghidra-rare
+[submodule "community/HC16"]
+	path = community/HC16
+	url = https://github.com/aleph-void/Ghidra-Processor-MC68HC16Z.git
+	branch = ghidra-rare
