@@ -227,6 +227,54 @@ Imported from other authors and verified to the same bar. Each lives in an `alep
 
 Reference-tool bugs: objdump `-m m68hc11` prints 0x00 as the HC12 `bgnd`; MAME misspells BRCLR (18 1F) as `brlcr`, decodes undefined store-immediate opcodes and HD6301 0x12/0x13, and decodes BRN/JSR-direct on the 6800.
 
+### WE32100 (AT&T 3B2): done (community: @fletto2; instruction set regenerated here)
+
+| Area | State |
+|---|---|
+| Decode | vs MAME `unidasm`: 496,416 structured slots (every opcode × descriptor at every position, every {type} prefix, prefix chains) + 100,000 random: 0 unexplained. vs asl (independent encoder): 3,416 forms agree (492 asl-rejected combinations). 2,202/2,202 constructors reached |
+| Semantics | 350 hand-computed emulator sequences from the manual (modes, extension/truncation, infinite-precision flags, shifts/rotates, INSF/EXTF, 14 branch + 14 return conditions × flag sets, CALL/RET/SAVE/RESTORE, block/string moves, traps/GATE/CALLPS/RETPS); 2 deliberately wrong expectations detected |
+| Real code | 30 KB of public-domain C (AES, DES, Blowfish, RC4, MD2/5, SHA-1/256, base64, rot13) built with GCC 2.95.3's we32k back end and assembled with asl: 6,348 instructions, 56 functions, 0 bad/error bookmarks, 56/56 decompile, all identical to MAME |
+| Doesn't work | WE32200; no COFF loader (no legal samples) and no .dwarf; WAIT, INTACK, CFLUSH, ENBVJMP/DISVJMP, MOVTRW translation and SPOP* coprocessor ops are pcodeops; privilege/stack-bound/overflow/MMU/trace faults not modelled; decompiler sees arguments as in_ap[n] |
+| Unverified | No hardware or AT&T-compiled code; manual-only rules (infinite-precision flags, CMP/TST on extended values, {type} persistence, ALSW3 sign bit where SIMH disagrees) |
+
+MAME bugs: SPOPRT/SPOPT2/RVC misprinted, undefined 0xa2/0xa3 decoded as PUSHW. asl encodes RET as 0x18 (should be 0x08). SIMH CMP N width-truncated, V from unsigned 64-bit magnitude.
+
+### SH-3 / SH-3E / SH-2E: done (community: @will07c5; instruction set rewritten here)
+
+| Area | State |
+|---|---|
+| Decode | All 65,536 words × 5 languages vs objdump 2.45 (`-m sh2e/sh3/sh3e`): 0 unexplained, 0 explained differences. Every-entry 174/174 (2E), 162/162 (3), 193/193 (3E); upstream failed 18,658/65,536 |
+| Semantics | Hand-computed emulator cases 128 (2E), 119 (3 BE/LE), 142 (3E BE/LE); broken expectation and 5 source mutants detected; upstream failed 46/119. QEMU 10.2.1 user-mode state diff: 677,080 vectors, 676,305 identical, 775 explained, 0 unexplained |
+| Real code | NetBSD 10.1 sh3el/sh3eb userland: 2,445,755 instructions identical to objdump, 43,811 functions decompile, 0 fail, 2 time out; zlib and Lua built with sh-elf gcc 14.3 for all 5 languages: identical to objdump; DWARF, -fPIC .so relocations, PE opinion (synthetic), PLT stubs named after imports |
+| Doesn't work | SLEEP, LDTLB pcodeops; FPSCR rounding/flags, FD/BL/MD effects, interrupts, MMU not modelled; SH-DSP, SH-4/4A, SH-2A not covered; literal-pool bookmarks after calls to unproven non-returning functions; Ghidra's own SuperH handler cannot import .o files with GOT32/PLT32/GOTPC |
+| Unverified | No hardware or SH-3 simulator: exception model, SR reserved bits, FPSCR mask, FTRC of NaN, MAC.W/MAC.L with Rm==Rn (QEMU differs from the manual); no third-party SH-2E/SH-3E binary |
+
+QEMU sh4: rotl/rotr never set T; div1 T differs for a zero divisor and Rm==Rn.
+
+### H8 family (H8/300, 300L, 300H, H8S, H8SX): done (community: @shizmob; instruction set regenerated here)
+
+| Area | State |
+|---|---|
+| Decode | 10 languages; vs objdump 2.45 on four corpora per language (table, fuzz, enum, gas asm): 0 unexplained, 100% agreement with an independent manual-table decoder; every constructor reached (H8SX 8,633/8,633) |
+| Semantics | Hand-computed emulator tests 26/26/49/49/58/58/85×4 pass, broken expectations detected; GDB 17.2 simulator test programs run in Ghidra's emulator: 190/192 (the 2 failures depend on blocks dropped where the manual contradicts the simulator); that suite found 4 module bugs, all fixed |
+| Real code | GCC 14.3 test program and zlib, 16 binaries: 351,877 instructions, 0 different from objdump, 3,343/3,359 functions decompile; ELF relocations byte-identical to GNU ld (9,768) |
+| Doesn't work | 16 functions (newlib signal/_signal_r in 24-bit binaries); Ghidra's DWARF line reader misdecodes some H8 line numbers (GCC line_range 242); no chip peripheral maps; H8SX middle/maximum, H8/300L and the exrvalid/macsat context bits must be selected by hand |
+| Unverified | Renesas/Hitachi compiler output and SYSROF; real firmware; H8SX middle/maximum and H8/300L in real code; saturating MAC and EXR frames only checked by hand against the manual |
+
+objdump 2.45: ignores reserved bits, accepts invalid register lists, wrong @@vec:7 width in normal mode, decodes E registers in h8300 mode. gas/ld 2.45: out-of-range bsr d:8 truncated silently, a #xx:5 shift after a long-form shift mis-encoded, mova @(d,eN.w),erN encoded as rN.
+
+### MN10200: done (community: @Pokechu22)
+
+| Area | State |
+|---|---|
+| Decode | 295,296 slots: 0 unexplained vs objdump `-m mn10200` (54,338 objdump bug: sign-extended displacements printed unsigned; 14,074 MN102H extensions binutils lacks) and vs MAME `unidasm -arch mn10200`; 213/213 constructors reached |
+| Semantics | All p-code except break/syscall/pxst. Fixed upstream: flags in a RAM hack space (now registers), immediate add/sub/cmp setting no flags, SUBC reversed with wrong flags, XOR imm16 flags, JSR/RTS not touching the stack, DIVU overflow, logic/shift flags. Emulator 30/30, broken expectation detected |
+| Real code | No freely licensed MN10200 binaries and no maintained compiler: assembled routines via GNU as/ld (gcc convention, jump table): 54 instructions identical to objdump except its unsigned-displacement bug, 0 bad instructions, 5/5 functions decompile, switch recovered, .o relocations applied |
+| Doesn't work | pxst (saturation mode of the next add/sub; undocumented), break and syscall are pcodeops |
+| Unverified | MN102H extensions; mulq signedness; real compiled code; Panasonic compiler's calling convention; DWARF |
+
+The language ID `MN102:BE:24:default` is kept although the chip is little-endian (documented in the ldefs).
+
 ### Cell SPU: done (community: @aerosoul94, @balika011, @elad335, @VelocityRa)
 
 | Area | State |

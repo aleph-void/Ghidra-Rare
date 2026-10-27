@@ -86,3 +86,19 @@
 	path = community/SM83
 	url = https://github.com/aleph-void/ghidra-sm83.git
 	branch = ghidra-rare
+[submodule "community/WE32100"]
+	path = community/WE32100
+	url = https://github.com/aleph-void/ghidra-we32100.git
+	branch = ghidra-rare
+[submodule "community/SH3"]
+	path = community/SH3
+	url = https://github.com/aleph-void/ghidra-sh.git
+	branch = ghidra-rare
+[submodule "community/MN10200"]
+	path = community/MN10200
+	url = https://github.com/aleph-void/ghidra-mn102-lang.git
+	branch = ghidra-rare
+[submodule "community/H8"]
+	path = community/H8
+	url = https://github.com/aleph-void/ghidra-h8-300.git
+	branch = ghidra-rare
