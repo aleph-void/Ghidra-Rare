@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### ADI SHARC (ADSP-214xx): done (community: @roblg)
+
+| Area | State |
+|---|---|
+| Decode | 298,048 words (structured + 40,000 random) vs MAME `unidasm sharc` (ADSP-2106x): 0 unexplained (17,429 exact, 108,452 semantic, 81,693 invalid in both, 90,474 in 21 explained classes). Multiplier opcodes vs the PGR tables: 2,048 words, 0 mismatches. VISA consistency with the ISA decode: 151,552 words and 6,529 16-bit parcels, 0 mismatches. 3,862/3,862 constructors reached (loop-end, delay-slot, bit-reverse and SIMD contexts swept) |
+| Semantics | Rewritten from the Programming Reference rev 2.4: all flags and sticky bits, ALU saturation, float NaN and denormal flush, FIX/TRUNC modes, 80-bit MR, bit FIFO, circular buffers, bit-reverse, LW, PC/loop/status stacks, and SIMD (PEy half of every instruction). 51 hand-computed emulator programs pass (10 SIMD); broken expectation detected |
+| Real code | image_segmentation.dxe (MIT, CCES for ADSP-21489, pinned SHA-256, not committed) through the new DXE loader: 9,060 instructions, 210 functions, 0 bad-instruction or error bookmarks, 209/209 decompile; vs selache seldump (black box) at the same addresses 0 unexplained |
+| Doesn't work | SIMD and bit-reverse modes are context assumptions (the SIMD Mode analyzer sets them between MODE1 PEYEN set/clear), not dynamic MODE1; broadcast loads; 40-bit extended float (no p-code type); IDLE/EMUIDLE/FLUSH CACHE are pcodeops; RTI does not pop the status stack (pushed on interrupt entry); RECIPS/RSQRTS return the exact value (seed table unpublished); VISA delay slots need the Delay Slot analyzer; a DO whose loop end precedes it cannot be marked; 48-bit code pointers in data are not followed; two run-time stub tables entered by computed jumps; MULTI_PROC LDR, .doj objects and DWARF |
+| Unverified | Hardware or simulator; VISA only for consistency with the ISA decode; memory map and IVT only for the 5-Mbit parts; only one real executable |
+
+MAME's 2106x disassembler misreads type 5 COND and register fields and the type 7a DAG, swaps FLOAT/FIX/RND R/F letters, prints (LR) on RTI, accepts reserved multiplier opcodes and shift-immediate bit 22, and has MR B-register moves off by one. selache seldump on 214xx code gets type 3/4/15/16 DAG fields, VISA lengths of types 7a/16a, shift-immediate opcodes, short compute OP 7, the system register table, type 5/6a/19a and CJUMP targets wrong; the real code agrees with the module in each case examined.
+
 ### Motorola MC146805E2: done (community: @gareth8118, Ghidra PR #856)
 
 | Area | State |
