@@ -286,3 +286,7 @@
 	path = community/Si4440
 	url = https://github.com/aleph-void/ghidra-si4440.git
 	branch = ghidra-rare
+[submodule "community/AdrenoSQE"]
+	path = community/AdrenoSQE
+	url = https://github.com/aleph-void/ida-adreno-qrisc.git
+	branch = ghidra-rare

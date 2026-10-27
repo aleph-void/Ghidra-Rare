@@ -544,6 +544,18 @@ opbsim 1.3.10 chains Z through ADDCY/SUBCY in KCPSM3 mode as well (the data shee
 
 Ghidra's SleighLanguage caches instruction prototypes by a 32-bit hash and returns the wrong prototype on a collision (1 corpus slot per byte order; the test harness parses uncached). objdump 2.45 prints u6 as a register in "0,limm,u6" forms of sub-opcodes 0x20-0x2e of majors 5-7.
 
+### Qualcomm Adreno SQE (QRisc): done (community: @locus-x64)
+
+| Area | State |
+|---|---|
+| Decode | Language files regenerated to decode like Mesa's qrisc-disasm (MIT, black box): 148,304 words per language, a6xx 94,429 exact + 17,769 semantic, a7xx 81,474 + 19,463, a7xx_gen3 (new, A750 control registers) 81,390 + 19,547, 0 unexplained (305 each are a Mesa display bug). Every constructor reached (179/184/179) |
+| Semantics | Fixed: cread/cwrite/sread/swrite/load/store were pcodeops (now volatile control, SQE and memory spaces with names), the (rep)/(xmov)/(peek)/(sds) prefixes, preincrement, setsecure skip, $00 reading zero, the cspec missing code in its global set (every decompile failed), nested delay slots rejected (now a pending-branch scheme). 34 (a6xx) and 40 (a7xx) hand-computed emulator cases including Mesa's gcd chain; broken expectation detected |
+| Real code | Mesa's test firmware (MIT, pinned): linear sweep 258 + 602 words, 0 differences; BR/BV/LPAC images: every function decompiles, 0 bad instructions; handlers named CP_* by the import helper |
+| Doesn't work | When both branches of a branch in a taken branch's delay slot are taken, flow ends at the first target; an instruction that is both in a delay slot and a branch target gets one decoding; waitin and setsecure are pcodeops; $memdata/$regdata are volatile reads of hardware queues; the draw-state RAM; no ELF/DWARF |
+| Unverified | a8xx (Mesa has no a8xx support; decoded as a7xx); where Mesa's emulator and README disagree on xmov and $rem under (rep)(sds), the README is followed; the cspec |
+
+qrisc-disasm prints a pre-incremented sread/swrite offset in decimal behind "0x".
+
 ### Sony PSP Allegrex: done (community: @kotcrab and contributors)
 
 | Area | State |
