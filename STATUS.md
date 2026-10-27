@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### STMicroelectronics ST7: done (community: @agatti, Ghidra PR #3631)
+
+| Area | State |
+|---|---|
+| Decode | vs asl (AS 1.42) `-cpu ST7`: 530 forms enumerated from the PM0002 manual give 513 exact, 17 documented aliases, 0 different; 60,000 random strings per language, 0 mismatches. 164/164 constructors reached. The PR had 13 SLEIGH pattern conflicts and accepted chained pre-bytes |
+| Semantics | 142 (ST7) and 143 (ST72) hand-computed emulator cases pass and a broken expectation is detected (the PR head failed 30 of the 142); 19,941/19,941 runnable random single instructions agree with an independent model written from PM0002. Rewritten here: flags, stack, every addressing mode, jumps, TRAP |
+| Real code | Five Digi RabbitNet ST72264 firmware images (MPL-2.0, pinned URL + SHA-256, not committed): 917-2,150 instructions and 58-71 functions each, 0 decompile failures; all 6,783 instructions round-trip through asl |
+| Doesn't work | HALT/WFI are userops; interrupt entry, peripherals, SP wrap and the device-dependent SP high byte not modelled; vector-table size guessed; no DWARF register map, and the calling convention is a guess (no ST7 C compiler exists) |
+| Unverified | ST72 I1/I0 priority semantics (PM0002 is silent; upstream's definition kept); whether LD S,r sets N/Z; CC bits 7-5 reading as 1; the ELF opinion (e_machine 68, no sample); devices other than the ST72264 |
+
+SDCC has no ST7 port and MAME no ST7 disassembler, so the oracles were asl and the uCsim ST7 simulator (black boxes) plus the manual model. uCsim defects found: LD (X),X printed with Y, SWAP X printed as swapw, CP X,#imm treated as 16-bit, JP jumping to the byte stored at the target, LD leaving N/Z unchanged, BTJx not setting C, TRAP missing, 92-prefixed BSET/BRES/BTJx ignoring the pointer, PUSH CC omitting bits 7-5, 16-bit X/Y.
+
 ### NEC uPD78xx (78C10): done (community: @ajxs, @depili; Ghidra PR #7930)
 
 | Area | State |

@@ -118,3 +118,7 @@
 	path = community/UPD78XX
 	url = https://github.com/aleph-void/ghidra-upd78xx.git
 	branch = ghidra-rare
+[submodule "community/ST7"]
+	path = community/ST7
+	url = https://github.com/aleph-void/ghidra-st7.git
+	branch = ghidra-rare
