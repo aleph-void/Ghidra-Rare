@@ -23,7 +23,7 @@ Pull requests are covered by Ghidra's contribution terms (Apache-2.0).
 | BQ 8-bit (TI gauge) | [solar-pwr/bq8bit](https://github.com/solar-pwr/bq8bit) | Apache-2.0 (ok) | 1/1 | 213 | @solar-pwr | Only implementation found |
 | Broadcom VideoCore IV | [PR#1147](https://github.com/NationalSecurityAgency/ghidra/pull/1147) | Apache-2.0 (Ghidra contribution) (ok) | 1/1 | 441 | @paolovagnero (commits: Paolo Vagnero) | Only implementation found |
 | C-SKY v1 (CK610) | [nnonickreal/ghidra-csky-ISAv1](https://github.com/nnonickreal/ghidra-csky-ISAv1) | none (blocked) | 1/1 | 157 | @nnonickreal | Only one that compiles; NO LICENSE Alternatives: selar2025/Ghidra_CK610_Processor. |
-| Casio HCD62121 | [qufb/HCD62121](https://github.com/qufb/HCD62121) | none (blocked) | 0/1 | 210 | @qufb | Only implementation found |
+| Casio HCD62121 | [qufb/HCD62121](https://github.com/qufb/HCD62121) | MIT (ok, added 2026-10-27) | 0/1 | 210 | @qufb | Only implementation found |
 | Cell SPU | [aerosoul94/GhidraSPU](https://github.com/aerosoul94/GhidraSPU) | Apache-2.0 (ok) | 1/1 | 208 | @balika011, @aerosoul94, @elad335, @VelocityRa | Only implementation found |
 | MediaTek GCPU control CPU (CCPU; listed as Chip Command CCPU) | [cyrozap/ghidra-ccpu](https://github.com/cyrozap/ghidra-ccpu) | Apache-2.0 (ok) | 1/1 | 40 | @cyrozap | Only implementation found |
 | cr816 | [pelrun/ghidra-cr816](https://github.com/pelrun/ghidra-cr816) | Apache-2.0 (ok) | 1/1 | 88 | @pelrun | Only implementation found |
@@ -125,7 +125,7 @@ Pull requests are covered by Ghidra's contribution terms (Apache-2.0).
 | TILE-Gx | [PR#9426](https://github.com/NationalSecurityAgency/ghidra/pull/9426) | Apache-2.0 (Ghidra contribution) (ok) | 1/1 | 631 | @speidy (commits: Idan Freiberg) | 631 constructors, compiles; PR#9281 doesn't Alternatives: PR#9281. |
 | Toshiba MeP | [CreepNT/VitaLoaderRedux](https://github.com/CreepNT/VitaLoaderRedux) | BSD-3-Clause-Clear (ok) | 1/1 | 247 | @CreepNT, @scribam, @antoniovazquezblanco, @DCNick3 | 247 constructors (Vita CMeP) vs xyzz 115; BSD-3-Clause; extract processor only Alternatives: xyzz/ghidra-mep, guedou/ghidra-processor-mep. |
 | Toshiba T8x | [DrWhax/SLEIGH-Toshiba-T8x](https://github.com/DrWhax/SLEIGH-Toshiba-T8x) | none (blocked) | 1/1 | 228 | @DrWhax | Only implementation found |
-| Toshiba TLCS-900/H | [nevesnunes/ghidra-tlcs900h](https://github.com/nevesnunes/ghidra-tlcs900h) | none (blocked) | 1/1 | 1495 | @nevesnunes | Only implementation found |
+| Toshiba TLCS-900/H | [nevesnunes/ghidra-tlcs900h](https://github.com/nevesnunes/ghidra-tlcs900h) | MIT (ok, added 2026-10-27) | 1/1 | 1495 | @nevesnunes | Only implementation found |
 | WCH (CH32 variants) | [smhgzll/dmt-99-multimeter-custom-firmware](https://github.com/smhgzll/dmt-99-multimeter-custom-firmware) | unclear (blocked) | 1/1 | 1449 | @smhgzll | Only implementation found |
 | WE32100 | [fletto2/ghidra-we32100](https://github.com/fletto2/ghidra-we32100) | MIT (ok) | 1/1 | 272 | @fletto2; also @mumbel, @sethm (mumbel/ghidra_we) | Compiles, MIT; mumbel (Apache) doesn't compile Alternatives: mumbel/ghidra_we. |
 | Wii Starlet | [eigenform/gcwii-toolbox](https://github.com/eigenform/gcwii-toolbox) | none (blocked) | 0/1 | 123 | @eigenform | Only implementation found |
@@ -156,13 +156,13 @@ Opened 2026-10-25 for every blocked pick. A module moves into the verification q
 | CPU | Request | Status |
 |---|---|---|
 | C-SKY v1 (CK610) | https://github.com/nnonickreal/ghidra-csky-ISAv1/issues/1 | open |
-| Casio HCD62121 | https://github.com/qufb/HCD62121/issues/1 | open |
+| Casio HCD62121 | https://github.com/qufb/HCD62121/issues/1 | MIT license added (commit f43246a); in the verification queue |
 | CoolRISC 816 (cr816) | https://github.com/pelrun/ghidra-cr816/issues/2 | open; only Ghidra's template LICENSE.txt; verified, held until confirmed (asked 2026-10-27) |
 | Epson E0C6S46 | https://github.com/Veryyes/E0C6S46-Ghidra-Processor/issues/2 | open |
 | Epson S1C33 | https://github.com/GMMan/s1c33_sleigh/issues/1 | open |
 | Epson S1C88 | https://github.com/xtla/s1c88/issues/1 | open |
 | Femtium | https://github.com/RobertLarsen/GhidraFemtiumProcessor/issues/1 | open |
-| Fujitsu F2MC-16LX | https://github.com/mehmooda/F2MC-16LX/issues/6 | author agrees; waiting for co-contributors @qufb and @mkrasselt1 |
+| Fujitsu F2MC-16LX | https://github.com/mehmooda/F2MC-16LX/issues/6 | all three contributors agreed in comments (2026-10-25..27); no license file yet |
 | GameCube DSP | https://github.com/Pokechu22/ghidra-gcdsp-lang/issues/2 | open; published while Ghidra's template LICENSE.txt was the only license file; confirmation asked 2026-10-27 |
 | Hitachi (RotorRE) | https://github.com/phaseseeker/RotorRE/issues/1 | open |
 | Hitachi H8/500 | https://github.com/OZVR4/Ghidra-H8-Processor/issues/5 | open |
@@ -176,18 +176,18 @@ Opened 2026-10-25 for every blocked pick. A module moves into the verification q
 | Panasonic MN10200 | https://github.com/Pokechu22/ghidra-mn102-lang/issues/2 | open; published while Ghidra's template LICENSE.txt was the only license file; confirmation asked 2026-10-27 |
 | Renesas M32R | https://github.com/ripnet/ghidra-m32r/issues/7 | open |
 | Renesas RX | https://github.com/redballoonsecurity/rx-proc-ghidra/pull/2#issuecomment-6401502742 | comment on an existing license PR |
-| S5L8702 FMISS | https://github.com/lemonjesus/S5L8702-FMISS-Tools/issues/6 | open |
+| S5L8702 FMISS | https://github.com/lemonjesus/S5L8702-FMISS-Tools/issues/6 | author will relicense the Ghidra files after updating them |
 | Sanyo LC87 | https://github.com/Konsl/ghidra-lc87-processor/issues/1 | open |
 | SCN3 | https://github.com/LemonHaze420/GhidraSCN3/issues/1 | open |
 | Signetics 2650 | https://github.com/iromero91/ghidra-signetics2650/issues/1 | open |
 | Sony SA-DSP | https://github.com/ma1co/SA-DSP/issues/1 | open |
 | Sunplus SPC970 | https://github.com/DiscoStarslayer/ghidra-spc970/issues/5 | open |
-| Telink TC32 | https://github.com/rgov/Ghidra_TELink_TC32/issues/5 | open |
+| Telink TC32 | https://github.com/rgov/Ghidra_TELink_TC32/issues/5 | author: "consider it MIT licensed" (comment 2026-10-26); no license file yet |
 | TI TMS320C3x | https://github.com/gm-stack/tms320-ghidra/issues/1 | open |
 | TI TMS34010 | https://github.com/ZPaul2Fresh8/Ghidra_TMS34010/issues/1 | license added by the author 2026-10-25 |
 | TI TMS9900 | https://github.com/gnulnulf/Ghidra-TMS9900/issues/7 | open; published while Ghidra's template LICENSE.txt was the only license file; confirmation asked 2026-10-27 |
 | Toshiba T8x | https://github.com/DrWhax/SLEIGH-Toshiba-T8x/issues/1 | open |
-| Toshiba TLCS-900/H | https://github.com/nevesnunes/ghidra-tlcs900h/issues/1 | open |
+| Toshiba TLCS-900/H | https://github.com/nevesnunes/ghidra-tlcs900h/issues/1 | MIT license added; in the verification queue |
 | WCH (CH32 variants) | not requested | Repository says files keep their original rights; the original author is unknown |
 | Wii Starlet | https://github.com/eigenform/gcwii-toolbox/issues/1 | open |
 | XpertTeak | https://github.com/Pokechu22/ghidra-xpertteak-lang/issues/1 | open; only Ghidra's template LICENSE.txt; not imported until confirmed (asked 2026-10-27) |
