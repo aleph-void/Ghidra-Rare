@@ -422,6 +422,18 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### Sunplus SCORE7: done (community: @ArthurKoba, Ghidra PR #9671)
+
+| Area | State |
+|---|---|
+| Decode | vs GNU objdump 2.45 `-m score7`, both byte orders, slots at 0 and 2 mod 4: all 65,536 halfwords, 1,048,576 32-bit words (every major × bits 14-0) and 50,000 random, 0 unexplained; MAME `unidasm score7` agrees on all 12,410 undefined-parity words. 545/545 constructors reached per language |
+| Semantics | 36/36 hand-computed emulator cases per byte order (PCE pairs with T set and clear, bcnz loops, cr1 flags); broken expectation detected. Fixed here: immediate bit and shift counts read as registers, PCE pairs decoded as both instructions with T-selected p-code (were raw halves and a pcodeop), separate flag registers, shift carries, about 100 missing encodings, objdump syntax; cspec from GCC 4.5.4 output (stack offset 16, was 4; r4:r5 64-bit order was swapped) |
+| Real code | zlib and crypto-algorithms built with GCC 4.5.4 score-elf, LE and BE: 146 functions and about 18,000 instructions per byte order, 0 bad instructions, 0 error bookmarks, every function decompiles, 100% semantically equal to objdump, DWARF imported, opinion picks the byte order |
+| Doesn't work | Custom-engine DSP ops (min/max/bitrev/saturating/MAC forms, ceinst, lcb..sce) and system/coprocessor ops are pcodeops (no non-GPL description; MAME does not emulate them); Ghidra 12.1.4's SLEIGH assembler throws an NPE on this language (the PR's fix is in Ghidra core, which an extension cannot ship); no ELF relocation handler |
+| Unverified | Rotate flags (MAME does not emulate rotates; the shift carry rule is used); real S+core7 firmware (none freely licensed) |
+
+objdump 2.45 prints the LE PCE marker order reversed and leaves the ldc3 offset unscaled; the score linker in binutils 2.28 and 2.45 mis-relocates backward j/jl (the samples use binutils 2.20.1); GCC 4.5.4's score libgcc floating-point helpers ICE. sronco/ghidra-score7 has no license and was not used.
+
 ### Motorola 68HC16 (CPU16): done (community: @HausRummel)
 
 | Area | State |

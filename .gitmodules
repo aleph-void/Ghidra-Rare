@@ -150,3 +150,7 @@
 	path = community/HC16
 	url = https://github.com/aleph-void/Ghidra-Processor-MC68HC16Z.git
 	branch = ghidra-rare
+[submodule "community/SCORE7"]
+	path = community/SCORE7
+	url = https://github.com/aleph-void/ghidra-score7.git
+	branch = ghidra-rare
