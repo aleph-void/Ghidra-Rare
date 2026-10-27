@@ -422,6 +422,16 @@ Fixed here: echo RAM executable, RAM code copied by any helper, power-up bank 1,
 | Doesn't work (inherent) | The engine entry point can't be found automatically (the IPL's entry word is overwritten and no prologue pattern is reliable; see the README). DSP/timer behaviour and Sony's IPL ROM overlay aren't modelled. Bounded jump tables time out the decompiler (switch recovery, outside the module) |
 | Unverified | Commercial sound drivers (deliberately not used); any second open-source driver |
 
+### Sega Dreamcast VMU (Sanyo LC8670): done (community: @RossMeikleham)
+
+| Area | State |
+|---|---|
+| Decode | vs MAME `unidasm lc8670`: 986,432 records per language (every first × second byte × 12 third bytes + 200,000 random), 806,432 more with other bank contexts and 2,085 address-dependent records at page crossings: 0 differences. waterbear assembler: 2,536 statements covering every form identical in both languages. 82/82 constructors reached |
+| Semantics | Rewritten: SFRs as RAM-space variables, ADD/ADDC/SUB/SUBC/ROLC/BE/BNE flags, PSW parity, RAM bank and IRBK as context (`vmu:2:default`) or read from PSW at run time (new `vmu:2:dynamic`), stack in bank 0, LDF/STF on a 128 KB flash space, DIV by zero, vectors as entry points. 107 hand-computed emulator cases per language; broken expectation detected |
+| Real code | 4 DreamPotato test programs (MIT, pinned URL + SHA-256, not committed): 1,115 instructions, 85/85 functions decompile, 0 bookmarks, every instruction identical to waterbear's disassembly; the new loader imports .vms games without options |
+| Doesn't work | Interrupts, timers, serial, Maple, HALT, LCD/VRAM auto-increment and the flash unlock sequence are hardware state; the default language follows bank bits only through SET1/CLR1 PSW; instructions straddling the end of the 64K space; no loader for .vmu flash images (extract the .vms); PSW and the stack show as RAM variables in the decompiler |
+| Unverified | Hardware and the Sanyo manual (semantics from Comstedt, Grinberg and DreamPotato): ADDC/SUBC overflow, parity polarity, R0-R3 pointer cells following RAMBK0, DIV by zero; no BIOS or commercial images used |
+
 ### TI TMS320C24x: done (community: @banksy-git; instruction set regenerated here)
 
 | Area | State |

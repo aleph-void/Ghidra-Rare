@@ -166,3 +166,7 @@
 	path = community/TMS320C24x
 	url = https://github.com/aleph-void/ghidra-tms320c24x.git
 	branch = ghidra-rare
+[submodule "community/VMU"]
+	path = community/VMU
+	url = https://github.com/aleph-void/Ghidra-VMU-Processor.git
+	branch = ghidra-rare

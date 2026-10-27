@@ -94,6 +94,7 @@ as a git submodule under `community/`, pinned to the verified commit
 | [Cell SPU](https://github.com/aleph-void/GhidraSPU/blob/ghidra-rare/GHIDRA-RARE.md) | Cell Broadband Engine SPU (SPU ISA v1.2), 128-bit SIMD registers, ELF relocations and switch-table analyzer | `SPU:BE:32:default` (renamed from `SPU:BE:128:default`; old programs upgrade automatically) | Adrian (@aerosoul94), @balika011, Eladash (@elad335), Nick Renieris (@VelocityRa) | Apache-2.0 |
 | [TILE-Gx](https://github.com/aleph-void/ghidra-tilegx/blob/ghidra-rare/GHIDRA-RARE.md) | Tilera TILE-Gx, little/big-endian data and 32/64-bit ABI | `TILE:{LE,BE}:{32,64}:default` | Idan Freiberg (@speidy, Ghidra PR #9426) | Apache-2.0 |
 | [VAX](https://github.com/aleph-void/ghidra-vax/blob/ghidra-rare/GHIDRA-RARE.md) | DEC VAX: all 306 opcodes with exact VAX floating point, packed decimal and privileged instructions; ELF relocations and an entry-mask analyzer | `VAX:LE:32:default` | Klaus Kämpf (@kkaempf) | Apache-2.0 |
+| [VMU](https://github.com/aleph-void/Ghidra-VMU-Processor/blob/ghidra-rare/GHIDRA-RARE.md) | Sega Dreamcast VMU (Sanyo LC8670) with RAM-bank tracking, flash space and a .vms game loader | `vmu:2:default`, `vmu:2:dynamic` | Ross Meikleham (@RossMeikleham) | MIT |
 
 ## Relationship to the IDA modules
 
