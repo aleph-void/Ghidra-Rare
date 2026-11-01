@@ -162,33 +162,33 @@ Opened 2026-10-25 for every blocked pick. A module moves into the verification q
 | Epson S1C33 | https://github.com/GMMan/s1c33_sleigh/issues/1 | open |
 | Epson S1C88 | https://github.com/xtla/s1c88/issues/1 | open |
 | Femtium | https://github.com/RobertLarsen/GhidraFemtiumProcessor/issues/1 | open |
-| Fujitsu F2MC-16LX | https://github.com/mehmooda/F2MC-16LX/issues/6 | all three contributors agreed in comments (2026-10-25..27); no license file yet |
-| GameCube DSP | https://github.com/Pokechu22/ghidra-gcdsp-lang/issues/2 | open; published while Ghidra's template LICENSE.txt was the only license file; confirmation asked 2026-10-27 |
+| Fujitsu F2MC-16LX | https://github.com/mehmooda/F2MC-16LX/issues/6 | all three contributors agreed in comments (2026-10-25..27); no license file yet; PR adding MIT LICENSE opened 2026-11-01: https://github.com/mehmooda/F2MC-16LX/pull/7 |
+| GameCube DSP | https://github.com/Pokechu22/ghidra-gcdsp-lang/issues/2 | full Apache-2.0 LICENSE.txt added by the author 2026-10-28 (also in mn102, xpertteak and upd77016) |
 | Hitachi (RotorRE) | https://github.com/phaseseeker/RotorRE/issues/1 | open |
 | Hitachi H8/500 | https://github.com/OZVR4/Ghidra-H8-Processor/issues/5 | open |
 | Hudson HuC6280 | https://github.com/TiCoKH/Ghidra_HuC6280/issues/2 | open |
-| Kirk (PSP crypto) | https://github.com/LemonHaze420/ghidra_kirk/issues/1 | open |
+| Kirk (PSP crypto) | https://github.com/LemonHaze420/ghidra_kirk/issues/1 | MIT license added by the author 2026-10-30 (commit 26b9979) |
 | Micronova | https://github.com/pkooiman/micronova_ghidra/issues/1 | license added by the author 2026-10-25 |
 | National SC/MP | https://github.com/sigurasg/GhidraSCMP/issues/45 | open |
 | NEC V60 / Fujitsu MB86233 | https://github.com/frangarcj/model1-ghidra/issues/1 | open |
 | NS32016 | https://github.com/raybellis/ghidra-NS32016/issues/1 | open; published while Ghidra's template LICENSE.txt was the only license file; confirmation asked 2026-10-27 |
 | OKI nX-U8 | https://github.com/EwTE-H/nX-U8_for_Ghidra/issues/1 | open |
-| Panasonic MN10200 | https://github.com/Pokechu22/ghidra-mn102-lang/issues/2 | open; published while Ghidra's template LICENSE.txt was the only license file; confirmation asked 2026-10-27 |
+| Panasonic MN10200 | https://github.com/Pokechu22/ghidra-mn102-lang/issues/2 | full Apache-2.0 LICENSE.txt added by the author 2026-10-28 |
 | Renesas M32R | https://github.com/ripnet/ghidra-m32r/issues/7 | open |
 | Renesas RX | https://github.com/redballoonsecurity/rx-proc-ghidra/pull/2#issuecomment-6401502742 | comment on an existing license PR |
-| S5L8702 FMISS | https://github.com/lemonjesus/S5L8702-FMISS-Tools/issues/6 | author will relicense the Ghidra files after updating them |
+| S5L8702 FMISS | https://github.com/lemonjesus/S5L8702-FMISS-Tools/issues/6 | Ghidra module relicensed MIT by the owner 2026-10-28 (READMEs only; most of the module is by @q3k, PR #4); PR adding the missing ghidra-processor/LICENSE opened 2026-11-01: https://github.com/lemonjesus/S5L8702-FMISS-Tools/pull/7 |
 | Sanyo LC87 | https://github.com/Konsl/ghidra-lc87-processor/issues/1 | open |
 | SCN3 | https://github.com/LemonHaze420/GhidraSCN3/issues/1 | open |
 | Signetics 2650 | https://github.com/iromero91/ghidra-signetics2650/issues/1 | open |
 | Sony SA-DSP | https://github.com/ma1co/SA-DSP/issues/1 | open |
 | Sunplus SPC970 | https://github.com/DiscoStarslayer/ghidra-spc970/issues/5 | open |
-| Telink TC32 | https://github.com/rgov/Ghidra_TELink_TC32/issues/5 | author: "consider it MIT licensed" (comment 2026-10-26); no license file yet |
+| Telink TC32 | https://github.com/rgov/Ghidra_TELink_TC32/issues/5 | author: "consider it MIT licensed" (comment 2026-10-26); no license file yet; PR adding MIT LICENSE opened 2026-11-01: https://github.com/rgov/Ghidra_TELink_TC32/pull/6 |
 | TI TMS320C3x | https://github.com/gm-stack/tms320-ghidra/issues/1 | open |
 | TI TMS34010 | https://github.com/ZPaul2Fresh8/Ghidra_TMS34010/issues/1 | license added by the author 2026-10-25 |
-| TI TMS9900 | https://github.com/gnulnulf/Ghidra-TMS9900/issues/7 | open; published while Ghidra's template LICENSE.txt was the only license file; confirmation asked 2026-10-27 |
+| TI TMS9900 | https://github.com/gnulnulf/Ghidra-TMS9900/issues/7 | author: "Apache 2.0 is OK for me" (comment 2026-10-30); only Ghidra's template LICENSE.txt; PR replacing it with full Apache-2.0 text opened 2026-11-01: https://github.com/gnulnulf/Ghidra-TMS9900/pull/8 |
 | Toshiba T8x | https://github.com/DrWhax/SLEIGH-Toshiba-T8x/issues/1 | open |
 | Toshiba TLCS-900/H | https://github.com/nevesnunes/ghidra-tlcs900h/issues/1 | MIT license added; in the verification queue |
 | WCH (CH32 variants) | not requested | Repository says files keep their original rights; the original author is unknown |
 | Wii Starlet | https://github.com/eigenform/gcwii-toolbox/issues/1 | open |
-| XpertTeak | https://github.com/Pokechu22/ghidra-xpertteak-lang/issues/1 | open; only Ghidra's template LICENSE.txt; not imported until confirmed (asked 2026-10-27) |
+| XpertTeak | https://github.com/Pokechu22/ghidra-xpertteak-lang/issues/1 | full Apache-2.0 LICENSE.txt added by the author 2026-10-28 |
 | Zilog Z8000 | https://github.com/jpelletier/Z8000/issues/1 | open |
