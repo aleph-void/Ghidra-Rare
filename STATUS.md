@@ -820,6 +820,18 @@ Chosen over mwdmwd/ghidra-c28x, which was close in decode agreement; everything 
 
 unidasm decodes LDX (F7) as one byte (the manual and asl: six) and accepts many encodings the manual leaves undefined. asl hangs on MINC/MDEC with a non-power-of-two modulus, cannot parse previous-bank names inside memory operands and rejects LDF 4-7 in maximum mode.
 
+### CoolRISC 816 (CR816): done (community: @pelrun)
+
+| Area | State |
+|---|---|
+| Decode | No assembler, disassembler or simulator exists, so the reference is a decoder and simulator written here from the CoolRISC 816 Reference Manual v4.5 (decoding tables cross-checked against the 203 per-instruction format pages). All 4,194,304 22-bit words: 1,929,560 defined and identical, 2,264,744 undefined in both, 0 differences; the CMP-dependent jump names agree too. 106/106 constructors reached |
+| Semantics | ALU, flags, CMP/CMPA, addressing modes, hardware stack and calls rewritten after the manual. 202 hand-computed emulator cases (mostly the manual's own examples), also run through the reference simulator; broken expectation detected. 500 random programs: p-code emulator and simulator end in the same state |
+| Real code | The repository's gcc-port run-time library `lib1funcs.asm` (assembled here): 27 routines × 25 inputs, 675/675 identical in emulator and simulator. Raw, Intel HEX and ELF import: 42 (ELF 38) functions, 0 bad-instruction or error bookmarks, all decompile; listing equals the assembler's at every address. 21 call fixups checked against the real routines (506 runs) |
+| Doesn't work | Interrupts, events and HALT (hardware, not instructions); hardware stack depth fixed at 4 without overflow; flags after MUL/MULA undefined in the manual; the register-forwarding timing exception |
+| Unverified | Real silicon; register-form CMP/CMPA operand order (the manual contradicts itself); SFLAG bits 3..0; V of INCC/DECC/CPL2C; the ELF machine value (no real ELF file) |
+
+The vendor manual PDF and TI BQ803xx ROM API files are removed from the fork's tree. The author licensed the SLEIGH definition MIT on 2026-11-02; seven manual errata are listed in GHIDRA-RARE.md.
+
 ### TI TMS320C24x: done (community: @banksy-git; instruction set regenerated here)
 
 | Area | State |

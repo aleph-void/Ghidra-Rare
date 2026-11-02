@@ -4,7 +4,7 @@ Survey date 2026-10-25. Sources: all 2,160 pull requests to NationalSecurityAgen
 
 126 CPUs not supported by Ghidra 12.2. Where several implementations exist, the most complete one that compiles and is licensed for redistribution is picked; metrics are constructors in the SLEIGH, `unimpl` p-code bodies, spec files, Java, tests and whether every `.slaspec` compiles with Ghidra 12.1.4's `sleigh`. These are first-pass selections; verification can change them.
 
-License status: **90 permissive**, **7 copyleft** (GPL/LGPL), **29 blocked** (no license, non-commercial or unclear: cannot be redistributed without the author's permission).
+License status: **94 permissive**, **7 copyleft** (GPL/LGPL), **25 blocked** (no license, non-commercial or unclear: cannot be redistributed without the author's permission).
 
 Pull requests are covered by Ghidra's contribution terms (Apache-2.0).
 
@@ -26,7 +26,7 @@ Pull requests are covered by Ghidra's contribution terms (Apache-2.0).
 | Casio HCD62121 | [qufb/HCD62121](https://github.com/qufb/HCD62121) | MIT (ok, added 2026-10-27) | 0/1 | 210 | @qufb | Only implementation found |
 | Cell SPU | [aerosoul94/GhidraSPU](https://github.com/aerosoul94/GhidraSPU) | Apache-2.0 (ok) | 1/1 | 208 | @balika011, @aerosoul94, @elad335, @VelocityRa | Only implementation found |
 | MediaTek GCPU control CPU (CCPU; listed as Chip Command CCPU) | [cyrozap/ghidra-ccpu](https://github.com/cyrozap/ghidra-ccpu) | Apache-2.0 (ok) | 1/1 | 40 | @cyrozap | Only implementation found |
-| cr816 | [pelrun/ghidra-cr816](https://github.com/pelrun/ghidra-cr816) | Apache-2.0 (ok) | 1/1 | 88 | @pelrun | Only implementation found |
+| cr816 | [pelrun/ghidra-cr816](https://github.com/pelrun/ghidra-cr816) | MIT (ok) | 1/1 | 88 | @pelrun | Only implementation found |
 | CSR XAP | [Thaelz/ghidra-xap](https://github.com/Thaelz/ghidra-xap) | LGPL-3.0 (copyleft) | 1/1 | 89 | @Thaelz | XAP (LGPL-3); XAP2 (SamL98, Apache) is a different ISA Alternatives: SamL98/xap2. |
 | CSR XAP2 | [SamL98/xap2](https://github.com/SamL98/xap2) | Apache-2.0 (ok) | 1/1 | 68 | @SamL98, @unusual-thoughts | Only implementation found |
 | DEC Alpha | [kkaempf/ghidra-alpha](https://github.com/kkaempf/ghidra-alpha) | Apache-2.0 (ok) | 15/15 | 367 | @mattst88, @kkaempf | 367 constructors and OS-specific variants vs 242 (and claesmnyberg has no license) Alternatives: claesmnyberg/ghidra-cpu-alpha. |
@@ -53,7 +53,7 @@ Pull requests are covered by Ghidra's contribution terms (Apache-2.0).
 | Intel Atom microcode | [pietroborrello/CustomProcessingUnit](https://github.com/pietroborrello/CustomProcessingUnit) | Apache-2.0 (ok) | 1/1 | 364 | @pietroborrello | Same spec in both (MIT/Apache); Apache copy Alternatives: pietroborrello/ghidra-atom-microcode. |
 | Intel i960 | [PR#1452](https://github.com/NationalSecurityAgency/ghidra/pull/1452) | Apache-2.0 (Ghidra contribution) (ok) | 1/1 | 265 | @mumbel (commits: mumbel) | Same author as mumbel/ghidra_i960; PR adds Java and tests Alternatives: mumbel/ghidra_i960. |
 | JieLi pi32 / q32s | [quarkslab/ghidra-jieli](https://github.com/quarkslab/ghidra-jieli) | Apache-2.0 (ok) | 3/3 | 1028 | @virtualabs; also @kagaimiq (kagaimiq/ghidra-jieli) | 1,028 constructors vs 653; extends kagaimiq (credit) Alternatives: kagaimiq/ghidra-jieli, 6uan/kc02-fw-mod. |
-| Kirk (PSP crypto) | [LemonHaze420/ghidra_kirk](https://github.com/LemonHaze420/ghidra_kirk) | none (blocked) | 1/1 | 66 | @LemonHaze420 | Only implementation found |
+| Kirk (PSP crypto) | [LemonHaze420/ghidra_kirk](https://github.com/LemonHaze420/ghidra_kirk) | MIT (ok) | 1/1 | 66 | @LemonHaze420 | Only implementation found; MIT since 2026-10-30 |
 | Lattice LM32 | [jevinskie/ghidra-lm32](https://github.com/jevinskie/ghidra-lm32) | MIT (ok) | 2/2 | 98 | @jevinskie, @cyrozap | Only implementation found |
 | MD32 (MediaTek) | [cyrozap/ghidra-md32](https://github.com/cyrozap/ghidra-md32) | Apache-2.0 (ok) | 1/1 | 207 | @cyrozap | Only implementation found |
 | Microchip PIC16F153xx | [PR#667](https://github.com/NationalSecurityAgency/ghidra/pull/667) | Apache-2.0 (Ghidra contribution) (ok) | 1/1 | 128 | @mh- (commits: Michael Huebler) | Only implementation found |
@@ -114,7 +114,7 @@ Pull requests are covered by Ghidra's contribution terms (Apache-2.0).
 | SuperFX (GSU) | [ChekeEdd/ghidra-superfx](https://github.com/ChekeEdd/ghidra-superfx) | BSD-3-Clause (ok) | 1/1 | 105 | @toxicUnicorn | Only implementation found |
 | XpertTeak | [Pokechu22/ghidra-xpertteak-lang](https://github.com/Pokechu22/ghidra-xpertteak-lang) | Apache-2.0 (ok) | 1/1 | 981 | @Pokechu22 | XpertTeak 981 constructors (Apache); TeakLite (SachinVin, MIT) is a different core, 363 unimpl Alternatives: SachinVin/TeakLite-SLEIGH. |
 | TeakLite | [SachinVin/TeakLite-SLEIGH](https://github.com/SachinVin/TeakLite-SLEIGH) | MIT (ok) | 1/1 | 646 | @SachinVin | Only implementation found |
-| Telink TC32 | [rgov/Ghidra_TELink_TC32](https://github.com/rgov/Ghidra_TELink_TC32) | none (blocked) | 1/1 | 72 | @rgov | NO LICENSE (both repos) Alternatives: leommxj/ghidra_tc32. A clean-room TC32 module now exists in this repository (TC32/). |
+| Telink TC32 | [rgov/Ghidra_TELink_TC32](https://github.com/rgov/Ghidra_TELink_TC32) | MIT (ok) | 1/1 | 72 | @rgov | MIT since 2026-11-02; leommxj has no license Alternatives: leommxj/ghidra_tc32. A clean-room TC32 module now exists in this repository (TC32/). |
 | TI TMS320C24x | [banksy-git/ghidra-tms320c24x](https://github.com/banksy-git/ghidra-tms320c24x) | Apache-2.0 (ok) | 1/1 | 41 | @banksy-git | Licensed; ArapKBett copy unlicensed Alternatives: ArapKBett/zoommulti. |
 | TI TMS320C28x | [outlandnish/ghidra-tms320c28x](https://github.com/outlandnish/ghidra-tms320c28x) | Apache-2.0 (ok) | 2/2 | 795 | @outlandnish, @abedegno, @dieseld23 | Includes the CLA coprocessor and tests; mwdmwd (854 constructors) close; decide by verification Alternatives: mwdmwd/ghidra-c28x. |
 | TI TMS320C3x | [gm-stack/tms320-ghidra](https://github.com/gm-stack/tms320-ghidra) | none (blocked) | 2/2 | 811 | @gm-stack | Only implementation found |
@@ -157,8 +157,8 @@ Opened 2026-10-25 for every blocked pick. A module moves into the verification q
 |---|---|---|
 | C-SKY v1 (CK610) | https://github.com/nnonickreal/ghidra-csky-ISAv1/issues/1 | open |
 | Casio HCD62121 | https://github.com/qufb/HCD62121/issues/1 | MIT license added (commit f43246a); in the verification queue |
-| CoolRISC 816 (cr816) | https://github.com/pelrun/ghidra-cr816/issues/2 | open; only Ghidra's template LICENSE.txt; verified, held until confirmed (asked 2026-10-27) |
-| Epson E0C6S46 | https://github.com/Veryyes/E0C6S46-Ghidra-Processor/issues/2 | open |
+| CoolRISC 816 (cr816) | https://github.com/pelrun/ghidra-cr816/issues/2 | MIT license for the SLEIGH definition added by the author 2026-11-02 (commit ac14334); published as community/CR816 |
+| Epson E0C6S46 | https://github.com/Veryyes/E0C6S46-Ghidra-Processor/issues/2 | author open to Apache-2.0 (comment 2026-11-02), waiting for co-author @atribecalledqst to agree |
 | Epson S1C33 | https://github.com/GMMan/s1c33_sleigh/issues/1 | open |
 | Epson S1C88 | https://github.com/xtla/s1c88/issues/1 | open |
 | Femtium | https://github.com/RobertLarsen/GhidraFemtiumProcessor/issues/1 | open |
@@ -167,7 +167,7 @@ Opened 2026-10-25 for every blocked pick. A module moves into the verification q
 | Hitachi (RotorRE) | https://github.com/phaseseeker/RotorRE/issues/1 | open |
 | Hitachi H8/500 | https://github.com/OZVR4/Ghidra-H8-Processor/issues/5 | open |
 | Hudson HuC6280 | https://github.com/TiCoKH/Ghidra_HuC6280/issues/2 | open |
-| Kirk (PSP crypto) | https://github.com/LemonHaze420/ghidra_kirk/issues/1 | MIT license added by the author 2026-10-30 (commit 26b9979) |
+| Kirk (PSP crypto) | https://github.com/LemonHaze420/ghidra_kirk/issues/1 | MIT license added by the author 2026-10-30 (commit 26b9979); in the verification queue (2026-11-02) |
 | Micronova | https://github.com/pkooiman/micronova_ghidra/issues/1 | license added by the author 2026-10-25 |
 | National SC/MP | https://github.com/sigurasg/GhidraSCMP/issues/45 | open |
 | NEC V60 / Fujitsu MB86233 | https://github.com/frangarcj/model1-ghidra/issues/1 | open |
@@ -182,7 +182,7 @@ Opened 2026-10-25 for every blocked pick. A module moves into the verification q
 | Signetics 2650 | https://github.com/iromero91/ghidra-signetics2650/issues/1 | open |
 | Sony SA-DSP | https://github.com/ma1co/SA-DSP/issues/1 | open |
 | Sunplus SPC970 | https://github.com/DiscoStarslayer/ghidra-spc970/issues/5 | open |
-| Telink TC32 | https://github.com/rgov/Ghidra_TELink_TC32/issues/5 | author: "consider it MIT licensed" (comment 2026-10-26); no license file yet; PR adding MIT LICENSE opened 2026-11-01: https://github.com/rgov/Ghidra_TELink_TC32/pull/6 |
+| Telink TC32 | https://github.com/rgov/Ghidra_TELink_TC32/issues/5 | author: "consider it MIT licensed" (comment 2026-10-26); PR adding MIT LICENSE merged by the author 2026-11-02: https://github.com/rgov/Ghidra_TELink_TC32/pull/6. Not imported: the clean-room TC32/ module already covers the CPU |
 | TI TMS320C3x | https://github.com/gm-stack/tms320-ghidra/issues/1 | open |
 | TI TMS34010 | https://github.com/ZPaul2Fresh8/Ghidra_TMS34010/issues/1 | license added by the author 2026-10-25 |
 | TI TMS9900 | https://github.com/gnulnulf/Ghidra-TMS9900/issues/7 | author: "Apache 2.0 is OK for me" (comment 2026-10-30); only Ghidra's template LICENSE.txt; PR replacing it with full Apache-2.0 text opened 2026-11-01: https://github.com/gnulnulf/Ghidra-TMS9900/pull/8 |
@@ -190,5 +190,5 @@ Opened 2026-10-25 for every blocked pick. A module moves into the verification q
 | Toshiba TLCS-900/H | https://github.com/nevesnunes/ghidra-tlcs900h/issues/1 | MIT license added; in the verification queue |
 | WCH (CH32 variants) | not requested | Repository says files keep their original rights; the original author is unknown |
 | Wii Starlet | https://github.com/eigenform/gcwii-toolbox/issues/1 | open |
-| XpertTeak | https://github.com/Pokechu22/ghidra-xpertteak-lang/issues/1 | full Apache-2.0 LICENSE.txt added by the author 2026-10-28 |
+| XpertTeak | https://github.com/Pokechu22/ghidra-xpertteak-lang/issues/1 | full Apache-2.0 LICENSE.txt added by the author 2026-10-28; in the verification queue (2026-11-02) |
 | Zilog Z8000 | https://github.com/jpelletier/Z8000/issues/1 | open |

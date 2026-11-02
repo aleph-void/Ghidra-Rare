@@ -215,8 +215,8 @@
  {
   "cpu": "Casio HCD62121",
   "source": "qufb/HCD62121",
-  "license": "none",
-  "status": "blocked",
+  "license": "MIT",
+  "status": "ok",
   "compiles": "0/1",
   "constructors": 210,
   "unimpl": 0,
@@ -260,7 +260,7 @@
  {
   "cpu": "cr816",
   "source": "pelrun/ghidra-cr816",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "status": "ok",
   "compiles": "1/1",
   "constructors": 88,
@@ -704,8 +704,8 @@
  {
   "cpu": "Kirk (PSP crypto)",
   "source": "LemonHaze420/ghidra_kirk",
-  "license": "none",
-  "status": "blocked",
+  "license": "MIT",
+  "status": "ok",
   "compiles": "1/1",
   "constructors": 66,
   "unimpl": 0,
@@ -1686,8 +1686,8 @@
  {
   "cpu": "Telink TC32",
   "source": "rgov/Ghidra_TELink_TC32",
-  "license": "none",
-  "status": "blocked",
+  "license": "MIT",
+  "status": "ok",
   "compiles": "1/1",
   "constructors": 72,
   "unimpl": 0,
@@ -1873,8 +1873,8 @@
  {
   "cpu": "Toshiba TLCS-900/H",
   "source": "nevesnunes/ghidra-tlcs900h",
-  "license": "none",
-  "status": "blocked",
+  "license": "MIT",
+  "status": "ok",
   "compiles": "1/1",
   "constructors": 1495,
   "unimpl": 0,
