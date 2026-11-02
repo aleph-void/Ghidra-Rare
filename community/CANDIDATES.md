@@ -167,7 +167,7 @@ Opened 2026-10-25 for every blocked pick. A module moves into the verification q
 | Hitachi (RotorRE) | https://github.com/phaseseeker/RotorRE/issues/1 | open |
 | Hitachi H8/500 | https://github.com/OZVR4/Ghidra-H8-Processor/issues/5 | open |
 | Hudson HuC6280 | https://github.com/TiCoKH/Ghidra_HuC6280/issues/2 | open |
-| Kirk (PSP crypto) | https://github.com/LemonHaze420/ghidra_kirk/issues/1 | MIT license added by the author 2026-10-30 (commit 26b9979); in the verification queue (2026-11-02) |
+| Kirk (PSP crypto) | https://github.com/LemonHaze420/ghidra_kirk/issues/1 | MIT license added by the author 2026-10-30 (commit 26b9979); verified 2026-11-02 and HELD: no independent reference for the ISA (every public table comes from one reverse-engineering effort, and they disagree), no freely licensed Kirk code |
 | Micronova | https://github.com/pkooiman/micronova_ghidra/issues/1 | license added by the author 2026-10-25 |
 | National SC/MP | https://github.com/sigurasg/GhidraSCMP/issues/45 | open |
 | NEC V60 / Fujitsu MB86233 | https://github.com/frangarcj/model1-ghidra/issues/1 | open |
@@ -190,5 +190,5 @@ Opened 2026-10-25 for every blocked pick. A module moves into the verification q
 | Toshiba TLCS-900/H | https://github.com/nevesnunes/ghidra-tlcs900h/issues/1 | MIT license added; in the verification queue |
 | WCH (CH32 variants) | not requested | Repository says files keep their original rights; the original author is unknown |
 | Wii Starlet | https://github.com/eigenform/gcwii-toolbox/issues/1 | open |
-| XpertTeak | https://github.com/Pokechu22/ghidra-xpertteak-lang/issues/1 | full Apache-2.0 LICENSE.txt added by the author 2026-10-28; in the verification queue (2026-11-02) |
+| XpertTeak | https://github.com/Pokechu22/ghidra-xpertteak-lang/issues/1 | full Apache-2.0 LICENSE.txt added by the author 2026-10-28; verified against Teakra 2026-11-02 and HELD: 4,742 of 65,536 words decode wrongly, no program counter in the pspec (no emulation); TeakLite/ (published) covers the same DSi/3DS core |
 | Zilog Z8000 | https://github.com/jpelletier/Z8000/issues/1 | open |
