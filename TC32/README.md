@@ -36,6 +36,17 @@ module and no Telink GCC/binutils source was read.
 - ARM's public Thumb (ARMv4T) instruction descriptions, for the ALU, shift, carry and overflow
   rules wherever the toolchain shows TC32 matches Thumb.
 
+## Raw images
+
+Import an ELF when you have one: the ELF extension uses the symbol table. For a raw flash image
+(`.bin`), choose `TC32:LE:32:default` with base address 0. Offsets 0 (`__reset`) and 0x10 (`__irq_entry`)
+are `tj` instructions and are marked as code entry points. Default analysis only finds code reachable
+from them, so code reached only through function-pointer tables is missed; enable **Aggressive
+Instruction Finder** in Auto Analyze. On the SDK's `BQB_EMI_Demo.bin` (20,940 bytes, checked against
+objdump of the matching ELF) default analysis found 3,881 of the ELF's 7,430 instructions and 69
+functions; with Aggressive Instruction Finder 6,519 instructions and 119 functions, all identical to
+objdump and no false code.
+
 ## Encoding map
 
 | TC32 major opcode | Instructions (Thumb-1 equivalent) |
