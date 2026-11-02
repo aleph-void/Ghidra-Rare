@@ -33,6 +33,7 @@ The project has two parts:
 | [ADSP218x](ADSP218x/README.md) | Analog Devices ADSP-218x (ADSP-2181 family), with a VisualDSP++ DXE loader | `ADSP218x:BE:16:default` | Added for IDA built-in CPU parity |
 | [DSP56000](DSP56000/README.md) | Motorola DSP56000/56001/56002 and DSP56156 (DSP561xx), with a Motorola LOD loader | `DSP56000:BE:16:default`, `DSP56000:BE:16:DSP56156` | Added for IDA built-in CPU parity |
 | [IA64](IA64/README.md) | Intel IA-64 (Itanium): bundles, predication, register stack, rotating registers, speculation | `IA64:LE:64:default` (Linux/Windows/VMS), `IA64:BE:64:default` (HP-UX LP64), `IA64:BE:32:default` (HP-UX ILP32) | Added for IDA built-in CPU parity |
+| [TC32](TC32/README.md) | Telink TC32, the 16-bit core of Telink's TLSR82xx/TLSR8x5x Bluetooth LE and Zigbee SoCs, with an ELF extension and relocations | `TC32:LE:32:default` | Clean-room; the community module (rgov/Ghidra_TELink_TC32) had no license |
 
 Each module's README lists its language variants, how closely it matches the reference
 disassembler, what the p-code models, known gaps and how to run its tests. [STATUS.md](STATUS.md)

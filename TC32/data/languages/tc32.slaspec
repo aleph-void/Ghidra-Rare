@@ -1,0 +1,413 @@
+# Telink TC32: the 16-bit core of the Telink TLSR82xx / TLSR8x5x SoCs.
+#
+# Written for Ghidra-Rare from Telink's own documentation and SDK sources (Apache-2.0) and from the
+# Telink tc32-elf toolchain run as a black box (objdump decode of every halfword, gas round trips,
+# gcc output). Instruction behaviour follows ARM's public Thumb (ARMv4T) architecture description
+# where the toolchain shows that TC32 matches it. See TC32/README.md.
+#
+# TC32 has the Thumb-1 instruction formats with the major opcodes reassigned:
+#   00-03 ALU (Rd,Rs)          04-07 high-register add/cmp/mov, tjex
+#   08-0F tloadr pc-relative   10-1F register-offset loads/stores
+#   20-2F halfword imm5        30-3F sp-relative word
+#   40-4F byte imm5            50-5F word imm5
+#   60-6F sp adjust, push/pop/treti, status register moves
+#   70-7F add pc/sp            80-87 tj
+#   90-9F tjl (32-bit pair)    A0-BF mov/cmp/add/sub imm8
+#   C0-CD tj<cond>, CF tserv   D0-DF tstorem/tloadm
+#   E0-E7 tasrs imm5           E8-EF 3-operand add/sub
+#   F0-FF tshftls/tshftrs imm5
+
+define endian=little;
+define alignment=2;
+
+define space ram type=ram_space size=4 default;
+define space register type=register_space size=4;
+
+define register offset=0x00 size=4 [ r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 sl fp ip sp lr pc ];
+
+# Condition flags (Thumb N Z C V) are kept as separate byte registers; tmrcs/tmcsr pack and
+# unpack them into bits 31-28 of CPSR.
+define register offset=0x100 size=1 [ NG ZR CY OV ];
+# CPSR holds the remaining status bits (I/F, mode); SPSR is the copy saved on interrupt entry.
+define register offset=0x110 size=4 [ CPSR SPSR ];
+
+define register offset=0x200 size=4 contextreg;
+define context contextreg
+	unused = (0, 0)
+;
+
+define token instr16(16)
+	op16  = (0, 15)
+	op8   = (8, 15)
+	op7   = (9, 15)
+	op6   = (10, 15)
+	op5   = (11, 15)
+	op4   = (12, 15)
+	op11_15 = (11, 15)
+	bit11 = (11, 11)
+	bit10 = (10, 10)
+	bit9  = (9, 9)
+	bit8  = (8, 8)
+	bit7  = (7, 7)
+	bit6  = (6, 6)
+	alu4  = (6, 9)
+	hiop  = (8, 9)
+	h1    = (7, 7)
+	h2    = (6, 6)
+	rd0   = (0, 2)
+	rs3   = (3, 5)
+	rn6   = (6, 8)
+	rd8   = (8, 10)
+	rb8   = (8, 10)
+	rm3_4 = (3, 6)
+	hrs   = (3, 5)
+	hrd   = (0, 2)
+	imm3  = (6, 8)
+	imm5  = (6, 10)
+	imm7  = (0, 6)
+	imm8  = (0, 7)
+	simm8 = (0, 7) signed
+	imm11 = (0, 10)
+	simm11 = (0, 10) signed
+	cond  = (8, 11)
+	low3  = (0, 2)
+	sr2   = (3, 4)
+	op5_15 = (5, 15)
+	rl0 = (0, 0)
+	rl1 = (1, 1)
+	rl2 = (2, 2)
+	rl3 = (3, 3)
+	rl4 = (4, 4)
+	rl5 = (5, 5)
+	rl6 = (6, 6)
+	rl7 = (7, 7)
+	rlist = (0, 7)
+	rbit  = (8, 8)
+;
+
+# The second halfword of tjl.
+define token instr16b(16)
+	bl_hi5 = (11, 15)
+	bl_lo11 = (0, 10)
+;
+
+attach variables [ rd0 rs3 rn6 rd8 rb8 ] [ r0 r1 r2 r3 r4 r5 r6 r7 ];
+attach variables [ rm3_4 ] [ r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 sl fp ip sp lr pc ];
+
+define pcodeop software_interrupt;
+
+macro setNZ(res) {
+	NG = res s< 0;
+	ZR = res == 0;
+}
+
+macro addFlags(a, b) {
+	CY = carry(a, b);
+	OV = scarry(a, b);
+}
+
+# a - b: C is NOT borrow (gcc's unsigned compares use tjcs/tjcc this way).
+macro subFlags(a, b) {
+	CY = a >= b;
+	OV = sborrow(a, b);
+}
+
+macro packCPSR(dst) {
+	dst = (CPSR & 0x0fffffff) | (zext(NG) << 31) | (zext(ZR) << 30) | (zext(CY) << 29) | (zext(OV) << 28);
+}
+
+macro unpackCPSR(src) {
+	NG = ((src >> 31) & 1) != 0;
+	ZR = ((src >> 30) & 1) != 0;
+	CY = ((src >> 29) & 1) != 0;
+	OV = ((src >> 28) & 1) != 0;
+	CPSR = src & 0x0fffffff;
+}
+
+# ---------------------------------------------------------------------------------------------
+# High registers (H1:Rd, H2:Rs)
+
+HRd: r0 is h1=0 & hrd=0 & r0 { export r0; }
+HRd: r1 is h1=0 & hrd=1 & r1 { export r1; }
+HRd: r2 is h1=0 & hrd=2 & r2 { export r2; }
+HRd: r3 is h1=0 & hrd=3 & r3 { export r3; }
+HRd: r4 is h1=0 & hrd=4 & r4 { export r4; }
+HRd: r5 is h1=0 & hrd=5 & r5 { export r5; }
+HRd: r6 is h1=0 & hrd=6 & r6 { export r6; }
+HRd: r7 is h1=0 & hrd=7 & r7 { export r7; }
+HRd: r8 is h1=1 & hrd=0 & r8 { export r8; }
+HRd: r9 is h1=1 & hrd=1 & r9 { export r9; }
+HRd: sl is h1=1 & hrd=2 & sl { export sl; }
+HRd: fp is h1=1 & hrd=3 & fp { export fp; }
+HRd: ip is h1=1 & hrd=4 & ip { export ip; }
+HRd: sp is h1=1 & hrd=5 & sp { export sp; }
+HRd: lr is h1=1 & hrd=6 & lr { export lr; }
+HRd: pc is h1=1 & hrd=7 & pc { tmp:4 = inst_start + 4; export tmp; }
+
+HRs: r0 is h2=0 & hrs=0 & r0 { export r0; }
+HRs: r1 is h2=0 & hrs=1 & r1 { export r1; }
+HRs: r2 is h2=0 & hrs=2 & r2 { export r2; }
+HRs: r3 is h2=0 & hrs=3 & r3 { export r3; }
+HRs: r4 is h2=0 & hrs=4 & r4 { export r4; }
+HRs: r5 is h2=0 & hrs=5 & r5 { export r5; }
+HRs: r6 is h2=0 & hrs=6 & r6 { export r6; }
+HRs: r7 is h2=0 & hrs=7 & r7 { export r7; }
+HRs: r8 is h2=1 & hrs=0 & r8 { export r8; }
+HRs: r9 is h2=1 & hrs=1 & r9 { export r9; }
+HRs: sl is h2=1 & hrs=2 & sl { export sl; }
+HRs: fp is h2=1 & hrs=3 & fp { export fp; }
+HRs: ip is h2=1 & hrs=4 & ip { export ip; }
+HRs: sp is h2=1 & hrs=5 & sp { export sp; }
+HRs: lr is h2=1 & hrs=6 & lr { export lr; }
+HRs: pc is h2=1 & hrs=7 & pc { tmp:4 = inst_start + 4; export tmp; }
+
+# ---------------------------------------------------------------------------------------------
+# 00-03: ALU Rd, Rs
+
+:tands rd0, rs3   is op6=0 & alu4=0 & rd0 & rs3   { rd0 = rd0 & rs3; setNZ(rd0); }
+:txors rd0, rs3   is op6=0 & alu4=1 & rd0 & rs3   { rd0 = rd0 ^ rs3; setNZ(rd0); }
+
+# Shifts by register use the low byte of Rs (ARMv4T rules).
+:tshftls rd0, rs3 is op6=0 & alu4=2 & rd0 & rs3 {
+	n:4 = rs3 & 0xff;
+	if (n == 0) goto <done>;
+	CY = (n <= 32) && (((rd0 << (n - 1)) & 0x80000000) != 0);
+	rd0 = rd0 << n;
+	<done>
+	setNZ(rd0);
+}
+:tshftrs rd0, rs3 is op6=0 & alu4=3 & rd0 & rs3 {
+	n:4 = rs3 & 0xff;
+	if (n == 0) goto <done>;
+	CY = (n <= 32) && (((rd0 >> (n - 1)) & 1) != 0);
+	rd0 = rd0 >> n;
+	<done>
+	setNZ(rd0);
+}
+:tasrs rd0, rs3   is op6=0 & alu4=4 & rd0 & rs3 {
+	n:4 = rs3 & 0xff;
+	if (n == 0) goto <done>;
+	if (n >= 32) goto <big>;
+	CY = ((rd0 s>> (n - 1)) & 1) != 0;
+	rd0 = rd0 s>> n;
+	goto <done>;
+	<big>
+	CY = rd0 s< 0;
+	rd0 = rd0 s>> 31;
+	<done>
+	setNZ(rd0);
+}
+:taddcs rd0, rs3  is op6=0 & alu4=5 & rd0 & rs3 {
+	a:4 = rd0; b:4 = rs3; c:4 = zext(CY);
+	s:4 = a + b;
+	r:4 = s + c;
+	CY = carry(a, b) || carry(s, c);
+	OV = (((a ^ ~b) & (a ^ r)) s< 0);
+	rd0 = r;
+	setNZ(rd0);
+}
+:tsubcs rd0, rs3  is op6=0 & alu4=6 & rd0 & rs3 {
+	a:4 = rd0; b:4 = rs3; nb:4 = zext(!CY);
+	r:4 = a - b - nb;
+	a8:8 = zext(a); b8:8 = zext(b) + zext(nb);
+	CY = a8 >= b8;
+	OV = (((a ^ b) & (a ^ r)) s< 0);
+	rd0 = r;
+	setNZ(rd0);
+}
+:trotrs rd0, rs3  is op6=0 & alu4=7 & rd0 & rs3 {
+	n:4 = rs3 & 0xff;
+	if (n == 0) goto <done>;
+	m:4 = n & 31;
+	rd0 = (rd0 >> m) | (rd0 << ((32 - m) & 31));
+	CY = (rd0 s< 0);
+	<done>
+	setNZ(rd0);
+}
+:tnand rd0, rs3   is op6=0 & alu4=8 & rd0 & rs3   { r:4 = rd0 & rs3; setNZ(r); }
+:tnegs rd0, rs3   is op6=0 & alu4=9 & rd0 & rs3   { z:4 = 0; subFlags(z, rs3); rd0 = -rs3; setNZ(rd0); }
+:tcmp rd0, rs3    is op6=0 & alu4=10 & rd0 & rs3  { subFlags(rd0, rs3); r:4 = rd0 - rs3; setNZ(r); }
+:tcmpn rd0, rs3   is op6=0 & alu4=11 & rd0 & rs3  { addFlags(rd0, rs3); r:4 = rd0 + rs3; setNZ(r); }
+:tors rd0, rs3    is op6=0 & alu4=12 & rd0 & rs3  { rd0 = rd0 | rs3; setNZ(rd0); }
+:tmuls rd0, rs3   is op6=0 & alu4=13 & rd0 & rs3  { rd0 = rd0 * rs3; setNZ(rd0); }
+:tbclrs rd0, rs3  is op6=0 & alu4=14 & rd0 & rs3  { rd0 = rd0 & ~rs3; setNZ(rd0); }
+:tmovns rd0, rs3  is op6=0 & alu4=15 & rd0 & rs3  { rd0 = ~rs3; setNZ(rd0); }
+
+# ---------------------------------------------------------------------------------------------
+# 04-07: high-register operations (no flags except tcmp)
+
+:tadd HRd, HRs  is op6=1 & hiop=0 & HRd & HRs   { HRd = HRd + HRs; }
+:tadd HRd, HRs  is op6=1 & hiop=0 & HRd & HRs & h1=1 & hrd=7 {
+	t:4 = HRd + HRs;
+	pc = t & 0xfffffffe;
+	goto [pc];
+}
+:tcmp HRd, HRs  is op6=1 & hiop=1 & HRd & HRs   { a:4 = HRd; b:4 = HRs; subFlags(a, b); r:4 = a - b; setNZ(r); }
+:tnop           is op16=0x06c0                   { }
+:tmov HRd, HRs  is op6=1 & hiop=2 & HRd & HRs   { HRd = HRs; }
+:tmov HRd, HRs  is op6=1 & hiop=2 & HRd & HRs & h1=1 & hrd=7 & h2=1 & hrs=6 {
+	pc = lr & 0xfffffffe;
+	return [pc];
+}
+:tmov HRd, HRs  is op6=1 & hiop=2 & HRd & HRs & h1=1 & hrd=7 {
+	pc = HRs & 0xfffffffe;
+	goto [pc];
+}
+
+# tjex Rm: jump to Rm (bit 0 ignored; TC32 has a single instruction state). objdump also accepts
+# 0x0780|Rm<<3 (the ARMv5 BLX-register slot) and prints it as tjex; decoded the same way.
+:tjex rm3_4     is op7=3 & bit8=1 & bit7=0 & rm3_4 & rm3_4=14 {
+	pc = lr & 0xfffffffe;
+	return [pc];
+}
+:tjex rm3_4     is op7=3 & bit8=1 & bit7=0 & rm3_4 {
+	pc = rm3_4 & 0xfffffffe;
+	goto [pc];
+}
+:tjex HRs       is op7=3 & bit8=1 & bit7=1 & HRs & low3=0 & hrs=6 & h2=1 {
+	pc = lr & 0xfffffffe;
+	return [pc];
+}
+:tjex HRs       is op7=3 & bit8=1 & bit7=1 & HRs & low3=0 {
+	pc = HRs & 0xfffffffe;
+	goto [pc];
+}
+
+# ---------------------------------------------------------------------------------------------
+# Loads and stores
+
+PcRel: "[pc, #"^off^"]" is imm8 [ off = imm8 * 4; ] {
+	a:4 = ((inst_start + 4) & 0xfffffffc) + off;
+	export *:4 a;
+}
+:tloadr rd8, PcRel  is op5=1 & rd8 & PcRel { rd8 = PcRel; }
+
+:tstorer rd0, [rs3, rn6]   is op7=0x08 & rd0 & rs3 & rn6 { *:4 (rs3 + rn6) = rd0; }
+:tstorerh rd0, [rs3, rn6]  is op7=0x09 & rd0 & rs3 & rn6 { *:2 (rs3 + rn6) = rd0:2; }
+:tstorerb rd0, [rs3, rn6]  is op7=0x0a & rd0 & rs3 & rn6 { *:1 (rs3 + rn6) = rd0:1; }
+:tloadrsb rd0, [rs3, rn6]  is op7=0x0b & rd0 & rs3 & rn6 { rd0 = sext(*:1 (rs3 + rn6)); }
+:tloadr rd0, [rs3, rn6]    is op7=0x0c & rd0 & rs3 & rn6 { rd0 = *:4 (rs3 + rn6); }
+:tloadrh rd0, [rs3, rn6]   is op7=0x0d & rd0 & rs3 & rn6 { rd0 = zext(*:2 (rs3 + rn6)); }
+:tloadrb rd0, [rs3, rn6]   is op7=0x0e & rd0 & rs3 & rn6 { rd0 = zext(*:1 (rs3 + rn6)); }
+:tloadrsh rd0, [rs3, rn6]  is op7=0x0f & rd0 & rs3 & rn6 { rd0 = sext(*:2 (rs3 + rn6)); }
+
+:tstorerh rd0, [rs3, "#"^off] is op5=0x04 & rd0 & rs3 & imm5 [ off = imm5 * 2; ] { *:2 (rs3 + off) = rd0:2; }
+:tloadrh rd0, [rs3, "#"^off]  is op5=0x05 & rd0 & rs3 & imm5 [ off = imm5 * 2; ] { rd0 = zext(*:2 (rs3 + off)); }
+
+:tstorer rd8, [sp, "#"^off]   is op5=0x06 & rd8 & sp & imm8 [ off = imm8 * 4; ] { *:4 (sp + off) = rd8; }
+:tloadr rd8, [sp, "#"^off]    is op5=0x07 & rd8 & sp & imm8 [ off = imm8 * 4; ] { rd8 = *:4 (sp + off); }
+
+:tstorerb rd0, [rs3, "#"^imm5] is op5=0x08 & rd0 & rs3 & imm5 { *:1 (rs3 + imm5) = rd0:1; }
+:tloadrb rd0, [rs3, "#"^imm5]  is op5=0x09 & rd0 & rs3 & imm5 { rd0 = zext(*:1 (rs3 + imm5)); }
+
+:tstorer rd0, [rs3, "#"^off]   is op5=0x0a & rd0 & rs3 & imm5 [ off = imm5 * 4; ] { *:4 (rs3 + off) = rd0; }
+:tloadr rd0, [rs3, "#"^off]    is op5=0x0b & rd0 & rs3 & imm5 [ off = imm5 * 4; ] { rd0 = *:4 (rs3 + off); }
+
+# ---------------------------------------------------------------------------------------------
+# 60-6F: stack adjust, push/pop/treti, status register moves
+
+:tadd sp, "#"^off  is op8=0x60 & bit7=0 & sp & imm7 [ off = imm7 * 4; ] { sp = sp + off; }
+:tsub sp, "#"^off  is op8=0x60 & bit7=1 & sp & imm7 [ off = imm7 * 4; ] { sp = sp - off; }
+
+
+@include "tc32_lists.sinc"
+
+:tpush PushList   is op8=0x64 & PushList & rbit=0 { build PushList; }
+:tpush PushList   is op8=0x65 & PushList & rbit=1 { build PushList; }
+:tpop PopList     is op8=0x6c & PopList & rbit=0 { build PopList; }
+:tpop PopList     is op8=0x6d & PopList & rbit=1 { build PopList; }
+# treti: return from interrupt. Pops the list like tpop and restores the status register from
+# SPSR (Telink SDK cstartup: "tmssr r0 @return r0 to cpsr ... treti {r15} @return to pc").
+:treti RetiList   is op8=0x68 & RetiList & rbit=0 { build RetiList; }
+:treti RetiList   is op8=0x69 & RetiList & rbit=1 { build RetiList; }
+
+# Status register moves (Telink SDK: tmcsr "CPSR=r0", tmrss "save cpsr to r0" in the IRQ entry,
+# i.e. the saved copy, tmssr "return r0 to cpsr" before treti).
+:tmcsr rd0  is op5_15=0x35e & sr2=0 & rd0 { unpackCPSR(rd0); }
+:tmrcs rd0  is op5_15=0x35e & sr2=1 & rd0 { packCPSR(rd0); }
+:tmssr rd0  is op5_15=0x35e & sr2=2 & rd0 { SPSR = rd0; }
+:tmrss rd0  is op5_15=0x35e & sr2=3 & rd0 { rd0 = SPSR; }
+
+# ---------------------------------------------------------------------------------------------
+# 70-7F: address generation
+
+PcAddr: "pc, #"^off is imm8 [ off = imm8 * 4; ] { a:4 = ((inst_start + 4) & 0xfffffffc) + off; export a; }
+:tadd rd8, PcAddr          is op5=0x0e & rd8 & PcAddr { rd8 = PcAddr; }
+:tadd rd8, sp, "#"^off     is op5=0x0f & rd8 & sp & imm8 [ off = imm8 * 4; ] { rd8 = sp + off; }
+
+# ---------------------------------------------------------------------------------------------
+# Branches
+
+Rel11: dest is simm11 [ dest = inst_start + 4 + simm11 * 2; ] { export *:4 dest; }
+Rel8: dest is simm8 [ dest = inst_start + 4 + simm8 * 2; ] { export *:4 dest; }
+
+:tj Rel11  is op5=0x10 & Rel11 { goto Rel11; }
+
+CC: "eq" is cond=0  { export ZR; }
+CC: "ne" is cond=1  { tmp:1 = !ZR; export tmp; }
+CC: "cs" is cond=2  { export CY; }
+CC: "cc" is cond=3  { tmp:1 = !CY; export tmp; }
+CC: "mi" is cond=4  { export NG; }
+CC: "pl" is cond=5  { tmp:1 = !NG; export tmp; }
+CC: "vs" is cond=6  { export OV; }
+CC: "vc" is cond=7  { tmp:1 = !OV; export tmp; }
+CC: "hi" is cond=8  { tmp:1 = CY && !ZR; export tmp; }
+CC: "ls" is cond=9  { tmp:1 = !CY || ZR; export tmp; }
+CC: "ge" is cond=10 { tmp:1 = NG == OV; export tmp; }
+CC: "lt" is cond=11 { tmp:1 = NG != OV; export tmp; }
+CC: "gt" is cond=12 { tmp:1 = !ZR && (NG == OV); export tmp; }
+CC: "le" is cond=13 { tmp:1 = ZR || (NG != OV); export tmp; }
+
+:tj^CC Rel8   is op4=0xc & CC & Rel8 { if (CC) goto Rel8; }
+:tserv imm8   is op8=0xcf & imm8 { software_interrupt(imm8:1); }
+
+# tjl: two halfwords, prefix 0x90-0x97 (offset bits 22-12), suffix 0x98-0x9F (bits 11-1).
+BlDest: dest is op5=0x12 & simm11 ; bl_hi5=0x13 & bl_lo11 [ dest = inst_start + 4 + (simm11 << 12) + (bl_lo11 << 1); ] { export *:4 dest; }
+:tjl BlDest   is BlDest {
+	lr = inst_start + 4;
+	call BlDest;
+}
+
+# ---------------------------------------------------------------------------------------------
+# A0-BF: 8-bit immediates
+
+:tmovs rd8, "#"^imm8  is op5=0x14 & rd8 & imm8 { rd8 = imm8; setNZ(rd8); }
+:tcmp rd8, "#"^imm8   is op5=0x15 & rd8 & imm8 { b:4 = imm8; subFlags(rd8, b); r:4 = rd8 - b; setNZ(r); }
+:tadds rd8, "#"^imm8  is op5=0x16 & rd8 & imm8 { b:4 = imm8; addFlags(rd8, b); rd8 = rd8 + b; setNZ(rd8); }
+:tsubs rd8, "#"^imm8  is op5=0x17 & rd8 & imm8 { b:4 = imm8; subFlags(rd8, b); rd8 = rd8 - b; setNZ(rd8); }
+
+# ---------------------------------------------------------------------------------------------
+# D0-DF: multiple load/store with writeback
+
+:tstorem rb8^"!", StmList  is op5=0x1a & rb8 & StmList { build StmList; }
+:tloadm rb8^"!", LdmList   is op5=0x1b & rb8 & LdmList { build LdmList; }
+
+# ---------------------------------------------------------------------------------------------
+# E0-FF: shifts by immediate and 3-operand add/sub
+
+Sh32: "#32" is imm5=0 { export 32:4; }
+Sh32: "#"^imm5 is imm5 { export *[const]:4 imm5; }
+
+:tasrs rd0, rs3, Sh32   is op5=0x1c & rd0 & rs3 & Sh32 {
+	n:4 = Sh32;
+	CY = ((rs3 s>> (n - 1)) & 1) != 0;
+	rd0 = rs3 s>> n;
+	setNZ(rd0);
+}
+:tadds rd0, rs3, rn6    is op5=0x1d & bit10=0 & bit9=0 & rd0 & rs3 & rn6 { a:4 = rs3; b:4 = rn6; addFlags(a, b); rd0 = a + b; setNZ(rd0); }
+:tsubs rd0, rs3, rn6    is op5=0x1d & bit10=0 & bit9=1 & rd0 & rs3 & rn6 { a:4 = rs3; b:4 = rn6; subFlags(a, b); rd0 = a - b; setNZ(rd0); }
+:tadds rd0, rs3, "#"^imm3 is op5=0x1d & bit10=1 & bit9=0 & rd0 & rs3 & imm3 { a:4 = rs3; b:4 = imm3; addFlags(a, b); rd0 = a + b; setNZ(rd0); }
+:tsubs rd0, rs3, "#"^imm3 is op5=0x1d & bit10=1 & bit9=1 & rd0 & rs3 & imm3 { a:4 = rs3; b:4 = imm3; subFlags(a, b); rd0 = a - b; setNZ(rd0); }
+
+:tmovs rd0, rs3         is op5=0x1e & imm5=0 & rd0 & rs3 { rd0 = rs3; setNZ(rd0); }
+:tshftls rd0, rs3, "#"^imm5 is op5=0x1e & rd0 & rs3 & imm5 {
+	CY = ((rs3 >> (32 - imm5)) & 1) != 0;
+	rd0 = rs3 << imm5;
+	setNZ(rd0);
+}
+:tshftrs rd0, rs3, Sh32 is op5=0x1f & rd0 & rs3 & Sh32 {
+	n:4 = Sh32;
+	CY = ((rs3 >> (n - 1)) & 1) != 0;
+	rd0 = rs3 >> n;
+	setNZ(rd0);
+}

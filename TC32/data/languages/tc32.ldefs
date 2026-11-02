@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<language_definitions>
+  <language processor="TC32"
+            endian="little"
+            size="32"
+            variant="default"
+            version="1.0"
+            slafile="tc32.sla"
+            processorspec="tc32.pspec"
+            id="TC32:LE:32:default">
+    <description>Telink TC32 (TLSR82xx/TLSR8x5x, B80/B85/B87 SoCs)</description>
+    <compiler name="default" spec="tc32.cspec" id="default"/>
+    <external_name tool="gnu" name="tc32"/>
+    <external_name tool="DWARF.register.mapping.file" name="tc32.dwarf"/>
+  </language>
+</language_definitions>

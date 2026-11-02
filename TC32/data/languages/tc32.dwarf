@@ -1,0 +1,23 @@
+<dwarf>
+  <!-- tc32-elf-gcc DWARF numbering (as ARM): 0..15 are r0..r15; r13 = sp, r14 = lr (the CIE's
+       return address column is 14); the CIE starts with "DW_CFA_def_cfa: r13 ofs 0". -->
+  <register_mappings>
+    <register_mapping dwarf="0" ghidra="r0"/>
+    <register_mapping dwarf="1" ghidra="r1"/>
+    <register_mapping dwarf="2" ghidra="r2"/>
+    <register_mapping dwarf="3" ghidra="r3"/>
+    <register_mapping dwarf="4" ghidra="r4"/>
+    <register_mapping dwarf="5" ghidra="r5"/>
+    <register_mapping dwarf="6" ghidra="r6"/>
+    <register_mapping dwarf="7" ghidra="r7"/>
+    <register_mapping dwarf="8" ghidra="r8"/>
+    <register_mapping dwarf="9" ghidra="r9"/>
+    <register_mapping dwarf="10" ghidra="sl"/>
+    <register_mapping dwarf="11" ghidra="fp"/>
+    <register_mapping dwarf="12" ghidra="ip"/>
+    <register_mapping dwarf="13" ghidra="sp" stackpointer="true"/>
+    <register_mapping dwarf="14" ghidra="lr"/>
+    <register_mapping dwarf="15" ghidra="pc"/>
+  </register_mappings>
+  <call_frame_cfa value="0"/>
+</dwarf>

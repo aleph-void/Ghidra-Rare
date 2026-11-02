@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- tc32-elf-gcc (GCC 4.5.1 port) follows the ARM/Thumb procedure call standard: arguments in
+     r0-r3 then the stack, results in r0 (r0:r1 for 64-bit), r4-r11 callee-saved, return
+     address in lr, full descending stack. Observed in tc32-elf-gcc -O2 output. -->
+<compiler_spec>
+  <data_organization>
+    <absolute_max_alignment value="0"/>
+    <machine_alignment value="4"/>
+    <default_alignment value="1"/>
+    <default_pointer_alignment value="4"/>
+    <pointer_size value="4"/>
+    <wchar_size value="4"/>
+    <short_size value="2"/>
+    <integer_size value="4"/>
+    <long_size value="4"/>
+    <long_long_size value="8"/>
+    <float_size value="4"/>
+    <double_size value="8"/>
+    <long_double_size value="8"/>
+    <size_alignment_map>
+      <entry size="1" alignment="1"/>
+      <entry size="2" alignment="2"/>
+      <entry size="4" alignment="4"/>
+      <entry size="8" alignment="4"/>
+    </size_alignment_map>
+  </data_organization>
+  <global>
+    <range space="ram"/>
+  </global>
+  <stackpointer register="sp" space="ram" growth="negative"/>
+  <returnaddress>
+    <register name="lr"/>
+  </returnaddress>
+  <default_proto>
+    <prototype name="__stdcall" extrapop="0" stackshift="0">
+      <input>
+        <pentry minsize="1" maxsize="4">
+          <register name="r0"/>
+        </pentry>
+        <pentry minsize="1" maxsize="4">
+          <register name="r1"/>
+        </pentry>
+        <pentry minsize="1" maxsize="4">
+          <register name="r2"/>
+        </pentry>
+        <pentry minsize="1" maxsize="4">
+          <register name="r3"/>
+        </pentry>
+        <pentry minsize="1" maxsize="500" align="4">
+          <addr offset="0" space="stack"/>
+        </pentry>
+      </input>
+      <output>
+        <pentry minsize="1" maxsize="4">
+          <register name="r0"/>
+        </pentry>
+        <pentry minsize="5" maxsize="8">
+          <addr space="join" piece1="r1" piece2="r0"/>
+        </pentry>
+      </output>
+      <unaffected>
+        <register name="r4"/>
+        <register name="r5"/>
+        <register name="r6"/>
+        <register name="r7"/>
+        <register name="r8"/>
+        <register name="r9"/>
+        <register name="sl"/>
+        <register name="fp"/>
+        <register name="sp"/>
+      </unaffected>
+      <killedbycall>
+        <register name="r0"/>
+        <register name="r1"/>
+        <register name="r2"/>
+        <register name="r3"/>
+        <register name="ip"/>
+      </killedbycall>
+    </prototype>
+  </default_proto>
+</compiler_spec>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Memory map from the Telink tc_platform_sdk (Apache-2.0) B85/B87/B80 boot.link and
+     cstartup files: flash image executed from 0x0 (vector at 0, "KNLT" magic at 8, irq at 0x10),
+     peripheral registers at 0x800000, SRAM from 0x840000 (32/48/64 KB parts). -->
+<processor_spec>
+  <programcounter register="pc"/>
+  <default_symbols>
+    <symbol name="__reset_vector" address="ram:00000000" type="code_ptr" entry="true"/>
+  </default_symbols>
+  <default_memory_blocks>
+    <memory_block name="REGS" start_address="ram:00800000" length="0x10000" mode="rw" initialized="false"/>
+    <memory_block name="SRAM" start_address="ram:00840000" length="0x10000" mode="rwx" initialized="false"/>
+  </default_memory_blocks>
+</processor_spec>

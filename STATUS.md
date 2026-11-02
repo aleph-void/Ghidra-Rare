@@ -168,6 +168,18 @@ MAME bugs confirmed against the manuals and the assemblers: dsp56000: XY-move Y 
 | Doesn't work | ALAT, deferred faults, interruptions, async RSE, FP status/rounding, IA-32 mode, TLS relocations; loop-switch jump tables are not recovered (149 sqlite warnings, 87 in libc); extra call arguments for unknown prototypes; "Illegal op in iblock" is Ghidra's conditional-execution bug, reproduced in 5 instructions |
 | Unverified | Hardware or simulator behaviour; Windows, OpenVMS and HP-UX executables (only HP-UX objects built here) |
 
+### Telink TC32: done
+
+| Area | State |
+|---|---|
+| Decode | Clean-room (no other TC32 module and no Telink GCC/binutils source read). vs Telink's tc32-elf-objdump (binutils 2.20 port, black box): all 65,536 halfwords (56,752 exact, 8,784 invalid in both), 151,552 tjl pairs (8,313 exact, 122,238 both invalid, 21,001 explained: tjlex) and 50,000 random words (41,910 exact, 185 explained): 0 unexplained. The module's text for all 56,752 valid halfwords re-assembled with tc32-elf-as: 55,965 identical, 768 explained (aliases, high-register forms, tmovs/tadds #0, a confirmed toolchain inconsistency for tserv), 19 empty register lists without assembler syntax. 2,177/2,177 constructors reached |
+| Semantics | Full p-code: ARMv4T-style N/Z/C/V, all load/store forms, register lists, branches, tjl, returns, CPSR/SPSR moves, treti; calling convention, carry convention, DWARF numbering and relocations taken from tc32-elf-gcc output. 56 hand-computed emulator cases; broken expectation detected |
+| Real code | 20 B85 driver demos from Telink's tc_platform_sdk (Apache-2.0, pinned commit) built with tc32-elf-gcc, auto-detected as ELF: 92,476 instructions identical to objdump, no extra or missing code addresses, 2,754 functions decompile with 0 failures, 0 timeouts, 0 bad data. A new ELF extension handles the Thumb-style bit 0 on function symbols, $t/$d mapping symbols and absolute linker constants (without it 60% of functions decompiled from mid-instruction) |
+| Doesn't work | tserv is a pcodeop (no vector documented); IRQ and SVC banked sp/lr share one register set; GCC's tjex call-through-register stubs show as unrecovered jump tables (as on ARM Thumb) |
+| Unverified | tjex with bit 7 set, empty register lists, treti without pc, the lr bit 0 written by tjl (forms the compiler never emits) |
+
+Telink's assembler encodes `tserv n` as 0xDFnn, which its own objdump decodes as tloadm, while objdump decodes 0xCFnn as tserv; the module follows objdump.
+
 ## Planned: clean-room modules for CPUs IDA Pro supports and Ghidra doesn't
 
 From a comparison with IDA Pro 9.1's supported-processor list (2026-10-25). Written here from vendor
