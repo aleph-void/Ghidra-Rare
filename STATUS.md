@@ -832,6 +832,18 @@ unidasm decodes LDX (F7) as one byte (the manual and asl: six) and accepts many 
 
 The vendor manual PDF and TI BQ803xx ROM API files are removed from the fork's tree. The author licensed the SLEIGH definition MIT on 2026-11-02; seven manual errata are listed in GHIDRA-RARE.md.
 
+### Fujitsu F²MC-16LX (F2MC16LX): done (community: @mehmooda, @qufb, @mkrasselt1; instruction set rewritten here)
+
+| Area | State |
+|---|---|
+| Decode | Rewritten after the Fujitsu programming manual CM44-00201-3E (upstream decoded about half the instruction maps). vs MAME `unidasm f2mc16` (black box) on every first/second opcode byte pair × 3 operand tails and every pair behind each of the 6 prefixes (589,824 cases): 566,679 identical, 7,532 spelled differently, 3,108 invalid in both, 12,505 explained (16F/16FX-only cells, prefix chains, bank prefix on `@PC+disp16`, MAME bugs), 0 unexplained. 100,000 random strings: 96,235 / 2,216 / 527 / 1,022 / 0. asl (MB90500) round trip of every decoded instruction: 0 unexplained. 929/929 constructors reached |
+| Semantics | Rewritten after the manual: flags, how A is extended, bank/NCC/CMR prefixes and their pass-through, USP/SSP switching, interrupt frames and RETI, JCTX, string, bit, shift and divide. 261 hand-computed emulator cases (the worked example of every chapter-9 instruction page and more); broken expectation detected. No emulator reference: MAME's f2mc16 CPU core is incomplete |
+| Real code | GPL-3.0 Softune-compiled libraries of MXenZen-zz/MB90F387S (218 modules, small and large model, pinned SHA-256), linked by a minimal linker written here into 4 ROM images: 20,560 instructions, 465 functions, 0 bad-instruction or error bookmarks, 465/465 decompile; MAME agrees on all 19,903 compared instructions |
+| Doesn't work | RP register banks are registers, not RAM at 000180H + RP×10H, so RP switches and CMR are not reflected (except in MOVEA); multi-byte accesses and PC don't wrap at a bank end; hardware interrupts, EI²OS, the undefined-instruction exception and interrupted string instructions are not modelled; the decompiler shows stack slots as `ZEXT23(&local)`, as Ghidra's own M16C module does |
+| Unverified | Real silicon (no complete 16LX emulator exists); bank prefix on `@PC+disp16`; MOVEA with `@RWj+`; DIV remainder extension; SCEQ/SCWEQ comparison direction; CCR bit 7 in a pushed PS; the ELF opinion |
+
+Upstream issues #3 and #4 and its three TODOs are fixed. Found 4 MAME bugs, 7 asl bugs and 14 manual errata (listed in GHIDRA-RARE.md). The author merged an MIT LICENSE on 2026-11-03 after all three contributors agreed.
+
 ### TI TMS320C24x: done (community: @banksy-git; instruction set regenerated here)
 
 | Area | State |

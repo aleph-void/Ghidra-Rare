@@ -306,3 +306,7 @@
 	path = community/CR816
 	url = https://github.com/aleph-void/ghidra-cr816.git
 	branch = ghidra-rare
+[submodule "community/F2MC16LX"]
+	path = community/F2MC16LX
+	url = https://github.com/aleph-void/F2MC-16LX.git
+	branch = ghidra-rare

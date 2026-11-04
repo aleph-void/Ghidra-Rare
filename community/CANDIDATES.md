@@ -4,7 +4,7 @@ Survey date 2026-10-25. Sources: all 2,160 pull requests to NationalSecurityAgen
 
 126 CPUs not supported by Ghidra 12.2. Where several implementations exist, the most complete one that compiles and is licensed for redistribution is picked; metrics are constructors in the SLEIGH, `unimpl` p-code bodies, spec files, Java, tests and whether every `.slaspec` compiles with Ghidra 12.1.4's `sleigh`. These are first-pass selections; verification can change them.
 
-License status: **94 permissive**, **7 copyleft** (GPL/LGPL), **25 blocked** (no license, non-commercial or unclear: cannot be redistributed without the author's permission).
+License status: **95 permissive**, **7 copyleft** (GPL/LGPL), **24 blocked** (no license, non-commercial or unclear: cannot be redistributed without the author's permission).
 
 Pull requests are covered by Ghidra's contribution terms (Apache-2.0).
 
@@ -39,7 +39,7 @@ Pull requests are covered by Ghidra's contribution terms (Apache-2.0).
 | Fairchild F8 | [PR#9087](https://github.com/NationalSecurityAgency/ghidra/pull/9087) | Apache-2.0 (Ghidra contribution) (ok) | 1/1 | 228 | @polartape (commits: Sami Saari) | Only implementation found |
 | Femtium | [RobertLarsen/GhidraFemtiumProcessor](https://github.com/RobertLarsen/GhidraFemtiumProcessor) | none (blocked) | 1/1 | 80 | @RobertLarsen | Only implementation found |
 | Freescale FMan RISC | [mihakralj/vyos-ls1046a-build](https://github.com/mihakralj/vyos-ls1046a-build) | Apache-2.0 (ok) | 1/1 | 204 | @mihakralj, @github-actions[bot], @renovate[bot], @huihuimoe, @Daegara, @Sprinterfreak | Only implementation found |
-| Fujitsu F2MC-16LX | [mehmooda/F2MC-16LX](https://github.com/mehmooda/F2MC-16LX) | none (blocked) | 1/1 | 313 | @mehmooda, @qufb | Only implementation found |
+| Fujitsu F2MC-16LX | [mehmooda/F2MC-16LX](https://github.com/mehmooda/F2MC-16LX) | MIT (ok) | 1/1 | 313 | @mehmooda, @qufb, @mkrasselt1 | Only implementation found |
 | Fujitsu FR (FR/FR60/FR81/MB91) | [desrdev/ghidra-fr60](https://github.com/desrdev/ghidra-fr60) | Apache-2.0 (ok) | 2/2 | 412 | @DiscoStarslayer, @esaulenka, @mumbel, @dracc, @antoniovazquezblanco, @KostyaSha | FR60+FR81, 412 constructors, Apache; simeonpilgrim (Apache) earlier FR Alternatives: simeonpilgrim/ghidra_fujitsu_fr, ammaraskar/ghidra-fujitsu-risc, mumbel/ghidra_mb91f. |
 | GameCube DSP | [Pokechu22/ghidra-gcdsp-lang](https://github.com/Pokechu22/ghidra-gcdsp-lang) | Apache-2.0 (ok) | 1/1 | 450 | @Pokechu22, @Tilka | Only implementation found |
 | Hitachi (RotorRE) | [phaseseeker/RotorRE](https://github.com/phaseseeker/RotorRE) | none (blocked) | 1/1 | 101 | @phaseseeker | Only implementation found |
@@ -162,9 +162,9 @@ Opened 2026-10-25 for every blocked pick. A module moves into the verification q
 | Epson S1C33 | https://github.com/GMMan/s1c33_sleigh/issues/1 | open |
 | Epson S1C88 | https://github.com/xtla/s1c88/issues/1 | open |
 | Femtium | https://github.com/RobertLarsen/GhidraFemtiumProcessor/issues/1 | open |
-| Fujitsu F2MC-16LX | https://github.com/mehmooda/F2MC-16LX/issues/6 | all three contributors agreed in comments (2026-10-25..27); no license file yet; PR adding MIT LICENSE opened 2026-11-01: https://github.com/mehmooda/F2MC-16LX/pull/7 |
+| Fujitsu F2MC-16LX | https://github.com/mehmooda/F2MC-16LX/issues/6 | all three contributors agreed in comments (2026-10-25..27); PR adding MIT LICENSE merged by the author 2026-11-03: https://github.com/mehmooda/F2MC-16LX/pull/7; verified and published as community/F2MC16LX |
 | GameCube DSP | https://github.com/Pokechu22/ghidra-gcdsp-lang/issues/2 | full Apache-2.0 LICENSE.txt added by the author 2026-10-28 (also in mn102, xpertteak and upd77016) |
-| Hitachi (RotorRE) | https://github.com/phaseseeker/RotorRE/issues/1 | open |
+| Hitachi (RotorRE) | https://github.com/phaseseeker/RotorRE/issues/1 | open; the module's LICENSE.txt is only Ghidra's template (not a grant) |
 | Hitachi H8/500 | https://github.com/OZVR4/Ghidra-H8-Processor/issues/5 | open |
 | Hudson HuC6280 | https://github.com/TiCoKH/Ghidra_HuC6280/issues/2 | open |
 | Kirk (PSP crypto) | https://github.com/LemonHaze420/ghidra_kirk/issues/1 | MIT license added by the author 2026-10-30 (commit 26b9979); verified 2026-11-02 and HELD: no independent reference for the ISA (every public table comes from one reverse-engineering effort, and they disagree), no freely licensed Kirk code |

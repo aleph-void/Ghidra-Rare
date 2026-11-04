@@ -461,18 +461,18 @@
  {
   "cpu": "Fujitsu F2MC-16LX",
   "source": "mehmooda/F2MC-16LX",
-  "license": "none",
-  "status": "blocked",
+  "license": "MIT",
+  "status": "ok",
   "compiles": "1/1",
   "constructors": 313,
   "unimpl": 0,
-  "authors": "@mehmooda, @qufb",
+  "authors": "@mehmooda, @qufb, @mkrasselt1",
   "credit_also": [],
   "alternatives": [],
   "why": "Only implementation found",
   "url": "https://github.com/mehmooda/F2MC-16LX",
   "license_request": "https://github.com/mehmooda/F2MC-16LX/issues/6",
-  "license_request_status": "author agrees; waiting for co-contributors @qufb and @mkrasselt1"
+  "license_request_status": "MIT LICENSE merged by the author 2026-11-03 (PR #7); verified and published as community/F2MC16LX"
  },
  {
   "cpu": "Fujitsu FR (FR/FR60/FR81/MB91)",
