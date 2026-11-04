@@ -13,6 +13,10 @@ OUT=${2:-dist}
 for manifest in "$ROOT"/*/Module.manifest; do
 	"$ROOT/tools/build-module.sh" "$GHIDRA" "$(dirname "$manifest")" "$OUT"
 done
-grep -v '^#' "$ROOT/community/modules.tsv" | while IFS=$'\t' read -r name path sub; do
-	"$ROOT/tools/build-module.sh" --standard --name "$name" "$GHIDRA" "$ROOT/$path/$sub" "$OUT"
+# Optional fourth column: keep-build (the module keeps its own Gradle build, e.g. for Kotlin sources;
+# the same as keep_build in the fork's release workflow).
+grep -v '^#' "$ROOT/community/modules.tsv" | while IFS=$'\t' read -r name path sub opts; do
+	extra=()
+	[[ ,${opts:-}, == *,keep-build,* ]] && extra+=(--keep-build)
+	"$ROOT/tools/build-module.sh" --standard "${extra[@]}" --name "$name" "$GHIDRA" "$ROOT/$path/$sub" "$OUT"
 done

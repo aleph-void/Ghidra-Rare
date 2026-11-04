@@ -1,4 +1,4 @@
-# name	submodule	module dir inside the submodule
+# name	submodule	module dir inside the submodule	[options: keep-build]
 OpenRISC	community/OpenRISC	.
 RL78	community/RL78	RL78
 65816	community/65816	.
@@ -50,7 +50,7 @@ PIC16F153xx	community/PIC16F153xx	.
 unSP	community/unSP	.
 PDK	community/PDK	PDK
 TMS320C28x	community/TMS320C28x	.
-Allegrex	community/Allegrex	.
+Allegrex	community/Allegrex	.	keep-build
 ARCv2	community/ARCv2	.
 PicoBlaze	community/PicoBlaze	.
 D11	community/D11	D11
