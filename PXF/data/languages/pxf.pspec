@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Each column's instruction block is loaded at packet address 0x800. -->
+<processor_spec>
+  <programcounter register="pc"/>
+</processor_spec>

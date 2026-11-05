@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- No calling convention or stack is documented for PXF microcode; this minimal spec only
+     lets Ghidra follow branches and calls. sp_none is a pseudo-register no instruction touches:
+     the decompiler needs some stack pointer to run. -->
+<compiler_spec>
+  <data_organization>
+    <pointer_size value="4"/>
+  </data_organization>
+  <global>
+    <range space="code"/>
+    <range space="data"/>
+  </global>
+  <stackpointer register="sp_none" space="data"/>
+  <default_proto>
+    <prototype name="default" extrapop="0" stackshift="0">
+      <input/>
+      <output/>
+    </prototype>
+  </default_proto>
+</compiler_spec>

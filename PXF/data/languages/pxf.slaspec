@@ -1,0 +1,291 @@
+# Cisco PXF "Toaster" packet processor as used on the NSE-100 (Cisco 7300/7304).
+#
+# Instructions are 64-bit VLIW packets: one M-unit instruction, one S-unit instruction and up to
+# three control micro-ops share the packet's bit fields. Instruction memory is addressed in
+# packets (16-bit packet addresses), so the code space has an 8-byte word size.
+#
+# Bit naming in this file: H = the first (high) 32-bit word of the packet, L = the second (low)
+# word. Token bit n of L is bit n; token bit n of H is bit n+32.
+#
+# Display: the slots are separated by " ; ". The packet's first non-empty slot gives the Ghidra mnemonic; packets with
+# no M or S instruction start with "noop".
+#
+# Semantics: only control flow is modelled (relative and register branches, calls, returns through
+# lr, compare-and-branch). Branches take effect immediately: the hardware's branch delay slot is
+# not modelled, because real microcode places branches in delay slots, which Ghidra cannot
+# represent. Data-path operations have no p-code: their execution semantics (shifter/mask modes,
+# one-cycle register write delay, bypass registers) are not documented anywhere this module could
+# check.
+
+define endian=big;
+define alignment=8;
+
+define space code     type=ram_space      size=2  wordsize=8  default;
+define space data     type=ram_space      size=4;
+define space register type=register_space size=4;
+
+define register offset=0x000 size=4 [
+	r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15
+];
+define register offset=0x040 size=4 [ lr rsrc rtag rirb risb rrb ];
+define register offset=0x080 size=4 [
+	t0 t1 t2 t3 t4 t5 t6 t7 t8 t9 t10 t11 t12 t13 t14 t15
+];
+define register offset=0x0c0 size=4 [ pc ];
+# Pseudo-register for the decompiler, which requires a stack pointer. No PXF instruction uses it:
+# the microcode has no documented stack.
+define register offset=0x0c8 size=4 [ sp_none ];
+define register offset=0x100 size=1 [
+	cr_zero cr_mcarry cr_mleast cr_mneg cr_mshift cr_mzero cr_scarry cr_sleast
+	cr_sneg cr_sshift cr_szero cr_czero cr_forceb cr_exsum cr_lbst0 cr_lbst1
+	cr_tstat0 cr_tstat1 cr_desdone cr_perfc cr_dmadone cr_equal cr_lbusy cr_lrslt
+	cr_ifst0 cr_ifst1 cr_ifst2 cr_ifst3 cr_ifst4 cr_ifst5 cr_ifst6 cr_ifst7
+];
+
+define token pkt(64)
+	# ---- H word ----
+	hall    = (32,63)
+	hhi8    = (56,63)
+	hlo24   = (32,55)
+	hfmt    = (62,63)
+	hop     = (59,61)
+	hcb     = (59,60)
+	hx      = (58,61)
+	hmode   = (58,58)
+	hcls    = (55,57)
+	hdisp   = (50,57)
+	hdispu  = (50,57)
+	h21_18  = (50,53)
+	h21_18s = (50,53) signed
+	h21_20  = (52,53)
+	hw      = (48,49)
+	h16     = (48,48)
+	hidx    = (36,39)
+	hA      = (44,47)
+	hA_cc4  = (44,47)
+	hA_t    = (44,47)
+	hA_d44  = (44,47)
+	hA_dc4  = (44,47)
+	hA_c84  = (44,47)
+	h15_12  = (44,47)
+	himm    = (36,43)
+	h7_4    = (36,39)
+	hB_d84  = (40,43)
+	hB_dc4  = (40,43)
+	hC_d04  = (32,35)
+	hC_d44  = (32,35)
+	hC_dc4  = (32,35)
+	h3_0    = (32,35)
+	# ---- L word ----
+	l31_10  = (10,31)
+	l31_27  = (27,31)
+	lfmt    = (30,31)
+	lop     = (27,29)
+	l29_28  = (28,29)
+	l27     = (27,27)
+	lmode   = (26,26)
+	lcond   = (22,26)
+	lc      = (22,26)
+	lpdone  = (22,26)
+	lD_c04  = (22,25)
+	lD      = (22,25)
+	l25_10  = (10,25)
+	l25_10s = (10,25) signed
+	l25_18  = (18,25)
+	l21     = (21,21)
+	lS_c44  = (18,21)
+	lS      = (18,21)
+	ldisp   = (10,21) signed
+	limm    = (14,21)
+	l20     = (20,20)
+	l18_14  = (14,18)
+	lidx    = (14,17)
+	l16_14  = (14,16)
+	l16_14d = (14,16)
+	l17_10  = (10,17)
+	lT_d44  = (10,13)
+	lT_dc4  = (10,13)
+	lT_bc4  = (10,13)
+	l9_8    = (8,9)
+	l7_6    = (6,7)
+	l7_6d   = (6,7)
+	l5_3    = (3,5)
+	l5_3n   = (3,5)
+	l2_0    = (0,2)
+	l2_0n   = (0,2)
+;
+
+# ---- register/operand name tables ----
+attach names hw [ b h w d ];
+attach names hmode [ n m ];
+attach names lmode [ n m ];
+attach names hcb [ bne balne beq baleq ];
+attach names l29_28 [ bcf balcf bct balct ];
+attach names lop [ or shift xor and addu subu adduc addup1 ];
+attach names h21_20 [ sub0 sub1 addr state ];
+attach names l7_6 [ rs0 rs2 rdm rds ];
+attach names l2_0n [ "" u2_op1 u2_op2 u2_op3 u2_op4 u2_op5 u2_op6 u2_op7 ];
+attach names l5_3n [ "" "" "" "" invslog cntrst cntdec cdsbt ];
+attach names hidx [ "" "[1]" "[2]" "[3]" "[4]" "[5]" "[6]" "[7]" "[8]" "[9]" "[10]" "[11]" "[12]" "[13]" "[14]" "[15]" ];
+attach names lidx [ "" "[1]" "[2]" "[3]" "[4]" "[5]" "[6]" "[7]" "[8]" "[9]" "[10]" "[11]" "[12]" "[13]" "[14]" "[15]" ];
+attach names lpdone [
+	"pc_table[0]" "pc_table[1]" "pc_table[2]" "pc_table[3]" "pc_table[4]" "pc_table[5]" "pc_table[6]" "pc_table[7]"
+	"*" "*" "*" "*" "*" "*" "*" "*"
+	"wait 0" "wait 1" "wait 2" "wait 3" "wait 4" "wait 5" "wait 6" "wait 7"
+	"wait 8" "wait 9" "wait 10" "wait 11" "wait 12" "wait 13" "wait 14" "continue"
+];
+# tables with an empty entry
+attach names hC_d04 [ r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 "" rtag ];
+attach names hA_c84 [ r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 "" rsrc ];
+attach names lD_c04 [ r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 lr "" ];
+
+attach variables [ hA_cc4 ] [ r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 lr rsrc ];
+attach variables [ hA_t ] [ t0 t1 t2 t3 t4 t5 t6 t7 t8 t9 t10 t11 t12 t13 t14 t15 ];
+attach variables [ hA_d44 hC_d44 lT_d44 ] [ r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 rirb rrb ];
+attach variables [ hB_d84 ] [ r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 lr rrb ];
+attach variables [ hA_dc4 hB_dc4 hC_dc4 lT_dc4 ] [ r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15 ];
+attach variables [ lS_c44 ] [ r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 risb rrb ];
+attach variables [ lT_bc4 ] [ r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 lr pc ];
+attach variables [ lcond ] [
+	cr_zero cr_mcarry cr_mleast cr_mneg cr_mshift cr_mzero cr_scarry cr_sleast
+	cr_sneg cr_sshift cr_szero cr_czero cr_forceb cr_exsum cr_lbst0 cr_lbst1
+	cr_tstat0 cr_tstat1 cr_desdone cr_perfc cr_dmadone cr_equal cr_lbusy cr_lrslt
+	cr_ifst0 cr_ifst1 cr_ifst2 cr_ifst3 cr_ifst4 cr_ifst5 cr_ifst6 cr_ifst7
+];
+
+# decimal operands (Ghidra prints plain fields in hex)
+attach names hdisp [ "0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "20" "21" "22" "23" "24" "25" "26" "27" "28" "29" "30" "31" "32" "33" "34" "35" "36" "37" "38" "39" "40" "41" "42" "43" "44" "45" "46" "47" "48" "49" "50" "51" "52" "53" "54" "55" "56" "57" "58" "59" "60" "61" "62" "63" "64" "65" "66" "67" "68" "69" "70" "71" "72" "73" "74" "75" "76" "77" "78" "79" "80" "81" "82" "83" "84" "85" "86" "87" "88" "89" "90" "91" "92" "93" "94" "95" "96" "97" "98" "99" "100" "101" "102" "103" "104" "105" "106" "107" "108" "109" "110" "111" "112" "113" "114" "115" "116" "117" "118" "119" "120" "121" "122" "123" "124" "125" "126" "127" "-128" "-127" "-126" "-125" "-124" "-123" "-122" "-121" "-120" "-119" "-118" "-117" "-116" "-115" "-114" "-113" "-112" "-111" "-110" "-109" "-108" "-107" "-106" "-105" "-104" "-103" "-102" "-101" "-100" "-99" "-98" "-97" "-96" "-95" "-94" "-93" "-92" "-91" "-90" "-89" "-88" "-87" "-86" "-85" "-84" "-83" "-82" "-81" "-80" "-79" "-78" "-77" "-76" "-75" "-74" "-73" "-72" "-71" "-70" "-69" "-68" "-67" "-66" "-65" "-64" "-63" "-62" "-61" "-60" "-59" "-58" "-57" "-56" "-55" "-54" "-53" "-52" "-51" "-50" "-49" "-48" "-47" "-46" "-45" "-44" "-43" "-42" "-41" "-40" "-39" "-38" "-37" "-36" "-35" "-34" "-33" "-32" "-31" "-30" "-29" "-28" "-27" "-26" "-25" "-24" "-23" "-22" "-21" "-20" "-19" "-18" "-17" "-16" "-15" "-14" "-13" "-12" "-11" "-10" "-9" "-8" "-7" "-6" "-5" "-4" "-3" "-2" "-1" ];
+attach names [ h15_12 h7_4 h3_0 lD lS ] [ "0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "10" "11" "12" "13" "14" "15" ];
+attach names l16_14d [ "0" "1" "2" "3" "4" "5" "6" "7" ];
+attach names l7_6d [ "0" "1" "2" "3" ];
+
+@include "pxf_tables.sinc"
+
+# ---- shared operand helpers ----
+
+# M base/destination register: the tag bank when L[9:8]=0 and L[7:6]=3, else r0..r13, lr, rsrc.
+mbase: hA_t   is l9_8=0 & l7_6=3 & hA_t   { export hA_t; }
+mbase: hA_cc4 is (l9_8!=0 | l7_6!=3) & hA_cc4 { export hA_cc4; }
+
+# M immediate H[11:4]; an L word with L[31:27]=0x19 extends it unless L[5:3] is 2 or 3.
+mimm: himm is (l31_27!=0x19 | l5_3=2 | l5_3=3) & himm { export *[const]:4 himm; }
+mimm: val  is l31_27=0x19 & (l5_3=0 | l5_3=1 | l5_3>=4) & lmode=0 & himm & l25_10
+	[ val = (l25_10 << 16) | (himm << 8); ] { export *[const]:4 val; }
+mimm: val  is l31_27=0x19 & (l5_3=0 | l5_3=1 | l5_3>=4) & lmode=1 & himm & l25_10
+	[ val = (l25_10 << 8) | himm; ] { export *[const]:4 val; }
+
+# M displacement: signed H[25:18]; an L word with L[31:27]=0x19 and L[5:3] 2 or 3 extends it.
+mdisp: hdisp is (l31_27!=0x19 | l5_3<2 | l5_3>3) & hdisp { export *[const]:4 hdisp; }
+mdisp: val   is l31_27=0x19 & (l5_3=2 | l5_3=3) & lmode=0 & hdispu & l25_10s
+	[ val = (l25_10s << 16) | (hdispu << 8); ] { export *[const]:4 val; }
+mdisp: val   is l31_27=0x19 & (l5_3=2 | l5_3=3) & lmode=1 & hdispu & l25_10s
+	[ val = (l25_10s << 8) | hdispu; ] { export *[const]:4 val; }
+
+# The S-unit immediate: L[21:14], extended by H[23:0] when H[31:24]=2.
+simm: limm is hhi8!=2 & limm { export *[const]:4 limm; }
+simm: val  is hhi8=2 & hlo24 & limm [ val = (hlo24 << 8) | limm; ] { export *[const]:4 val; }
+
+mtarget: dest is h21_18s & h15_12 & h7_4
+	[ dest = inst_start + ((h21_18s << 8) | (h15_12 << 4) | h7_4); ] { export *:8 dest; }
+starget: dest is ldisp [ dest = inst_start + ldisp; ] { export *:8 dest; }
+
+# ---- M slot ----
+# Forms: F3 = H[31:30]=3 (immediate + memory), F1 = 1 (register + memory), F2 = 2 (indirect),
+# F0 = 0 with class H[25:23]: 0 immediate ALU, 1 indirect ALU, 2 register ALU,
+# 3 compare and branch, 4/5 X unit.  F0 classes 6/7, X opcodes 6-8/13-15 and M operations 20-23
+# are undefined and do not decode.
+
+
+# mnemonic
+mmn: malu is (hfmt=1 | hfmt=2 | hfmt=3) & malu {}
+mmn: malu is hfmt=0 & (hcls=1 | hcls=2) & malu {}
+mmn: malu is hfmt=0 & hcls=0 & malu {}
+mmn: hcb  is hfmt=0 & hcls=3 & hcb {}
+mmn: "xtbr"  is hfmt=0 & (hcls=4 | hcls=5) & hx=1 {}
+mmn: "xgbs"  is hfmt=0 & (hcls=4 | hcls=5) & hx=2 {}
+mmn: "xtbw"  is hfmt=0 & (hcls=4 | hcls=5) & hx=3 {}
+mmn: "xgvs"  is hfmt=0 & (hcls=4 | hcls=5) & hx=4 {}
+mmn: "xcs"   is hfmt=0 & (hcls=4 | hcls=5) & hx=5 {}
+mmn: "xhash" is hfmt=0 & (hcls=4 | hcls=5) & hx=9 {}
+mmn: "xdes"  is hfmt=0 & (hcls=4 | hcls=5) & hx=10 {}
+mmn: "xperf" is hfmt=0 & (hcls=4 | hcls=5) & hx=11 {}
+mmn: "xdma"  is hfmt=0 & (hcls=4 | hcls=5) & hx=12 {}
+
+# operands
+mops: mdisp^"("^hC_d04^"), "^hA_d44^", "^mimm is hfmt=3 & (l5_3=1 | l5_3=3) & hop=5 & (l9_8!=0 | l7_6=0) & mdisp & hC_d04 & hA_d44 & mimm {}
+mops: mdisp^"("^hC_d04^"), "^mimm^", "^hA_d44 is hfmt=3 & (l5_3=1 | l5_3=3) & mdisp & hC_d04 & hA_d44 & mimm {}
+mops: mbase^", "^mdisp^"("^hC_d04^"), "^mimm is hfmt=3 & (l5_3=0 | l5_3=2 | l5_3>=4) & hop=5 & (l9_8!=0 | l7_6=0) & mbase & mdisp & hC_d04 & mimm {}
+mops: mbase^", "^mimm^", "^mdisp^"("^hC_d04^")" is hfmt=3 & (l5_3=0 | l5_3=2 | l5_3>=4) & mbase & mdisp & hC_d04 & mimm {}
+mops: hdisp^"("^hC_d04^"), "^hB_d84^", "^hA_d44^hidx is hfmt=1 & (l5_3=1 | l5_3=3) & hdisp & hC_d04 & hB_d84 & hA_d44 & hidx {}
+mops: mbase^", "^hB_d84^", "^mdisp^"("^hC_d04^")"^hidx is hfmt=1 & (l5_3=0 | l5_3=2 | l5_3>=4) & mbase & hB_d84 & mdisp & hC_d04 & hidx {}
+mops: "("^hA_c84^"), "^hB_d84^", "^mdisp^"("^hC_d04^")"^hidx is hfmt=2 & hA_c84 & hB_d84 & mdisp & hC_d04 & hidx {}
+mops: mbase^", "^hC_d44^", "^mimm is hfmt=0 & hcls=0 & hop=5 & (l9_8!=0 | l7_6=0) & mbase & hC_d44 & mimm {}
+mops: mbase^", "^mimm^", "^hC_d44 is hfmt=0 & hcls=0 & mbase & hC_d44 & mimm {}
+mops: "("^hA_c84^"), "^hB_d84^", "^hC_d44^hidx is hfmt=0 & hcls=1 & hA_c84 & hB_d84 & hC_d44 & hidx {}
+mops: hA_cc4^", "^hB_d84^", "^hC_d44^hidx is hfmt=0 & hcls=2 & hA_cc4 & hB_d84 & hC_d44 & hidx {}
+mops: hA_dc4^", "^h3_0^", "^h21_20 is hfmt=0 & (hcls=4 | hcls=5) & hx=1 & hA_dc4 & h3_0 & h21_20 {}
+mops: h7_4 is hfmt=0 & (hcls=4 | hcls=5) & hx=2 & h7_4 {}
+mops: h15_12^", "^h21_20^", "^hC_dc4 is hfmt=0 & (hcls=4 | hcls=5) & hx=3 & h15_12 & h21_20 & hC_dc4 {}
+mops: h7_4^", "^hC_dc4 is hfmt=0 & (hcls=4 | hcls=5) & hx=4 & h7_4 & hC_dc4 {}
+mops: h7_4 is hfmt=0 & (hcls=4 | hcls=5) & hx=5 & h7_4 {}
+mops: is hfmt=0 & (hcls=4 | hcls=5) & hx=9 {}
+mops: "encrypt" is hfmt=0 & (hcls=4 | hcls=5) & hx=10 & h16=0 {}
+mops: "decrypt" is hfmt=0 & (hcls=4 | hcls=5) & hx=10 & h16=1 {}
+mops: hC_dc4 is hfmt=0 & (hcls=4 | hcls=5) & hx=11 & hC_dc4 {}
+mops: hB_dc4^", "^hC_dc4^", "^xdmacnt is hfmt=0 & (hcls=4 | hcls=5) & hx=12 & hB_dc4 & hC_dc4 & xdmacnt {}
+
+# ---- S slot ----
+
+smn: "ssubu."^lmode is lfmt=0 & lop=5 & lmode {}
+smn: "s"^lop^"."^lmode is lfmt=0 & lop & lmode {}
+smn: "s"^lop^"."^lmode is lfmt=1 & lop & lmode {}
+smn: l29_28 is (lfmt=2 | lfmt=3) & l27=0 & l29_28 {}
+smn: "wrpct" is lfmt=2 & l27=1 & l29_28=0 {}
+smn: "rdpct" is lfmt=2 & l27=1 & l29_28=1 {}
+smn: "pdone" is lfmt=2 & l27=1 & l29_28=2 {}
+smn: "mbf"   is lfmt=2 & l27=1 & l29_28=3 & l21=0 {}
+smn: "mbt"   is lfmt=2 & l27=1 & l29_28=3 & l21=1 {}
+smn: "s16"   is lfmt=3 & l27=1 & l29_28=1 {}
+smn: "spr"   is lfmt=3 & l27=1 & l29_28=2 {}
+smn: "smsr"  is lfmt=3 & l27=1 & l29_28=3 {}
+
+sops: lD_c04^", "^lT_d44^", "^simm is lfmt=0 & lop=5 & lD_c04 & lT_d44 & simm {}
+sops: lD_c04^", "^simm^", "^lT_d44 is lfmt=0 & lD_c04 & simm & lT_d44 {}
+sops: lD_c04^","^lS_c44^","^lT_d44^lidx is lfmt=1 & lD_c04 & lS_c44 & lT_d44 & lidx {}
+sops: lD^", "^lT_dc4 is lfmt=2 & l27=1 & l29_28=0 & lD & lT_dc4 {}
+sops: lD^"," is lfmt=2 & l27=1 & l29_28=1 & lD {}
+sops: lpdone^","^lS^","^lT_dc4 is lfmt=2 & l27=1 & l29_28=2 & lpdone & lS & l16_14=0 & lT_dc4 {}
+sops: lpdone^","^lS^","^l16_14d is lfmt=2 & l27=1 & l29_28=2 & lpdone & lS & l16_14d {}
+sops: lcond^", noshift, "^l18_14^", "^lT_dc4 is lfmt=2 & l27=1 & l29_28=3 & lcond & l20=0 & l18_14 & lT_dc4 {}
+sops: lcond^", shift, "^l18_14^", "^lT_dc4 is lfmt=2 & l27=1 & l29_28=3 & lcond & l20=1 & l18_14 & lT_dc4 {}
+sops: "high, "^l25_10 is lfmt=3 & l27=1 & l29_28=1 & lmode=0 & l25_10 {}
+sops: "low, "^l25_10  is lfmt=3 & l27=1 & l29_28=1 & lmode=1 & l25_10 {}
+sops: "iar, "^l17_10    is lfmt=3 & l27=1 & l29_28=2 & lmode=0 & l17_10 {}
+sops: "cr_win, "^l17_10 is lfmt=3 & l27=1 & l29_28=2 & lmode=1 & l17_10 {}
+sops: "high, "^l25_18^", "^l17_10 is lfmt=3 & l27=1 & l29_28=3 & lmode=0 & l25_18 & l17_10 {}
+sops: "low, "^l25_18^", "^l17_10  is lfmt=3 & l27=1 & l29_28=3 & lmode=1 & l25_18 & l17_10 {}
+
+@include "pxf_branches.sinc"
+
+# S slot appended after an M instruction
+sx: is l31_10=0 & hhi8!=2 {}
+sx: is lfmt=3 & l27=1 & l29_28=0 {}
+sx: " ; "^smn^" "^sops is smn & sops { build sops; }
+
+# ---- control micro-ops ----
+c1: is l9_8=0 {}
+c1: " ; pfa "^l7_6d is l9_8=1 & l7_6d {}
+c1: " ; eb "^l7_6d  is l9_8=2 & l7_6d {}
+c1: " ; tr "^l7_6   is l9_8=3 & l7_6 {}
+c2: is l5_3<4 {}
+c2: " ; "^l5_3n is l5_3>=4 & l5_3n {}
+c3: is l2_0=0 {}
+c3: " ; "^l2_0n is l2_0!=0 & l2_0n {}
+
+# ---- packets ----
+# M slot empty: H = 0 (unless L[31:27] = 0x19 supplies an M immediate), or X unit opcode 0.
+# S slot empty: L[31:10] = 0 (unless H[31:24] = 2 supplies an S immediate), or S control 0.
+:^mmn mops^sx^c1^c2^c3 is mmn & mops & sx & c1 & c2 & c3 { build mops; build sx; }
+:^smn sops^c1^c2^c3 is ((hall=0 & l31_27!=0x19) | (hfmt=0 & (hcls=4 | hcls=5) & hx=0)) & smn & sops & c1 & c2 & c3 { build sops; }
+:noop c1^c2^c3 is ((hall=0 & l31_10=0)
+	| (hfmt=0 & (hcls=4 | hcls=5) & hx=0 & ((l31_10=0 & hhi8!=2) | (lfmt=3 & l27=1 & l29_28=0)))) & c1 & c2 & c3 {}

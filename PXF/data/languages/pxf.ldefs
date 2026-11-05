@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<language_definitions>
+  <language processor="PXF"
+            endian="big"
+            size="16"
+            variant="NSE-100"
+            version="1.0"
+            slafile="pxf.sla"
+            processorspec="pxf.pspec"
+            id="PXF:BE:16:NSE-100">
+    <description>Cisco PXF "Toaster" packet processor (NSE-100, Cisco 7300/7304); 64-bit packets, packet-addressed code</description>
+    <compiler name="default" spec="pxf.cspec" id="default"/>
+  </language>
+</language_definitions>

@@ -1,6 +1,6 @@
 # Status: what works and what doesn't
 
-Last updated 2026-10-23. This is the running ledger for the project. Each module's README has the
+Last updated 2026-11-05. This is the running ledger for the project. Each module's README has the
 details and the exact test commands; this page tracks the state across modules and the lessons learned.
 
 The upstream IDA repositories contain no source code in the repository itself (README, license and
@@ -179,6 +179,15 @@ MAME bugs confirmed against the manuals and the assemblers: dsp56000: XY-move Y 
 | Unverified | tjex with bit 7 set, empty register lists, treti without pc, the lr bit 0 written by tjl (forms the compiler never emits) |
 
 Telink's assembler encodes `tserv n` as 0xDFnn, which its own objdump decodes as tloadm, while objdump decodes 0xCFnn as tserv; the module follows objdump.
+
+### Cisco PXF (NSE-100): decode complete, flow only
+
+| Area | State |
+|---|---|
+| Decode | All M-slot, S-slot and micro-op forms, including the L- and H-word immediate/displacement extensions; undefined encodings rejected |
+| Semantics | Control flow only: conditional and register branches, calls, returns through `lr`, compare-and-branch. `cr_zero` reads as 0 |
+| Doesn't work | Delay slots not modelled (branches sit in delay slots). The decompiler process dies on some branch-only loops that jump back before a function entry |
+| Unverified | Data-path, memory, X-unit and micro-op execution semantics (no p-code); other Toaster generations |
 
 ## Planned: clean-room modules for CPUs IDA Pro supports and Ghidra doesn't
 
