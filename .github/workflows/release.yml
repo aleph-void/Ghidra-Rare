@@ -124,4 +124,16 @@ jobs:
               gh release create "$tag" --repo "$GITHUB_REPOSITORY" --title "$tag" --generate-notes
             fi
           fi
-          gh release upload "$tag" --repo "$GITHUB_REPOSITORY" --clobber *.zip SHA256SUMS
+          # One file per call with retries: a single upload of ~300 files fails on any transient
+          # API error (spurious "already exists" 422s and 500s have both happened).
+          failed=0
+          for f in *.zip SHA256SUMS; do
+            for attempt in 1 2 3 4 5; do
+              gh release upload "$tag" --repo "$GITHUB_REPOSITORY" --clobber "$f" && continue 2
+              echo "::warning::upload of $f failed (attempt $attempt)"
+              sleep $((attempt * 10))
+            done
+            echo "::error::giving up on $f"
+            failed=1
+          done
+          exit $failed
