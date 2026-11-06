@@ -177,6 +177,21 @@ enough): JDK 21 or newer for Ghidra 12.1, JDK 25 for Ghidra 12.2. Point `JAVA_HO
 
 Install the zip via *File → Install Extensions* in Ghidra, then restart Ghidra.
 
+**Build and install in one step** with `tools/install.sh`, passing your Ghidra install directory
+(or setting `GHIDRA_INSTALL_DIR`). It builds each module for that Ghidra and unpacks it into
+`$GHIDRA_INSTALL_DIR/Ghidra/Extensions`, for every user of that install:
+
+```sh
+tools/install.sh /opt/ghidra_12.1.4_PUBLIC               # the modules written here
+tools/install.sh --community /opt/ghidra_12.1.4_PUBLIC   # ... and the community modules
+tools/install.sh --only PRU,SM83 /opt/ghidra_12.1.4_PUBLIC
+```
+
+`--zips <dir>` installs zips you downloaded from the Releases page instead of building, `--dest`
+installs somewhere else (for example your user settings `Extensions` directory) and `--list`
+prints the module names. Restart Ghidra afterwards. The script warns about any copy of the same
+module that Ghidra would also load (for example a `tools/link-modules.sh` symlink).
+
 **For development**, symlink every module into a Ghidra install and compile the SLEIGH specs:
 
 ```sh
