@@ -95,7 +95,7 @@ Pull requests are covered by Ghidra's contribution terms (Apache-2.0).
 | Renesas RX | [redballoonsecurity/rx-proc-ghidra](https://github.com/redballoonsecurity/rx-proc-ghidra) | none (blocked) | 1/1 | 359 | @jamchamb | Only implementation found |
 | Renesas V850E2/E3 / RH850 | [esaulenka/ghidra_v850](https://github.com/esaulenka/ghidra_v850) | MIT (ok) | 2/2 | 479 | @esaulenka, @pd0wm, @EgorKin, @jbmokuz, @HexRoman | MIT; kaikozlov/ghidra_rh850 more complete (805, no unimpl) but NO LICENSE Alternatives: kaikozlov/ghidra_rh850, ZEEKRZERO/Ghidra-RH850. |
 | Rockwell L39 | [honx/rockwell_l39_ghidra](https://github.com/honx/rockwell_l39_ghidra) | Apache-2.0 (ok) | 1/1 | 128 | @honx | Only implementation found |
-| S5L8702 FMISS | [lemonjesus/S5L8702-FMISS-Tools](https://github.com/lemonjesus/S5L8702-FMISS-Tools) | CC-BY-NC-SA-4.0 (blocked) | 1/1 | 21 | @lemonjesus, @q3k | Only implementation found |
+| S5L8702 FMISS | [lemonjesus/S5L8702-FMISS-Tools](https://github.com/lemonjesus/S5L8702-FMISS-Tools) | MIT (ok) | 1/1 | 21 | @lemonjesus, @q3k | Only implementation found. ghidra-processor/ relicensed MIT 2026-10-28; LICENSE file added 2026-11-11 (rest of the repository stays CC-BY-NC-SA-4.0). Not adding: no independent ISA reference (see License requests) |
 | Sanyo LC87 | [Konsl/ghidra-lc87-processor](https://github.com/Konsl/ghidra-lc87-processor) | none (blocked) | 1/1 | 110 | @Konsl | Only implementation found |
 | Sanyo xstormy16 | [xerootg/ghidra-xstormy16](https://github.com/xerootg/ghidra-xstormy16) | GPL-3.0 (copyleft) | 1/1 | 233 | @xerootg | Only implementation found |
 | SCN3 | [LemonHaze420/GhidraSCN3](https://github.com/LemonHaze420/GhidraSCN3) | none (blocked) | 1/1 | 100 | @LemonHaze420 | Only implementation found |
@@ -176,7 +176,7 @@ Opened 2026-10-25 for every blocked pick. A module moves into the verification q
 | Panasonic MN10200 | https://github.com/Pokechu22/ghidra-mn102-lang/issues/2 | full Apache-2.0 LICENSE.txt added by the author 2026-10-28 |
 | Renesas M32R | https://github.com/ripnet/ghidra-m32r/issues/7 | open |
 | Renesas RX | https://github.com/redballoonsecurity/rx-proc-ghidra/pull/2#issuecomment-6401502742 | comment on an existing license PR |
-| S5L8702 FMISS | https://github.com/lemonjesus/S5L8702-FMISS-Tools/issues/6 | Ghidra module relicensed MIT by the owner 2026-10-28 (READMEs only; most of the module is by @q3k, PR #4); PR adding the missing ghidra-processor/LICENSE opened 2026-11-01: https://github.com/lemonjesus/S5L8702-FMISS-Tools/pull/7 |
+| S5L8702 FMISS | https://github.com/lemonjesus/S5L8702-FMISS-Tools/issues/6 | Ghidra module relicensed MIT by the owner 2026-10-28 (READMEs only; most of the module is by @q3k, PR #4); PR adding ghidra-processor/LICENSE (MIT, copyright Serge Bazanski (@q3k) and Tucker Osman) merged by the owner 2026-11-11 (commit 7b88d37): https://github.com/lemonjesus/S5L8702-FMISS-Tools/pull/7; issue closed. Not adding to the collection (decided 2026-11-11): the only ISA reference is the authors' own reverse engineering (CC-BY-NC-SA docs, GPL tools), so there is no independent reference to verify against |
 | Sanyo LC87 | https://github.com/Konsl/ghidra-lc87-processor/issues/1 | open |
 | SCN3 | https://github.com/LemonHaze420/GhidraSCN3/issues/1 | open |
 | Signetics 2650 | https://github.com/iromero91/ghidra-signetics2650/issues/1 | open |
