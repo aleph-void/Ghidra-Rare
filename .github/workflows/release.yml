@@ -8,10 +8,17 @@
 name: Release builds
 
 on:
+  # Documentation-only changes don't rebuild. Path filters don't apply to tag pushes, so v* tags
+  # always build.
   push:
     branches: [main]
     tags: ['v*']
+    paths-ignore: &docs
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
   pull_request:
+    paths-ignore: *docs
   schedule:
     - cron: '17 6 * * 1'
   workflow_dispatch:
