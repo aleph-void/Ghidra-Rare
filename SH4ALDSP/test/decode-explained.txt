@@ -1,0 +1,9 @@
+# Classes of decode differences against GNU objdump 2.45 (-m sh4al-dsp); compare.py assigns them
+# from the instruction bits.  Format: class reason
+reserved-ds MOVS with Ds = 0-4 or 6, codes the manual reserves (table 6.15): objdump prints the register as a number, the module rejects it
+reserved-dz P-op with Dz = 0-4, 6 (objdump prints a number) or D/F (objdump prints A1G/A0G, the MOVS codes): reserved for Dz in table 6.39, rejected by the module
+reserved-afield double transfer / P-op A field with NOPX and NOPY but bits 9-4 not zero: reserved (NOPX needs bits 9,7,5 = 0, NOPY bits 8,6,4 = 0; tables 3.12, 6.13); objdump prints "pcmp x0,y0"/"pcmp x1,y1" or .word for them, a confirmed objdump bug
+ignored-field P-op whose unused operand field (PCMP Dz, PCLR/PSTS/PLDS Sx and Sy, the fixed Sx/Sy field of the two-operand forms) or condition field is not the value table 6.39 gives: objdump ignores those bits, the module rejects the encoding
+shift-imm-unsigned PSHA/PSHL #imm with a negative count: objdump prints the 7-bit field unsigned (gas encodes psha #-5 as 0x7b and objdump shows #123), a confirmed objdump bug; the manual gives a signed count (-32..32, -16..16)
+ldrs-ldre-negative LDRS/LDRE with a negative displacement: the manual sign-extends it (-256..+254, operation description), objdump does not (and gas rejects backward targets with "pcrel too far"): a confirmed binutils bug
+branch-in-delay-slot a delayed branch whose delay slot holds another delayed branch (slot illegal instruction per the manual): Ghidra does not decode a delay-slot instruction that is itself delayed, objdump prints both

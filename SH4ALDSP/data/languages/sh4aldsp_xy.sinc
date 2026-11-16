@@ -1,0 +1,112 @@
+# SH4AL-DSP DSP data transfers: double transfers (MOVX/MOVY, 16-bit 111100 + A field, and the A
+# field of the 32-bit P-op instructions) and single transfers (MOVS).  Manual 3.4, 6.4, 11.3.
+# MIT License, see sh4aldsp.sinc.
+#
+# In a P-op the data operation reads its sources first, the A field then does its loads, stores
+# and pointer updates, and the operation's results are written last (sh4aldsp_pops.sinc): the
+# operation sees the registers before the loads, the stores see them before the operation
+# (manual figures 6.9 and 6.12).
+#
+# X/Y addresses: the module uses the full pointer value.  The X and Y buses carry only bits 15-1
+# (the X/Y memories sit at H'A5000000/H'A5010000, the Uxy area); a pointer that holds such an
+# address, as programs do, gives the same access.
+
+# Post-update of an X pointer: modulo addressing when SR.DMX = 1 and SR.DMY = 0 (DMY wins when
+# both are set); a pointer whose low word equals ME is reloaded with MS (manual 3.2.5, 6.4.3).
+macro xupdate(reg, inc) {
+	local hit:1 = (DMX != 0) && (DMY == 0) && ((reg & 0xffff) == (MOD >> 16));
+	local plain:4 = reg + inc;
+	local wrap:4 = (reg & 0xffff0000) | (MOD & 0xffff);
+	reg = (zext(hit) * wrap) | (zext(hit == 0) * plain);
+}
+# Y pointers: the Y address unit updates the low word only, the upper word is kept (manual 6.4.2)
+macro yupdate(reg, inc) {
+	local hit:1 = (DMY != 0) && ((reg & 0xffff) == (MOD >> 16));
+	local plain:4 = (reg & 0xffff0000) | ((reg + inc) & 0xffff);
+	local wrap:4 = (reg & 0xffff0000) | (MOD & 0xffff);
+	reg = (zext(hit) * wrap) | (zext(hit == 0) * plain);
+}
+
+# ---- effective address (old pointer value) with the post-update; W/L = increment 2/4
+XNEA: "@"^ax_r is xmode=1 & ax_r { local a:4 = ax_r; export a; }
+XNEA: "@"^ax_r^"+" is xmode=2 & ax_r { local a:4 = ax_r; xupdate(ax_r, 2:4); export a; }
+XNEA: "@"^ax_r^"+R8" is xmode=3 & ax_r { local a:4 = ax_r; xupdate(ax_r, R8); export a; }
+YNEA: "@"^ay_r is ymode=1 & ay_r { local a:4 = ay_r; export a; }
+YNEA: "@"^ay_r^"+" is ymode=2 & ay_r { local a:4 = ay_r; yupdate(ay_r, 2:4); export a; }
+YNEA: "@"^ay_r^"+R9" is ymode=3 & ay_r { local a:4 = ay_r; yupdate(ay_r, R9); export a; }
+XEW: "@"^axe_r is xmode=1 & axe_r { local a:4 = axe_r; export a; }
+XEW: "@"^axe_r^"+" is xmode=2 & axe_r { local a:4 = axe_r; xupdate(axe_r, 2:4); export a; }
+XEW: "@"^axe_r^"+R8" is xmode=3 & axe_r { local a:4 = axe_r; xupdate(axe_r, R8); export a; }
+XEL: "@"^axe_r is xmode=1 & axe_r { local a:4 = axe_r; export a; }
+XEL: "@"^axe_r^"+" is xmode=2 & axe_r { local a:4 = axe_r; xupdate(axe_r, 4:4); export a; }
+XEL: "@"^axe_r^"+R8" is xmode=3 & axe_r { local a:4 = axe_r; xupdate(axe_r, R8); export a; }
+YEW: "@"^aye_r is ymode=1 & aye_r { local a:4 = aye_r; export a; }
+YEW: "@"^aye_r^"+" is ymode=2 & aye_r { local a:4 = aye_r; yupdate(aye_r, 2:4); export a; }
+YEW: "@"^aye_r^"+R9" is ymode=3 & aye_r { local a:4 = aye_r; yupdate(aye_r, R9); export a; }
+YEL: "@"^aye_r is ymode=1 & aye_r { local a:4 = aye_r; export a; }
+YEL: "@"^aye_r^"+" is ymode=2 & aye_r { local a:4 = aye_r; yupdate(aye_r, 4:4); export a; }
+YEL: "@"^aye_r^"+R9" is ymode=3 & aye_r { local a:4 = aye_r; yupdate(aye_r, R9); export a; }
+
+# ---- X and Y halves when both are used (MOVX.W and MOVY.W only).  Word loads go to the upper
+# word and clear the lower one; word stores take the upper word (of A0/A1 without guard bits).
+XN: "movx.w" XNEA,dx_r is xdir=0 & XNEA & dx_r { dx_r = zext(*:2 XNEA) << 16; }
+XN: "movx.w" dax_r,XNEA is xdir=1 & XNEA & dax_r { local v:4 = dax_r >> 16; *:2 XNEA = v:2; }
+YN: "movy.w" YNEA,dy_r is ydir=0 & YNEA & dy_r { dy_r = zext(*:2 YNEA) << 16; }
+YN: "movy.w" day_r,YNEA is ydir=1 & YNEA & day_r { local v:4 = day_r >> 16; *:2 YNEA = v:2; }
+
+# ---- extended forms (the other side is NOPX/NOPY): X uses bit 5 = store, bit 4 = long;
+#      Y uses bit 5 = long, bit 4 = store (manual tables 6.14, 6.38)
+XE: "movx.w" XEW,dxe_r is bit5=0 & bit4=0 & XEW & dxe_r { dxe_r = zext(*:2 XEW) << 16; }
+XE: "movx.l" XEL,dxe_r is bit5=0 & bit4=1 & XEL & dxe_r { dxe_r = *:4 XEL; }
+XE: "movx.w" daxe_r,XEW is bit5=1 & bit4=0 & XEW & daxe_r { local v:4 = daxe_r >> 16; *:2 XEW = v:2; }
+XE: "movx.l" daxe_r,XEL is bit5=1 & bit4=1 & XEL & daxe_r { *:4 XEL = daxe_r; }
+YE: "movy.w" YEW,dye_r is bit5=0 & bit4=0 & YEW & dye_r { dye_r = zext(*:2 YEW) << 16; }
+YE: "movy.l" YEL,dye_r is bit5=1 & bit4=0 & YEL & dye_r { dye_r = *:4 YEL; }
+YE: "movy.w" daye_r,YEW is bit5=0 & bit4=1 & YEW & daye_r { local v:4 = daye_r >> 16; *:2 YEW = v:2; }
+YE: "movy.l" daye_r,YEL is bit5=1 & bit4=1 & YEL & daye_r { *:4 YEL = daye_r; }
+
+# ---- the A field.  The X and Y halves use separate registers, so their order does not matter.
+AF: XN YN is xmode!=0 & ymode!=0 & XN & YN { build XN; build YN; }
+AF: XE is xmode!=0 & ymode=0 & XE { build XE; }
+AF: YE is xmode=0 & ymode!=0 & YE { build YE; }
+AFP: AF is AF { build AF; }
+AFP: is afield=0 { }
+
+INSN: AF is op6=0x3c & AF { build AF; }
+INSN: "nopx" "nopy" is op6=0x3c & afield=0 { }
+
+# ---- single transfers MOVS.W / MOVS.L (manual 6.4.2, 11.3.2-11.3.3): any memory, pointers
+# R4 R5 R2 R3, index R8; @-As pre-decrements, the other forms post-update
+SEA: "@-"^sas_r is smode=0 & ssize=0 & sas_r { sas_r = sas_r - 2; local a:4 = sas_r; export a; }
+SEA: "@-"^sas_r is smode=0 & ssize=1 & sas_r { sas_r = sas_r - 4; local a:4 = sas_r; export a; }
+SEA: "@"^sas_r is smode=1 & sas_r { local a:4 = sas_r; export a; }
+SEA: "@"^sas_r^"+" is smode=2 & ssize=0 & sas_r { local a:4 = sas_r; sas_r = a + 2; export a; }
+SEA: "@"^sas_r^"+" is smode=2 & ssize=1 & sas_r { local a:4 = sas_r; sas_r = a + 4; export a; }
+SEA: "@"^sas_r^"+R8" is smode=3 & sas_r { local a:4 = sas_r; sas_r = a + R8; export a; }
+
+# Ds: 5 A1, 7 A0, 8 X0, 9 X1, A Y0, B Y1, C M0, D A1G, E M1, F A0G; 0-4 and 6 are reserved
+DS32: "X0" is sds=8 { export X0; }
+DS32: "X1" is sds=9 { export X1; }
+DS32: "Y0" is sds=10 { export Y0; }
+DS32: "Y1" is sds=11 { export Y1; }
+DS32: "M0" is sds=12 { export M0; }
+DS32: "M1" is sds=14 { export M1; }
+DSA: "A0" is sds=7 { export A0E; }
+DSA: "A1" is sds=5 { export A1E; }
+DSG: "A0G" is sds=15 { export A0G; }
+DSG: "A1G" is sds=13 { export A1G; }
+
+# word loads go to the upper word and clear the lower one, A registers get the sign in the guard
+# bits; a guard register takes bits 7-0 of the data; stores of a guard register sign-extend it
+INSN: "movs.w" SEA,DS32 is op6=0x3d & sdir=0 & ssize=0 & SEA & DS32 { DS32 = zext(*:2 SEA) << 16; }
+INSN: "movs.w" SEA,DSA is op6=0x3d & sdir=0 & ssize=0 & SEA & DSA { DSA = sext(*:2 SEA) << 16; }
+INSN: "movs.w" SEA,DSG is op6=0x3d & sdir=0 & ssize=0 & SEA & DSG { local v:2 = *:2 SEA; DSG = v:1; }
+INSN: "movs.w" DS32,SEA is op6=0x3d & sdir=1 & ssize=0 & SEA & DS32 { local v:4 = DS32 >> 16; *:2 SEA = v:2; }
+INSN: "movs.w" DSA,SEA is op6=0x3d & sdir=1 & ssize=0 & SEA & DSA { local v:5 = DSA >> 16; *:2 SEA = v:2; }
+INSN: "movs.w" DSG,SEA is op6=0x3d & sdir=1 & ssize=0 & SEA & DSG { *:2 SEA = sext(DSG); }
+INSN: "movs.l" SEA,DS32 is op6=0x3d & sdir=0 & ssize=1 & SEA & DS32 { DS32 = *:4 SEA; }
+INSN: "movs.l" SEA,DSA is op6=0x3d & sdir=0 & ssize=1 & SEA & DSA { DSA = sext(*:4 SEA); }
+INSN: "movs.l" SEA,DSG is op6=0x3d & sdir=0 & ssize=1 & SEA & DSG { local v:4 = *:4 SEA; DSG = v:1; }
+INSN: "movs.l" DS32,SEA is op6=0x3d & sdir=1 & ssize=1 & SEA & DS32 { *:4 SEA = DS32; }
+INSN: "movs.l" DSA,SEA is op6=0x3d & sdir=1 & ssize=1 & SEA & DSA { *:4 SEA = DSA:4; }
+INSN: "movs.l" DSG,SEA is op6=0x3d & sdir=1 & ssize=1 & SEA & DSG { *:4 SEA = sext(DSG); }

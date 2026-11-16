@@ -1,0 +1,790 @@
+# SH4AL-DSP processor module for Ghidra: the SH-4A integer core without the FPU, plus the DSP unit
+# (Renesas SH7305/SH73050 in the Casio fx-CG and ClassPad II, SH7723, SH7724, ...).
+#
+# MIT License.  The SH-1/SH-2/SH-3 integer instructions in this file are adapted from the SH-3
+# SLEIGH of aleph-void/ghidra-sh (branch ghidra-rare, MIT; Copyright (c) 2019 William Hahne,
+# rewritten and verified by Ghidra-Rare).  Everything SH-4A and DSP specific was written from the
+# Renesas manuals listed in ../../README.md (SH4AL-DSP Software Manual REJ09B0002-0150 first of all).
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+# associated documentation files (the "Software"), to deal in the Software without restriction,
+# including without limitation the rights to use, copy, modify, merge, publish, distribute,
+# sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions: the above copyright notice and this
+# permission notice shall be included in all copies or substantial portions of the Software.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
+
+define endian=$(ENDIAN);
+define alignment=2;
+
+define space ram      type=ram_space      size=4 default;
+define space register type=register_space size=4;
+
+define register offset=0x00 size=4 [ R0 R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 R15 ];
+# R0_BANK..R7_BANK are always the inactive bank (switching SR.RB exchanges the two sets)
+define register offset=0x40 size=4 [ R0_BANK R1_BANK R2_BANK R3_BANK R4_BANK R5_BANK R6_BANK R7_BANK ];
+# SR, kept as separate fields (bit positions in get_sr/set_sr); LDST is the MOVLI/MOVCO link flag
+define register offset=0x80 size=1 [ T S Q M IMASK MD RB BL DSP DMX DMY RF LDST ];
+define register offset=0x8e size=2 [ RC ];
+define register offset=0x90 size=4 [ GBR VBR MACH MACL PR PC SSR SPC SGR DBR MOD RS RE ];
+# DSR, kept as separate fields (bit positions in get_dsr/set_dsr)
+define register offset=0xd0 size=1 [ DC CS V N Z GT TC TS AV AN AZ AGT ];
+# DSP data registers.  A0/A1 have 8 guard bits A0G/A1G; A0E/A1E are the 40-bit A0G:A0, A1G:A1.
+define register offset=0x100 size=4 [ X0 X1 Y0 Y1 M0 M1 ];
+@if ENDIAN == "big"
+define register offset=0x11f size=1 [ A0G ];
+define register offset=0x120 size=4 [ A0 ];
+define register offset=0x11f size=5 [ A0E ];
+define register offset=0x127 size=1 [ A1G ];
+define register offset=0x128 size=4 [ A1 ];
+define register offset=0x127 size=5 [ A1E ];
+@else
+define register offset=0x120 size=4 [ A0 ];
+define register offset=0x124 size=1 [ A0G ];
+define register offset=0x120 size=5 [ A0E ];
+define register offset=0x128 size=4 [ A1 ];
+define register offset=0x12c size=1 [ A1G ];
+define register offset=0x128 size=5 [ A1E ];
+@endif
+# NOG: scratch byte standing in for the guard bits of DSP operands that have none
+define register offset=0x130 size=1 [ NOG ];
+
+# Repeat-loop bookkeeping (manual 6.3).  LDRS/LDRE record their PC-relative targets in flowing
+# context; LDRC (extended repeat) marks the end instruction, SETRC (conventional repeat) marks the
+# repeat-detection instruction and the three instructions after it.
+define register offset=0x400 size=16 [ contextreg ];
+define context contextreg
+	rs_ctx  = (0,30)                # LDRS target >> 1
+	re_ctx  = (32,62)               # LDRE target >> 1
+	ctop    = (64,94)  noflow       # loop top >> 1 (extended: RS; conventional: after detect)
+	rpt_ext = (96,96)  noflow       # extended repeat: this is the repeat-end instruction
+	conv_k  = (97,99)  noflow       # conventional repeat: 1 detect, 2..4 the 1st..3rd after it
+;
+
+define token instr (16)
+	n1 = (12,15)
+	n2 = (8,11)
+	n2_reg = (8,11)
+	n3 = (4,7)
+	n3_reg = (4,7)
+	n3_hi_bit = (7,7)
+	n3_bank = (4,6)
+	n4 = (0,3)
+	disp4 = (0,3)
+	imm8_s = (0,7) signed
+	imm12_s = (0,11) signed
+	imm8 = (0,7)
+	disp8 = (0,7)
+	# DSP data transfers (first word): 111100 = double, 111101 = single, 111110 = P-op prefix
+	op6 = (10,15)
+	afield = (0,9)
+	xa = (9,9)
+	xd = (7,7)
+	xdir = (5,5)
+	xmode = (2,3)
+	ya = (8,8)
+	yd = (6,6)
+	ydir = (4,4)
+	ymode = (0,1)
+	axy = (8,9)
+	dxy = (6,7)
+	bit5 = (5,5)
+	bit4 = (4,4)
+	xbits = (5,9)
+	# register-valued views of the A-field fields (attach variables keep the pattern small)
+	ax_r = (9,9)
+	ay_r = (8,8)
+	dx_r = (7,7)
+	dax_r = (7,7)
+	dy_r = (6,6)
+	day_r = (6,6)
+	axe_r = (8,9)
+	aye_r = (8,9)
+	dxe_r = (6,7)
+	daxe_r = (6,7)
+	dye_r = (6,7)
+	daye_r = (6,7)
+	sas_r = (8,9)
+	sas = (8,9)
+	sds = (4,7)
+	smode = (2,3)
+	ssize = (1,1)
+	sdir = (0,0)
+;
+
+define token bfld (16)
+	b_hi4 = (12,15)
+	b_hi5 = (11,15)
+	b_op6 = (10,15)
+	b_cc = (8,9)
+	b_sx = (6,7)
+	b_sy = (4,5)
+	b_dz = (0,3)
+	b_se = (10,11)
+	b_sf = (8,9)
+	b_dg = (2,3)
+	b_du = (0,1)
+	b_mid4 = (4,7)
+	b_imm7 = (4,10) signed
+	b_lo8 = (0,7)
+	sx_r = (6,7)
+	sxg_r = (6,7)
+	sy_r = (4,5)
+	dz_r = (0,3)
+	dzg_r = (0,3)
+	du_r = (0,1)
+	dug_r = (0,1)
+	dg_r = (2,3)
+	dgg_r = (2,3)
+	se_r = (10,11)
+	sf_r = (8,9)
+;
+
+attach variables [ n2_reg n3_reg ] [ R0 R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 R15 ];
+attach variables [ ax_r ] [ R4 R5 ];
+attach variables [ ay_r ] [ R6 R7 ];
+attach variables [ dx_r ] [ X0 X1 ];
+attach variables [ dy_r ] [ Y0 Y1 ];
+attach variables [ dax_r day_r ] [ A0 A1 ];
+attach variables [ axe_r ] [ R4 R0 R5 R1 ];
+attach variables [ aye_r ] [ R6 R7 R2 R3 ];
+attach variables [ dxe_r ] [ X0 Y0 X1 Y1 ];
+attach variables [ daxe_r ] [ A0 X0 A1 X1 ];
+attach variables [ dye_r ] [ Y0 Y1 X0 X1 ];
+attach variables [ daye_r ] [ A0 A1 Y0 Y1 ];
+attach variables [ sas_r ] [ R4 R5 R2 R3 ];
+attach variables [ sx_r ] [ X0 X1 A0 A1 ];
+attach variables [ sxg_r dug_r dgg_r ] [ NOG NOG A0G A1G ];
+attach variables [ sy_r ] [ Y0 Y1 M0 M1 ];
+attach variables [ dz_r ] [ _ _ _ _ _ A1 _ A0 X0 X1 Y0 Y1 M0 _ M1 _ ];
+attach variables [ dzg_r ] [ NOG NOG NOG NOG NOG A1G NOG A0G NOG NOG NOG NOG NOG NOG NOG NOG ];
+attach variables [ du_r ] [ X0 Y0 A0 A1 ];
+attach variables [ dg_r ] [ M0 M1 A0 A1 ];
+attach variables [ se_r ] [ X0 X1 Y0 A1 ];
+attach variables [ sf_r ] [ Y0 Y1 X0 A1 ];
+attach variables [ n3_bank ] [ R0_BANK R1_BANK R2_BANK R3_BANK R4_BANK R5_BANK R6_BANK R7_BANK ];
+
+define pcodeop sleep;
+define pcodeop load_tlb;
+
+# ---------------------------------------------------------------------------------------------
+# SR and DSR
+# ---------------------------------------------------------------------------------------------
+macro get_sr(result) {
+	result = zext(T) | (zext(S) << 1) | (zext(RF) << 2) | (zext(IMASK) << 4) | (zext(Q) << 8)
+		| (zext(M) << 9) | (zext(DMX) << 10) | (zext(DMY) << 11) | (zext(DSP) << 12)
+		| (zext(RC) << 16) | (zext(BL) << 28) | (zext(RB) << 29) | (zext(MD) << 30);
+}
+
+# switching RB exchanges R0-R7 with the other bank
+macro swap_banks() {
+	local t:4 = R0; R0 = R0_BANK; R0_BANK = t;
+	t = R1; R1 = R1_BANK; R1_BANK = t;
+	t = R2; R2 = R2_BANK; R2_BANK = t;
+	t = R3; R3 = R3_BANK; R3_BANK = t;
+	t = R4; R4 = R4_BANK; R4_BANK = t;
+	t = R5; R5 = R5_BANK; R5_BANK = t;
+	t = R6; R6 = R6_BANK; R6_BANK = t;
+	t = R7; R7 = R7_BANK; R7_BANK = t;
+}
+
+macro set_sr_fields(val) {
+	T = (val & 1) != 0;
+	S = (val & 2) != 0;
+	local rf:4 = (val >> 2) & 3;
+	RF = rf:1;
+	local im:4 = (val >> 4) & 0xf;
+	IMASK = im:1;
+	Q = (val & 0x100) != 0;
+	M = (val & 0x200) != 0;
+	DMX = (val & 0x400) != 0;
+	DMY = (val & 0x800) != 0;
+	DSP = (val & 0x1000) != 0;
+	local rc:4 = (val >> 16) & 0xfff;
+	RC = rc:2;
+	MD = (val & 0x40000000) != 0;
+	BL = (val & 0x10000000) != 0;
+}
+
+macro get_dsr(result) {
+	result = zext(DC) | (zext(CS) << 1) | (zext(V) << 4) | (zext(N) << 5) | (zext(Z) << 6)
+		| (zext(GT) << 7) | (zext(TC) << 8) | (zext(TS) << 9) | (zext(AV) << 12)
+		| (zext(AN) << 13) | (zext(AZ) << 14) | (zext(AGT) << 15);
+}
+
+# DSR bits 31-16 are reserved (read as 0); bits 15-0 are all writable (manual table 2.4)
+macro set_dsr(val) {
+	DC = (val & 1) != 0;
+	local cs:4 = (val >> 1) & 7;
+	CS = cs:1;
+	V = (val & 0x10) != 0;
+	N = (val & 0x20) != 0;
+	Z = (val & 0x40) != 0;
+	GT = (val & 0x80) != 0;
+	TC = (val & 0x100) != 0;
+	local ts:4 = (val >> 9) & 7;
+	TS = ts:1;
+	AV = (val & 0x1000) != 0;
+	AN = (val & 0x2000) != 0;
+	AZ = (val & 0x4000) != 0;
+	AGT = (val & 0x8000) != 0;
+}
+
+# ---------------------------------------------------------------------------------------------
+# DSP status (manual 6.5.4-6.5.12 and the operation descriptions of section 11.4).
+# res is the 40-bit result after overflow protection; ov/orng are overflow (outside 32 bits) and
+# over-range (outside 40 bits) after protection, ovav the overflow before it (AV and the T-bit
+# overflow mode see it even when S = 1).
+# ---------------------------------------------------------------------------------------------
+macro dsp_flags_common(cb, neg, zer, ov, gt, ge, ovav) {
+	N = neg;
+	Z = zer;
+	V = ov;
+	GT = gt;
+	local tsel:1 = ((TS == 0) * cb) | ((TS == 1) * neg) | ((TS == 2) * zer) | ((TS == 3) * ovav)
+		| ((TS == 4) * gt) | ((TS == 5) * ge);
+	T = ((TC == 0) * T) | ((TC != 0) * tsel);
+	local acc:1 = (TS != 0) || (TC != 0);
+	AN = AN | (acc & neg);
+	AZ = AZ | (acc & zer);
+	AV = AV | (acc & ovav);
+	AGT = AGT | (acc & gt);
+}
+
+macro dsp_dc_select(cb, neg, zer, ov, gt, ge) {
+	DC = ((CS == 0) * cb) | ((CS == 1) * neg) | ((CS == 2) * zer) | ((CS == 3) * ov)
+		| ((CS == 4) * gt) | ((CS == 5) * ge);
+}
+
+# arithmetic (fixed point, integer, PDMSB, PSWAP, PCLR): DC per CS
+macro dsp_arith_flags(res, cb, ov, orng, ovav) {
+	local neg:1 = res s< 0;
+	local zer:1 = res == 0;
+	local gt:1 = !((neg ^ orng) | zer);
+	local ge:1 = !(neg ^ orng);
+	dsp_dc_select(cb, neg, zer, ov, gt, ge);
+	dsp_flags_common(cb, neg, zer, ov, gt, ge, ovav);
+}
+
+# PADDC/PSUBC: DC is always the carry/borrow
+macro dsp_carry_flags(res, cb, ov, orng, ovav) {
+	local neg:1 = res s< 0;
+	local zer:1 = res == 0;
+	local gt:1 = !((neg ^ orng) | zer);
+	local ge:1 = !(neg ^ orng);
+	DC = cb;
+	dsp_flags_common(cb, neg, zer, ov, gt, ge, ovav);
+}
+
+# logical operations (PAND, POR, PXOR): only the 16-bit upper word counts
+macro dsp_logic_flags(hw) {
+	local neg:1 = hw s< 0;
+	local zer:1 = hw == 0;
+	DC = ((CS == 1) * neg) | ((CS == 2) * zer);
+	dsp_flags_common(0:1, neg, zer, 0:1, 0:1, 0:1, 0:1);
+}
+
+# shifts: PSHA (40-bit result) and PSHL (16-bit upper word); GT and GE always 0
+macro dsp_shift_flags(neg, zer, cb, ov, ovav) {
+	DC = ((CS == 0) * cb) | ((CS == 1) * neg) | ((CS == 2) * zer) | ((CS == 3) * ov);
+	dsp_flags_common(cb, neg, zer, ov, 0:1, 0:1, ovav);
+}
+
+# overflow protection (SR.S = 1): saturate to 00 7FFF FFFF / FF 8000 0000 by the sign of the
+# 40-bit result (manual 6.5.12; operation description "fixed_pt_overflow_protection")
+macro dsp_saturate(res, ovf) {
+	local sat:1 = S & ovf;
+	local sv:5 = 0x007fffffff + zext(res s< 0) * 0xff00000001;
+	res = res + zext(sat) * (sv - res);
+}
+
+# ---------------------------------------------------------------------------------------------
+# CPU instructions
+# ---------------------------------------------------------------------------------------------
+# branch targets (in a disassembly action inst_next is the next word: PC + 2)
+rel_imm8: rel is imm8_s [ rel = inst_next + 2 + imm8_s * 2; ] { export *[ram]:4 rel; }
+rel_imm12: rel is imm12_s [ rel = inst_next + 2 + imm12_s * 2; ] { export *[ram]:4 rel; }
+
+INSN: "mov" n3_reg,n2_reg is n1=0x6 & n2_reg & n3_reg & n4=0x3 { n2_reg = n3_reg; }
+INSN: "mov" "#"imm8_s,n2_reg is n1=0xe & n2_reg & imm8_s { n2_reg = imm8_s; }
+
+INSN: "mova" @(rel,PC),R0 is n1=0xc & n2=0x7 & disp8 & R0 & PC [ rel = ((inst_next - 2) & 0xFFFFFFFC) + 4 + (disp8 << 2); ] { R0 = rel; }
+INSN: "mov.w" @(rel,PC),n2_reg is n1=0x9 & n2_reg & disp8 & PC [ rel = (inst_next - 2) + 4 + (disp8 << 1); ] { local a:4 = rel; n2_reg = sext(*:2 a); }
+INSN: "mov.l" @(rel,PC),n2_reg is n1=0xd & n2_reg & disp8 & PC [ rel = ((inst_next - 2) & 0xFFFFFFFC) + 4 + (disp8 << 2); ] { local a:4 = rel; n2_reg = *:4 a; }
+
+INSN: "mov.b" @n3_reg,n2_reg is n1=0x6 & n2_reg & n3_reg & n4=0x0 { n2_reg = sext(*:1 n3_reg); }
+INSN: "mov.w" @n3_reg,n2_reg is n1=0x6 & n2_reg & n3_reg & n4=0x1 { n2_reg = sext(*:2 n3_reg); }
+INSN: "mov.l" @n3_reg,n2_reg is n1=0x6 & n2_reg & n3_reg & n4=0x2 { n2_reg = *:4 n3_reg; }
+INSN: "mov.b" n3_reg,@n2_reg is n1=0x2 & n2_reg & n3_reg & n4=0x0 { *:1 n2_reg = n3_reg:1; }
+INSN: "mov.w" n3_reg,@n2_reg is n1=0x2 & n2_reg & n3_reg & n4=0x1 { *:2 n2_reg = n3_reg:2; }
+INSN: "mov.l" n3_reg,@n2_reg is n1=0x2 & n2_reg & n3_reg & n4=0x2 { *:4 n2_reg = n3_reg; }
+
+# post-increment loads: if Rm and Rn are the same register the loaded value wins
+INSN: "mov.b" @n3_reg+,n2_reg is n1=0x6 & n2_reg & n3_reg & n4=0x4 { local a:4 = n3_reg; n3_reg = a + 1; n2_reg = sext(*:1 a); }
+INSN: "mov.w" @n3_reg+,n2_reg is n1=0x6 & n2_reg & n3_reg & n4=0x5 { local a:4 = n3_reg; n3_reg = a + 2; n2_reg = sext(*:2 a); }
+INSN: "mov.l" @n3_reg+,n2_reg is n1=0x6 & n2_reg & n3_reg & n4=0x6 { local a:4 = n3_reg; n3_reg = a + 4; n2_reg = *:4 a; }
+
+# pre-decrement stores write the register as it was before the decrement
+INSN: "mov.b" n3_reg,@-n2_reg is n1=0x2 & n2_reg & n3_reg & n4=0x4 { local v:1 = n3_reg:1; n2_reg = n2_reg - 1; *:1 n2_reg = v; }
+INSN: "mov.w" n3_reg,@-n2_reg is n1=0x2 & n2_reg & n3_reg & n4=0x5 { local v:2 = n3_reg:2; n2_reg = n2_reg - 2; *:2 n2_reg = v; }
+INSN: "mov.l" n3_reg,@-n2_reg is n1=0x2 & n2_reg & n3_reg & n4=0x6 { local v:4 = n3_reg; n2_reg = n2_reg - 4; *:4 n2_reg = v; }
+
+INSN: "mov.b" @(disp4,n3_reg),R0 is n1=0x8 & n2=0x4 & n3_reg & disp4 & R0 { R0 = sext(*:1 (n3_reg + disp4)); }
+INSN: "mov.w" @(dw,n3_reg),R0 is n1=0x8 & n2=0x5 & n3_reg & disp4 & R0 [ dw = disp4 << 1; ] { R0 = sext(*:2 (n3_reg + dw)); }
+INSN: "mov.l" @(dl,n3_reg),n2_reg is n1=0x5 & n2_reg & n3_reg & disp4 [ dl = disp4 << 2; ] { n2_reg = *:4 (n3_reg + dl); }
+INSN: "mov.b" R0,@(disp4,n3_reg) is n1=0x8 & n2=0x0 & n3_reg & disp4 & R0 { local r:4 = R0; *:1 (n3_reg + disp4) = r:1; }
+INSN: "mov.w" R0,@(dw,n3_reg) is n1=0x8 & n2=0x1 & n3_reg & disp4 & R0 [ dw = disp4 << 1; ] { local r:4 = R0; *:2 (n3_reg + dw) = r:2; }
+INSN: "mov.l" n3_reg,@(dl,n2_reg) is n1=0x1 & n2_reg & n3_reg & disp4 [ dl = disp4 << 2; ] { *:4 (n2_reg + dl) = n3_reg; }
+
+INSN: "mov.b" @(R0,n3_reg),n2_reg is n1=0x0 & n2_reg & n3_reg & n4=0xc & R0 { n2_reg = sext(*:1 (n3_reg + R0)); }
+INSN: "mov.w" @(R0,n3_reg),n2_reg is n1=0x0 & n2_reg & n3_reg & n4=0xd & R0 { n2_reg = sext(*:2 (n3_reg + R0)); }
+INSN: "mov.l" @(R0,n3_reg),n2_reg is n1=0x0 & n2_reg & n3_reg & n4=0xe & R0 { n2_reg = *:4 (n3_reg + R0); }
+INSN: "mov.b" n3_reg,@(R0,n2_reg) is n1=0x0 & n2_reg & n3_reg & n4=0x4 & R0 { *:1 (n2_reg + R0) = n3_reg:1; }
+INSN: "mov.w" n3_reg,@(R0,n2_reg) is n1=0x0 & n2_reg & n3_reg & n4=0x5 & R0 { *:2 (n2_reg + R0) = n3_reg:2; }
+INSN: "mov.l" n3_reg,@(R0,n2_reg) is n1=0x0 & n2_reg & n3_reg & n4=0x6 & R0 { *:4 (n2_reg + R0) = n3_reg; }
+
+INSN: "mov.b" @(disp8,GBR),R0 is n1=0xc & n2=0x4 & disp8 & R0 & GBR { R0 = sext(*:1 (GBR + disp8)); }
+INSN: "mov.w" @(dw,GBR),R0 is n1=0xc & n2=0x5 & disp8 & R0 & GBR [ dw = disp8 << 1; ] { R0 = sext(*:2 (GBR + dw)); }
+INSN: "mov.l" @(dl,GBR),R0 is n1=0xc & n2=0x6 & disp8 & R0 & GBR [ dl = disp8 << 2; ] { R0 = *:4 (GBR + dl); }
+INSN: "mov.b" R0,@(disp8,GBR) is n1=0xc & n2=0x0 & disp8 & R0 & GBR { local r:4 = R0; *:1 (GBR + disp8) = r:1; }
+INSN: "mov.w" R0,@(dw,GBR) is n1=0xc & n2=0x1 & disp8 & R0 & GBR [ dw = disp8 << 1; ] { local r:4 = R0; *:2 (GBR + dw) = r:2; }
+INSN: "mov.l" R0,@(dl,GBR) is n1=0xc & n2=0x2 & disp8 & R0 & GBR [ dl = disp8 << 2; ] { *:4 (GBR + dl) = R0; }
+
+INSN: "movt" n2_reg is n1=0x0 & n2_reg & n3=0x2 & n4=0x9 { n2_reg = zext(T); }
+INSN: "swap.b" n3_reg,n2_reg is n1=0x6 & n2_reg & n3_reg & n4=0x8 { local m:4 = n3_reg; n2_reg = (m & 0xFFFF0000) | ((m & 0xFF) << 8) | ((m >> 8) & 0xFF); }
+INSN: "swap.w" n3_reg,n2_reg is n1=0x6 & n2_reg & n3_reg & n4=0x9 { local m:4 = n3_reg; n2_reg = (m << 16) | (m >> 16); }
+INSN: "xtrct" n3_reg,n2_reg is n1=0x2 & n2_reg & n3_reg & n4=0xd { n2_reg = (n3_reg << 16) | (n2_reg >> 16); }
+
+# SH-4A: MOVLI.L/MOVCO.L (LDST link flag; a single processor without interrupts keeps the link),
+# MOVUA.L (unaligned load), MOVCA.L (store that allocates a cache line)
+INSN: "movli.l" @n2_reg,R0 is n1=0x0 & n2_reg & n3=0x6 & n4=0x3 & R0 { LDST = 1; R0 = *:4 n2_reg; }
+INSN: "movco.l" R0,@n2_reg is n1=0x0 & n2_reg & n3=0x7 & n4=0x3 & R0 {
+	T = LDST;
+	LDST = 0;
+	if (T == 0) goto <nostore>;
+	*:4 n2_reg = R0;
+	<nostore>
+}
+INSN: "movua.l" @n2_reg,R0 is n1=0x4 & n2_reg & n3=0xa & n4=0x9 & R0 { R0 = *:4 n2_reg; }
+INSN: "movua.l" @n2_reg+,R0 is n1=0x4 & n2_reg & n2!=0 & n3=0xe & n4=0x9 & R0 { local a:4 = n2_reg; n2_reg = a + 4; R0 = *:4 a; }
+# @R0+ with R0 as the destination: the loaded value wins (manual 11.1.39)
+INSN: "movua.l" @n2_reg+,R0 is n1=0x4 & n2_reg & n2=0 & n3=0xe & n4=0x9 & R0 { R0 = *:4 n2_reg; }
+INSN: "movca.l" R0,@n2_reg is n1=0x0 & n2_reg & n3=0xc & n4=0x3 & R0 { *:4 n2_reg = R0; }
+
+# arithmetic
+INSN: "add" n3_reg,n2_reg is n1=0x3 & n2_reg & n3_reg & n4=0xc { n2_reg = n2_reg + n3_reg; }
+INSN: "add" "#"imm8_s,n2_reg is n1=0x7 & n2_reg & imm8_s { n2_reg = n2_reg + imm8_s; }
+INSN: "addc" n3_reg,n2_reg is n1=0x3 & n2_reg & n3_reg & n4=0xe {
+	local t:4 = zext(T);
+	local s:4 = n2_reg + n3_reg;
+	T = carry(n2_reg, n3_reg) || carry(s, t);
+	n2_reg = s + t;
+}
+INSN: "addv" n3_reg,n2_reg is n1=0x3 & n2_reg & n3_reg & n4=0xf { T = scarry(n2_reg, n3_reg); n2_reg = n2_reg + n3_reg; }
+INSN: "cmp/eq" "#"imm8_s,R0 is n1=0x8 & n2=0x8 & imm8_s & R0 { T = R0 == imm8_s; }
+INSN: "cmp/eq" n3_reg,n2_reg is n1=0x3 & n2_reg & n3_reg & n4=0x0 { T = n2_reg == n3_reg; }
+INSN: "cmp/hs" n3_reg,n2_reg is n1=0x3 & n2_reg & n3_reg & n4=0x2 { T = n2_reg >= n3_reg; }
+INSN: "cmp/ge" n3_reg,n2_reg is n1=0x3 & n2_reg & n3_reg & n4=0x3 { T = n2_reg s>= n3_reg; }
+INSN: "cmp/hi" n3_reg,n2_reg is n1=0x3 & n2_reg & n3_reg & n4=0x6 { T = n2_reg > n3_reg; }
+INSN: "cmp/gt" n3_reg,n2_reg is n1=0x3 & n2_reg & n3_reg & n4=0x7 { T = n2_reg s> n3_reg; }
+INSN: "cmp/pl" n2_reg is n1=0x4 & n2_reg & n3=0x1 & n4=0x5 { T = n2_reg s> 0; }
+INSN: "cmp/pz" n2_reg is n1=0x4 & n2_reg & n3=0x1 & n4=0x1 { T = n2_reg s>= 0; }
+INSN: "cmp/str" n3_reg,n2_reg is n1=0x2 & n2_reg & n3_reg & n4=0xc {
+	local x:4 = n2_reg ^ n3_reg;
+	T = ((x & 0xff000000) == 0) || ((x & 0x00ff0000) == 0) || ((x & 0x0000ff00) == 0) || ((x & 0x000000ff) == 0);
+}
+INSN: "div0s" n3_reg,n2_reg is n1=0x2 & n2_reg & n3_reg & n4=0x7 { Q = (n2_reg s< 0); M = (n3_reg s< 0); T = Q != M; }
+INSN: "div0u" is n1=0x0 & n2=0x0 & n3=0x1 & n4=0x9 { M = 0; Q = 0; T = 0; }
+# one step of a non-restoring division: subtract when the old Q equals M, add otherwise
+INSN: "div1" n3_reg,n2_reg is n1=0x3 & n2_reg & n3_reg & n4=0x4 {
+	local oldq:1 = Q;
+	local m:1 = M;
+	local newq:1 = (n2_reg s< 0);
+	local a:4 = (n2_reg << 1) | zext(T);
+	n2_reg = a;
+	local d:4 = n3_reg;
+	local r:4 = 0;
+	local c:1 = 0;
+	if (oldq != m) goto <doadd>;
+	r = a - d;
+	c = r > a;
+	goto <step>;
+	<doadd>
+	r = a + d;
+	c = r < a;
+	<step>
+	n2_reg = r;
+	Q = c ^ newq ^ m;
+	T = Q == m;
+}
+INSN: "dmuls.l" n3_reg,n2_reg is n1=0x3 & n2_reg & n3_reg & n4=0xd { local r:8 = sext(n3_reg) * sext(n2_reg); MACH = r(4); MACL = r:4; }
+INSN: "dmulu.l" n3_reg,n2_reg is n1=0x3 & n2_reg & n3_reg & n4=0x5 { local r:8 = zext(n3_reg) * zext(n2_reg); MACH = r(4); MACL = r:4; }
+INSN: "dt" n2_reg is n1=0x4 & n2_reg & n3=0x1 & n4=0x0 { n2_reg = n2_reg - 1; T = n2_reg == 0; }
+INSN: "exts.b" n3_reg,n2_reg is n1=0x6 & n2_reg & n3_reg & n4=0xe { n2_reg = sext(n3_reg:1); }
+INSN: "exts.w" n3_reg,n2_reg is n1=0x6 & n2_reg & n3_reg & n4=0xf { n2_reg = sext(n3_reg:2); }
+INSN: "extu.b" n3_reg,n2_reg is n1=0x6 & n2_reg & n3_reg & n4=0xc { n2_reg = zext(n3_reg:1); }
+INSN: "extu.w" n3_reg,n2_reg is n1=0x6 & n2_reg & n3_reg & n4=0xd { n2_reg = zext(n3_reg:2); }
+
+# MAC.L: with S set the 64-bit sum saturates to 48 bits.  Rn is read and incremented first.
+INSN: "mac.l" @n3_reg+,@n2_reg+ is n1=0x0 & n2_reg & n3_reg & n4=0xf {
+	local n:8 = sext(*:4 n2_reg);
+	n2_reg = n2_reg + 4;
+	local m:8 = sext(*:4 n3_reg);
+	n3_reg = n3_reg + 4;
+	local prod:8 = m * n;
+	local mac:8 = (zext(MACH) << 32) | zext(MACL);
+	local result:8 = prod + mac;
+	if (S == 0) goto <store>;
+	local maxv:8 = 0x00007fffffffffff;
+	local minv:8 = 0xffff800000000000;
+	if (scarry(prod, mac)) goto <overflow>;
+	if (result s> maxv) goto <hi>;
+	if (result s< minv) goto <lo>;
+	goto <store>;
+	<overflow>
+	if (prod s< 0) goto <lo>;
+	<hi>
+	result = maxv;
+	goto <store>;
+	<lo>
+	result = minv;
+	<store>
+	MACH = result(4);
+	MACL = result:4;
+}
+INSN: "mac.w" @n3_reg+,@n2_reg+ is n1=0x4 & n2_reg & n3_reg & n4=0xf {
+	local n:8 = sext(*:2 n2_reg);
+	n2_reg = n2_reg + 2;
+	local m:8 = sext(*:2 n3_reg);
+	n3_reg = n3_reg + 2;
+	local prod:8 = m * n;
+	if (S != 0) goto <sat>;
+	local mac:8 = (zext(MACH) << 32) | zext(MACL);
+	mac = mac + prod;
+	MACH = mac(4);
+	MACL = mac:4;
+	goto <done>;
+	<sat>
+	local sum:8 = sext(MACL) + prod;
+	if (sum s> 0x7fffffff) goto <hi>;
+	if (sum s< -0x80000000) goto <lo>;
+	MACL = sum:4;
+	goto <done>;
+	<hi>
+	MACH = 1;
+	MACL = 0x7fffffff;
+	goto <done>;
+	<lo>
+	MACH = 1;
+	MACL = 0x80000000;
+	<done>
+}
+INSN: "mul.l" n3_reg,n2_reg is n1=0x0 & n2_reg & n3_reg & n4=0x7 { MACL = n2_reg * n3_reg; }
+INSN: "muls.w" n3_reg,n2_reg is n1=0x2 & n2_reg & n3_reg & n4=0xf { MACL = sext(n2_reg:2) * sext(n3_reg:2); }
+INSN: "mulu.w" n3_reg,n2_reg is n1=0x2 & n2_reg & n3_reg & n4=0xe { MACL = zext(n2_reg:2) * zext(n3_reg:2); }
+INSN: "neg" n3_reg,n2_reg is n1=0x6 & n2_reg & n3_reg & n4=0xb { n2_reg = 0 - n3_reg; }
+INSN: "negc" n3_reg,n2_reg is n1=0x6 & n2_reg & n3_reg & n4=0xa {
+	local t:4 = zext(T);
+	local d:4 = 0 - n3_reg;
+	T = (n3_reg != 0) || (d < t);
+	n2_reg = d - t;
+}
+INSN: "sub" n3_reg,n2_reg is n1=0x3 & n2_reg & n3_reg & n4=0x8 { n2_reg = n2_reg - n3_reg; }
+INSN: "subc" n3_reg,n2_reg is n1=0x3 & n2_reg & n3_reg & n4=0xa {
+	local t:4 = zext(T);
+	local d:4 = n2_reg - n3_reg;
+	T = (n2_reg < n3_reg) || (d < t);
+	n2_reg = d - t;
+}
+INSN: "subv" n3_reg,n2_reg is n1=0x3 & n2_reg & n3_reg & n4=0xb { T = sborrow(n2_reg, n3_reg); n2_reg = n2_reg - n3_reg; }
+
+# logic
+INSN: "and" n3_reg,n2_reg is n1=0x2 & n2_reg & n3_reg & n4=0x9 { n2_reg = n2_reg & n3_reg; }
+INSN: "and" "#"imm8,R0 is n1=0xc & n2=0x9 & imm8 & R0 { R0 = R0 & imm8; }
+INSN: "and.b" "#"imm8,@(R0,GBR) is n1=0xc & n2=0xd & imm8 & R0 & GBR { local a:4 = R0 + GBR; *:1 a = *:1 a & imm8:1; }
+INSN: "not" n3_reg,n2_reg is n1=0x6 & n2_reg & n3_reg & n4=0x7 { n2_reg = ~n3_reg; }
+INSN: "or" n3_reg,n2_reg is n1=0x2 & n2_reg & n3_reg & n4=0xb { n2_reg = n2_reg | n3_reg; }
+INSN: "or" "#"imm8,R0 is n1=0xc & n2=0xb & imm8 & R0 { R0 = R0 | imm8; }
+INSN: "or.b" "#"imm8,@(R0,GBR) is n1=0xc & n2=0xf & imm8 & R0 & GBR { local a:4 = R0 + GBR; *:1 a = *:1 a | imm8:1; }
+INSN: "tas.b" @n2_reg is n1=0x4 & n2_reg & n3=0x1 & n4=0xb { local tmp:1 = *:1 n2_reg; T = tmp == 0; *:1 n2_reg = tmp | 0x80; }
+INSN: "tst" n3_reg,n2_reg is n1=0x2 & n2_reg & n3_reg & n4=0x8 { T = (n2_reg & n3_reg) == 0; }
+INSN: "tst" "#"imm8,R0 is n1=0xc & n2=0x8 & imm8 & R0 { T = (R0 & imm8) == 0; }
+INSN: "tst.b" "#"imm8,@(R0,GBR) is n1=0xc & n2=0xc & imm8 & R0 & GBR { local a:4 = R0 + GBR; T = (*:1 a & imm8:1) == 0; }
+INSN: "xor" n3_reg,n2_reg is n1=0x2 & n2_reg & n3_reg & n4=0xa { n2_reg = n2_reg ^ n3_reg; }
+INSN: "xor" "#"imm8,R0 is n1=0xc & n2=0xa & imm8 & R0 { R0 = R0 ^ imm8; }
+INSN: "xor.b" "#"imm8,@(R0,GBR) is n1=0xc & n2=0xe & imm8 & R0 & GBR { local a:4 = R0 + GBR; *:1 a = *:1 a ^ imm8:1; }
+
+# shifts
+INSN: "rotcl" n2_reg is n1=0x4 & n2_reg & n3=0x2 & n4=0x4 { local nt = (n2_reg s< 0); n2_reg = (n2_reg << 1) | zext(T); T = nt; }
+INSN: "rotcr" n2_reg is n1=0x4 & n2_reg & n3=0x2 & n4=0x5 { local nt = (n2_reg & 1) != 0; n2_reg = (zext(T) << 31) | (n2_reg >> 1); T = nt; }
+INSN: "rotl" n2_reg is n1=0x4 & n2_reg & n3=0x0 & n4=0x4 { T = (n2_reg s< 0); n2_reg = (n2_reg << 1) | zext(T); }
+INSN: "rotr" n2_reg is n1=0x4 & n2_reg & n3=0x0 & n4=0x5 { T = (n2_reg & 1) != 0; n2_reg = (zext(T) << 31) | (n2_reg >> 1); }
+# SHAD/SHLD: a non-negative count shifts left by its low 5 bits, a negative one right by 32 minus
+# them (a full 32 gives the sign fill for SHAD and zero for SHLD)
+INSN: "shad" n3_reg,n2_reg is n1=0x4 & n2_reg & n3_reg & n4=0xc {
+	local c:4 = n3_reg & 0x1f;
+	if (n3_reg s< 0) goto <right>;
+	n2_reg = n2_reg << c;
+	goto <done>;
+	<right>
+	if (c == 0) goto <fill>;
+	n2_reg = n2_reg s>> (32 - c);
+	goto <done>;
+	<fill>
+	n2_reg = n2_reg s>> 31;
+	<done>
+}
+INSN: "shld" n3_reg,n2_reg is n1=0x4 & n2_reg & n3_reg & n4=0xd {
+	local c:4 = n3_reg & 0x1f;
+	if (n3_reg s< 0) goto <right>;
+	n2_reg = n2_reg << c;
+	goto <done>;
+	<right>
+	if (c == 0) goto <fill>;
+	n2_reg = n2_reg >> (32 - c);
+	goto <done>;
+	<fill>
+	n2_reg = 0;
+	<done>
+}
+INSN: "shal" n2_reg is n1=0x4 & n2_reg & n3=0x2 & n4=0x0 { T = (n2_reg s< 0); n2_reg = n2_reg << 1; }
+INSN: "shar" n2_reg is n1=0x4 & n2_reg & n3=0x2 & n4=0x1 { T = (n2_reg & 1) != 0; n2_reg = n2_reg s>> 1; }
+INSN: "shll" n2_reg is n1=0x4 & n2_reg & n3=0x0 & n4=0x0 { T = (n2_reg s< 0); n2_reg = n2_reg << 1; }
+INSN: "shll2" n2_reg is n1=0x4 & n2_reg & n3=0x0 & n4=0x8 { n2_reg = n2_reg << 2; }
+INSN: "shll8" n2_reg is n1=0x4 & n2_reg & n3=0x1 & n4=0x8 { n2_reg = n2_reg << 8; }
+INSN: "shll16" n2_reg is n1=0x4 & n2_reg & n3=0x2 & n4=0x8 { n2_reg = n2_reg << 16; }
+INSN: "shlr" n2_reg is n1=0x4 & n2_reg & n3=0x0 & n4=0x1 { T = (n2_reg & 1) != 0; n2_reg = n2_reg >> 1; }
+INSN: "shlr2" n2_reg is n1=0x4 & n2_reg & n3=0x0 & n4=0x9 { n2_reg = n2_reg >> 2; }
+INSN: "shlr8" n2_reg is n1=0x4 & n2_reg & n3=0x1 & n4=0x9 { n2_reg = n2_reg >> 8; }
+INSN: "shlr16" n2_reg is n1=0x4 & n2_reg & n3=0x2 & n4=0x9 { n2_reg = n2_reg >> 16; }
+
+# Branches.  Conditions and register targets are latched before the delay slot runs.  In p-code
+# inst_next is the address after the delay slot, so PR = inst_next is PC + 4, or PC + 6 when the
+# delay slot holds a 32-bit DSP instruction (manual table 3.9 note).
+INSN: "bf" rel_imm8 is n1=0x8 & n2=0xb & rel_imm8 { if (T == 0) goto rel_imm8; }
+INSN: "bf/s" rel_imm8 is n1=0x8 & n2=0xf & rel_imm8 { local c:1 = T == 0; delayslot(1); if (c) goto rel_imm8; }
+INSN: "bt" rel_imm8 is n1=0x8 & n2=0x9 & rel_imm8 { if (T != 0) goto rel_imm8; }
+INSN: "bt/s" rel_imm8 is n1=0x8 & n2=0xd & rel_imm8 { local c:1 = T != 0; delayslot(1); if (c) goto rel_imm8; }
+INSN: "bra" rel_imm12 is n1=0xa & rel_imm12 { delayslot(1); goto rel_imm12; }
+INSN: "braf" n2_reg is n1=0x0 & n2_reg & n3=0x2 & n4=0x3 { local t:4 = inst_start + 4 + n2_reg; delayslot(1); goto [t]; }
+INSN: "bsr" rel_imm12 is n1=0xb & rel_imm12 { PR = inst_next; delayslot(1); call rel_imm12; }
+INSN: "bsrf" n2_reg is n1=0x0 & n2_reg & n3=0x0 & n4=0x3 { local t:4 = inst_start + 4 + n2_reg; PR = inst_next; delayslot(1); call [t]; }
+INSN: "jmp" @n2_reg is n1=0x4 & n2_reg & n3=0x2 & n4=0xb { local t:4 = n2_reg; delayslot(1); goto [t]; }
+INSN: "jsr" @n2_reg is n1=0x4 & n2_reg & n3=0x0 & n4=0xb { local t:4 = n2_reg; PR = inst_next; delayslot(1); call [t]; }
+INSN: "rts" is n1=0x0 & n2=0x0 & n3=0x0 & n4=0xb { local t:4 = PR; delayslot(1); return [t]; }
+
+# system control
+INSN: "clrmac" is n1=0x0 & n2=0x0 & n3=0x2 & n4=0x8 { MACH = 0; MACL = 0; }
+INSN: "clrs" is n1=0x0 & n2=0x0 & n3=0x4 & n4=0x8 { S = 0; }
+INSN: "clrt" is n1=0x0 & n2=0x0 & n3=0x0 & n4=0x8 { T = 0; }
+INSN: "sets" is n1=0x0 & n2=0x0 & n3=0x5 & n4=0x8 { S = 1; }
+INSN: "sett" is n1=0x0 & n2=0x0 & n3=0x1 & n4=0x8 { T = 1; }
+INSN: "nop" is n1=0x0 & n2=0x0 & n3=0x0 & n4=0x9 { }
+INSN: "sleep" is n1=0x0 & n2=0x0 & n3=0x1 & n4=0xb { sleep(); }
+INSN: "ldtlb" is n1=0x0 & n2=0x0 & n3=0x3 & n4=0x8 { load_tlb(); }
+# cache and ordering instructions: no architectural effect on registers or memory contents in a
+# model without caches (OCBI discards dirty lines, which a flat memory model cannot show)
+INSN: "pref" @n2_reg is n1=0x0 & n2_reg & n3=0x8 & n4=0x3 { }
+INSN: "ocbi" @n2_reg is n1=0x0 & n2_reg & n3=0x9 & n4=0x3 { }
+INSN: "ocbp" @n2_reg is n1=0x0 & n2_reg & n3=0xa & n4=0x3 { }
+INSN: "ocbwb" @n2_reg is n1=0x0 & n2_reg & n3=0xb & n4=0x3 { }
+INSN: "prefi" @n2_reg is n1=0x0 & n2_reg & n3=0xd & n4=0x3 { }
+INSN: "icbi" @n2_reg is n1=0x0 & n2_reg & n3=0xe & n4=0x3 { }
+INSN: "synco" is n1=0x0 & n2=0x0 & n3=0xa & n4=0xb { }
+
+# control registers
+CREG: "GBR" is n3=0x1 { export GBR; }
+CREG: "VBR" is n3=0x2 { export VBR; }
+CREG: "SSR" is n3=0x3 { export SSR; }
+CREG: "SPC" is n3=0x4 { export SPC; }
+CREG: "MOD" is n3=0x5 { export MOD; }
+CREG: "RS" is n3=0x6 { export RS; }
+CREG: "RE" is n3=0x7 { export RE; }
+CREG: n3_bank is n3_hi_bit=1 & n3_bank { export n3_bank; }
+
+INSN: "ldc" n2_reg,"SR" is n1=0x4 & n2_reg & n3=0x0 & n4=0xe {
+	local v:4 = n2_reg;
+	set_sr_fields(v);
+	local newrb:1 = (v & 0x20000000) != 0;
+	if (newrb == RB) goto <same>;
+	swap_banks();
+	RB = newrb;
+	<same>
+}
+INSN: "ldc.l" @n2_reg+,"SR" is n1=0x4 & n2_reg & n3=0x0 & n4=0x7 {
+	local v:4 = *:4 n2_reg;
+	n2_reg = n2_reg + 4;
+	set_sr_fields(v);
+	local newrb:1 = (v & 0x20000000) != 0;
+	if (newrb == RB) goto <same>;
+	swap_banks();
+	RB = newrb;
+	<same>
+}
+INSN: "stc" "SR",n2_reg is n1=0x0 & n2_reg & n3=0x0 & n4=0x2 { local v:4 = 0; get_sr(v); n2_reg = v; }
+INSN: "stc.l" "SR",@-n2_reg is n1=0x4 & n2_reg & n3=0x0 & n4=0x3 { local v:4 = 0; get_sr(v); n2_reg = n2_reg - 4; *:4 n2_reg = v; }
+
+INSN: "ldc" n2_reg,CREG is n1=0x4 & n2_reg & CREG & n4=0xe { CREG = n2_reg; }
+INSN: "ldc.l" @n2_reg+,CREG is n1=0x4 & n2_reg & CREG & n4=0x7 { local v:4 = *:4 n2_reg; n2_reg = n2_reg + 4; CREG = v; }
+INSN: "stc" CREG,n2_reg is n1=0x0 & n2_reg & CREG & n4=0x2 { n2_reg = CREG; }
+INSN: "stc.l" CREG,@-n2_reg is n1=0x4 & n2_reg & CREG & n4=0x3 { local v:4 = CREG; n2_reg = n2_reg - 4; *:4 n2_reg = v; }
+
+INSN: "ldc" n2_reg,SGR is n1=0x4 & n2_reg & n3=0x3 & n4=0xa & SGR { SGR = n2_reg; }
+INSN: "ldc.l" @n2_reg+,SGR is n1=0x4 & n2_reg & n3=0x3 & n4=0x6 & SGR { local v:4 = *:4 n2_reg; n2_reg = n2_reg + 4; SGR = v; }
+INSN: "stc" SGR,n2_reg is n1=0x0 & n2_reg & n3=0x3 & n4=0xa & SGR { n2_reg = SGR; }
+INSN: "stc.l" SGR,@-n2_reg is n1=0x4 & n2_reg & n3=0x3 & n4=0x2 & SGR { local v:4 = SGR; n2_reg = n2_reg - 4; *:4 n2_reg = v; }
+INSN: "ldc" n2_reg,DBR is n1=0x4 & n2_reg & n3=0xf & n4=0xa & DBR { DBR = n2_reg; }
+INSN: "ldc.l" @n2_reg+,DBR is n1=0x4 & n2_reg & n3=0xf & n4=0x6 & DBR { local v:4 = *:4 n2_reg; n2_reg = n2_reg + 4; DBR = v; }
+INSN: "stc" DBR,n2_reg is n1=0x0 & n2_reg & n3=0xf & n4=0xa & DBR { n2_reg = DBR; }
+INSN: "stc.l" DBR,@-n2_reg is n1=0x4 & n2_reg & n3=0xf & n4=0x2 & DBR { local v:4 = DBR; n2_reg = n2_reg - 4; *:4 n2_reg = v; }
+
+# system registers
+SREG: "MACH" is n3=0x0 { export MACH; }
+SREG: "MACL" is n3=0x1 { export MACL; }
+SREG: "PR" is n3=0x2 { export PR; }
+SREG: "X0" is n3=0x8 { export X0; }
+SREG: "X1" is n3=0x9 { export X1; }
+SREG: "Y0" is n3=0xa { export Y0; }
+SREG: "Y1" is n3=0xb { export Y1; }
+
+INSN: "lds" n2_reg,SREG is n1=0x4 & n2_reg & SREG & n4=0xa { SREG = n2_reg; }
+INSN: "lds.l" @n2_reg+,SREG is n1=0x4 & n2_reg & SREG & n4=0x6 { local v:4 = *:4 n2_reg; n2_reg = n2_reg + 4; SREG = v; }
+INSN: "sts" SREG,n2_reg is n1=0x0 & n2_reg & SREG & n4=0xa { n2_reg = SREG; }
+INSN: "sts.l" SREG,@-n2_reg is n1=0x4 & n2_reg & SREG & n4=0x2 { local v:4 = SREG; n2_reg = n2_reg - 4; *:4 n2_reg = v; }
+
+# A0 as a system register: the guard bits take the sign (manual 11.2.8)
+INSN: "lds" n2_reg,"A0" is n1=0x4 & n2_reg & n3=0x7 & n4=0xa { A0E = sext(n2_reg); }
+INSN: "lds.l" @n2_reg+,"A0" is n1=0x4 & n2_reg & n3=0x7 & n4=0x6 { local v:4 = *:4 n2_reg; n2_reg = n2_reg + 4; A0E = sext(v); }
+INSN: "sts" "A0",n2_reg is n1=0x0 & n2_reg & n3=0x7 & n4=0xa { n2_reg = A0; }
+INSN: "sts.l" "A0",@-n2_reg is n1=0x4 & n2_reg & n3=0x7 & n4=0x2 { local v:4 = A0; n2_reg = n2_reg - 4; *:4 n2_reg = v; }
+INSN: "lds" n2_reg,"DSR" is n1=0x4 & n2_reg & n3=0x6 & n4=0xa { set_dsr(n2_reg); }
+INSN: "lds.l" @n2_reg+,"DSR" is n1=0x4 & n2_reg & n3=0x6 & n4=0x6 { local v:4 = *:4 n2_reg; n2_reg = n2_reg + 4; set_dsr(v); }
+INSN: "sts" "DSR",n2_reg is n1=0x0 & n2_reg & n3=0x6 & n4=0xa { local v:4 = 0; get_dsr(v); n2_reg = v; }
+INSN: "sts.l" "DSR",@-n2_reg is n1=0x4 & n2_reg & n3=0x6 & n4=0x2 { local v:4 = 0; get_dsr(v); n2_reg = n2_reg - 4; *:4 n2_reg = v; }
+
+# exceptions: RTE restores SR and PC; TRAPA saves PC/SR/R15 to SPC/SSR/SGR, writes TRA and EXPEVT
+# (memory-mapped at H'FF000020 and H'FF000024) and enters VBR + H'100 in register bank 1
+INSN: "rte" is n1=0x0 & n2=0x0 & n3=0x2 & n4=0xb {
+	local target:4 = SPC;
+	local v:4 = SSR;
+	set_sr_fields(v);
+	local newrb:1 = (v & 0x20000000) != 0;
+	if (newrb == RB) goto <same>;
+	swap_banks();
+	RB = newrb;
+	<same>
+	delayslot(1);
+	return [target];
+}
+INSN: "trapa" "#"imm8 is n1=0xc & n2=0x3 & imm8 {
+	local tra:4 = 0xFF000020;
+	local expevt:4 = 0xFF000024;
+	*:4 tra = imm8 << 2;
+	*:4 expevt = 0x160;
+	SPC = inst_next;
+	local sr:4 = 0;
+	get_sr(sr);
+	SSR = sr;
+	SGR = R15;
+	MD = 1;
+	BL = 1;
+	if (RB != 0) goto <samebank>;
+	swap_banks();
+	RB = 1;
+	<samebank>
+	local vec:4 = VBR + 0x100;
+	call [vec];
+}
+
+# ---------------------------------------------------------------------------------------------
+# CPU instructions of the DSP extension (manual 6.3, 11.2)
+# ---------------------------------------------------------------------------------------------
+INSN: "setdmx" is n1=0x0 & n2=0x0 & n3=0x9 & n4=0x8 { DMX = 1; DMY = 0; }
+INSN: "setdmy" is n1=0x0 & n2=0x0 & n3=0xc & n4=0x8 { DMX = 0; DMY = 1; }
+INSN: "clrdmxy" is n1=0x0 & n2=0x0 & n3=0x8 & n4=0x8 { DMX = 0; DMY = 0; }
+
+# LDRS/LDRE: PC + 4 + disp * 2 (the address GNU as/objdump use; the manual's C code omits the + 4)
+RPTADDR: a is imm8_s [ a = inst_next + 2 + imm8_s * 2; ] { export *[ram]:4 a; }
+INSN: "ldrs" RPTADDR is n1=0x8 & n2=0xc & imm8 & RPTADDR [ rs_ctx = (inst_start + 4 + imm8 * 2 - ((imm8 >> 7) << 9)) >> 1; globalset(inst_next, rs_ctx); ] { RS = &RPTADDR; }
+INSN: "ldre" RPTADDR is n1=0x8 & n2=0xe & imm8 & RPTADDR [ re_ctx = (inst_start + 4 + imm8 * 2 - ((imm8 >> 7) << 9)) >> 1; globalset(inst_next, re_ctx); ] { RE = &RPTADDR; }
+
+# the repeat-end (extended) or repeat-detect (conventional) instruction, from the recorded LDRE
+REEND: a is re_ctx [ a = re_ctx << 1; ] { export *[ram]:4 a; }
+REDET: a is re_ctx [ a = (re_ctx << 1) - 4; ] { export *[ram]:4 a; }
+
+INSN: "setrc" n2_reg is n1=0x4 & n2_reg & n3=0x1 & n4=0x4 & re_ctx=0 { local c:4 = n2_reg & 0xfff; RC = c:2; }
+INSN: "setrc" n2_reg is n1=0x4 & n2_reg & n3=0x1 & n4=0x4 & REDET [ conv_k = 1; globalset(REDET, conv_k); ] { local c:4 = n2_reg & 0xfff; RC = c:2; }
+INSN: "setrc" "#"imm8 is n1=0x8 & n2=0x2 & imm8 & re_ctx=0 { RC = imm8; }
+INSN: "setrc" "#"imm8 is n1=0x8 & n2=0x2 & imm8 & REDET [ conv_k = 1; globalset(REDET, conv_k); ] { RC = imm8; }
+INSN: "ldrc" n2_reg is n1=0x4 & n2_reg & n3=0x3 & n4=0x4 & re_ctx=0 { local c:4 = n2_reg & 0xfff; RC = c:2; RE = RE | 1; }
+INSN: "ldrc" n2_reg is n1=0x4 & n2_reg & n3=0x3 & n4=0x4 & REEND [ rpt_ext = 1; globalset(REEND, rpt_ext); ctop = rs_ctx; globalset(REEND, ctop); ] { local c:4 = n2_reg & 0xfff; RC = c:2; RE = RE | 1; }
+INSN: "ldrc" "#"imm8 is n1=0x8 & n2=0xa & imm8 & re_ctx=0 { RC = imm8; RE = RE | 1; }
+INSN: "ldrc" "#"imm8 is n1=0x8 & n2=0xa & imm8 & REEND [ rpt_ext = 1; globalset(REEND, rpt_ext); ctop = rs_ctx; globalset(REEND, ctop); ] { RC = imm8; RE = RE | 1; }
+
+@include "sh4aldsp_xy.sinc"
+@include "sh4aldsp_pops.sinc"
+
+# ---------------------------------------------------------------------------------------------
+# Root: zero-overhead repeat loops around every instruction
+# ---------------------------------------------------------------------------------------------
+CTOP: a is ctop [ a = ctop << 1; ] { export *[ram]:4 a; }
+RSCTX: a is rs_ctx [ a = rs_ctx << 1; ] { export *[ram]:4 a; }
+
+:^INSN is rpt_ext=0 & conv_k=0 & INSN { build INSN; }
+
+# extended repeat (LDRC): at the end instruction RC >= 2 loops back to RS, RC = 1 ends the loop
+:^INSN is rpt_ext=1 & conv_k=0 & INSN & CTOP {
+	build INSN;
+	if (RC < 2) goto <last>;
+	RC = RC - 1;
+	goto CTOP;
+	<last>
+	RC = 0;
+}
+
+# conventional repeat (SETRC): the detect instruction is RE - 4 (so the instruction after it is
+# at RE - 2, or at RE when the detect instruction is a 32-bit one); the loop has 1, 2 or 3+
+# instructions after it when RE - RS is -4, -2 or anything else (table 6.5); the top is RS for
+# four or more instructions, otherwise the instruction after the detect instruction.
+:^INSN is rpt_ext=0 & conv_k=1 & op6=0x3e ... & INSN [ conv_k = 2; globalset(inst_next, conv_k); ctop = re_ctx; globalset(inst_next, ctop); ] {
+	build INSN;
+}
+:^INSN is rpt_ext=0 & conv_k=1 & INSN [ conv_k = 2; globalset(inst_next, conv_k); ctop = re_ctx - 1; globalset(inst_next, ctop); ] {
+	build INSN;
+}
+:^INSN is rpt_ext=0 & conv_k=2 & INSN & CTOP & RSCTX [ conv_k = 3; globalset(inst_next, conv_k); globalset(inst_next, ctop); ] {
+	build INSN;
+	local d:4 = RE - RS;
+	if (d != -4) goto <notend>;
+	if (RC < 2) goto <last>;
+	RC = RC - 1;
+	goto CTOP;
+	<last>
+	RC = 0;
+	<notend>
+}
+:^INSN is rpt_ext=0 & conv_k=3 & INSN & CTOP & RSCTX [ conv_k = 4; globalset(inst_next, conv_k); globalset(inst_next, ctop); ] {
+	build INSN;
+	local d:4 = RE - RS;
+	if (d != -2) goto <notend>;
+	if (RC < 2) goto <last>;
+	RC = RC - 1;
+	goto CTOP;
+	<last>
+	RC = 0;
+	<notend>
+}
+:^INSN is rpt_ext=0 & conv_k=4 & INSN & CTOP & RSCTX {
+	build INSN;
+	local d:4 = RE - RS;
+	if (d == -2) goto <notend>;
+	if (d == -4) goto <notend>;
+	if (RC < 2) goto <last>;
+	RC = RC - 1;
+	if (d s> 0) goto RSCTX;
+	goto CTOP;
+	<last>
+	RC = 0;
+	<notend>
+}
+

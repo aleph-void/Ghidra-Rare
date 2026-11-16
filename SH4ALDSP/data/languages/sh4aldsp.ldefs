@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<language_definitions>
+  <language processor="SH4ALDSP"
+            endian="big"
+            size="32"
+            variant="default"
+            version="1.0"
+            slafile="sh4aldsp.sla"
+            processorspec="sh4aldsp.pspec"
+            id="SH4ALDSP:BE:32:default">
+    <description>Renesas SH4AL-DSP (SH-4A integer core without FPU, plus the SH-DSP unit), big endian</description>
+    <compiler name="default" spec="sh4aldsp.cspec" id="default"/>
+    <external_name tool="DWARF.register.mapping.file" name="sh4aldsp.dwarf"/>
+  </language>
+  <language processor="SH4ALDSP"
+            endian="little"
+            size="32"
+            variant="default"
+            version="1.0"
+            slafile="sh4aldsp_le.sla"
+            processorspec="sh4aldsp.pspec"
+            id="SH4ALDSP:LE:32:default">
+    <description>Renesas SH4AL-DSP (SH-4A integer core without FPU, plus the SH-DSP unit), little endian</description>
+    <compiler name="default" spec="sh4aldsp.cspec" id="default"/>
+    <external_name tool="DWARF.register.mapping.file" name="sh4aldsp.dwarf"/>
+  </language>
+</language_definitions>

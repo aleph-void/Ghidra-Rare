@@ -1,6 +1,6 @@
 # Status: what works and what doesn't
 
-Last updated 2026-11-05. This is the running ledger for the project. Each module's README has the
+Last updated 2026-11-16. This is the running ledger for the project. Each module's README has the
 details and the exact test commands; this page tracks the state across modules and the lessons learned.
 
 The upstream IDA repositories contain no source code in the repository itself (README, license and
@@ -188,6 +188,18 @@ Telink's assembler encodes `tserv n` as 0xDFnn, which its own objdump decodes as
 | Semantics | Control flow only: conditional and register branches, calls, returns through `lr`, compare-and-branch. `cr_zero` reads as 0 |
 | Doesn't work | Delay slots not modelled (branches sit in delay slots). The decompiler process dies on some branch-only loops that jump back before a function entry |
 | Unverified | Data-path, memory, X-unit and micro-op execution semantics (no p-code); other Toaster generations |
+
+### Renesas SH4AL-DSP: done
+
+| Area | State |
+|---|---|
+| Decode | Clean-room from the SH4AL-DSP Software Manual (the integer SH-3 core adapted from the MIT ghidra-sh fork). vs objdump 2.45 `-m sh4al-dsp`, both byte orders: all 65,536 16-bit words (18,256 exact, 40,897 semantic, 751 explained), every B field under 8 A fields (524,288: 111,168 exact, 8,192 semantic, 128,960 explained), every A field under 10 B fields (10,240: 6,727 exact, 2,489 explained) and 50,000 random words (14,005 exact, 29,713 semantic, 1,594 explained): 0 unexplained. Explained = reserved register codes and fixed fields objdump accepts, three confirmed objdump bugs, nested delay slots. 374/374 constructors reached |
+| Semantics | Full p-code incl. MOVLI/MOVCO, modulo and index addressing, 40-bit guard bits, saturation, DC/CS, T-bit link, flag accumulation, PMULS, repeat loops (LDRC and SETRC). 53 hand-computed emulator cases per byte order (manual worked examples where they exist); broken expectation detected |
+| Real code | zlib and Lua built with gcc -m4al (BE/LE, with hand-written DSP routines): 274,700 instructions identical to objdump, 2,675 functions decompile, 0 failures. Four third-party fx-CG add-ins (MIT/Unlicense, pinned): 72,674 instructions identical to objdump, 435 functions decompile, 0 failures |
+| Doesn't work | SLEEP/LDTLB pcodeops; PWAD/PWSB decoded with pcodeop results (no manual describes them); caches, privilege, exceptions, interrupts, MMU not modelled; SR.RF not set by SETRC/LDRC (undocumented values); X/Y accesses use the full pointer; repeat loops only from LDRS/LDRE/LDRC/SETRC in the flow; no .g3a loader (raw import at 0x300000) |
+| Unverified | No hardware or DSP simulator: DSP semantics rest on the manual (six manual errata found and listed, several code/prose disagreements decided in the README); encodings objdump accepts but the manual reserves; Ghidra 12.1.3/12.2 builds not run locally |
+
+objdump prints PSHA/PSHL negative counts unsigned (`#123` for `#-5`), does not sign-extend the LDRS/LDRE displacement (gas also rejects backward targets), and prints `pcmp` for reserved A-field bits.
 
 ## Planned: clean-room modules for CPUs IDA Pro supports and Ghidra doesn't
 

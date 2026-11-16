@@ -1,0 +1,2 @@
+@define ENDIAN "big"
+@include "sh4aldsp.sinc"
