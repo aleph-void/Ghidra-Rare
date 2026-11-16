@@ -1,0 +1,10 @@
+<dwarf>
+	<register_mappings>
+		<register_mapping dwarf="0" ghidra="R0" auto_count="15"/> <!-- R0..R14 -->
+		<register_mapping dwarf="15" ghidra="R15" stackpointer="true"/>
+		<register_mapping dwarf="17" ghidra="PR"/>
+		<register_mapping dwarf="20" ghidra="MACH"/>
+		<register_mapping dwarf="21" ghidra="MACL"/>
+	</register_mappings>
+	<call_frame_cfa value="0"/>
+</dwarf>

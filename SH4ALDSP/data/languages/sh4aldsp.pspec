@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<processor_spec>
+  <programcounter register="PC"/>
+  <register_data>
+    <register name="NOG" hidden="true"/>
+    <register name="LDST" hidden="true"/>
+    <register name="A0E" group="DSP"/>
+    <register name="A1E" group="DSP"/>
+  </register_data>
+</processor_spec>
